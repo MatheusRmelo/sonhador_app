@@ -24,14 +24,14 @@ import {
     ListFilter,
     ListFilterText,
     ListFilterScroll,
-    ListFilterNormal,
     ChooseItemFilter,
-    ChooseItemFilterText
+    ChooseItemFilterText,
+    CloseModalButton
 } from './styles';
 import { Modal } from 'react-native';
 
 import { colors } from '../../commonStyles';
-import { categories } from '../../categories';
+import { categoriesList, typesList } from '../../categories';
 import FilterIcon from '../../assets/icons/filter.svg';
 import DirectIcon from '../../assets/icons/direct.svg';
 import RightArrowIcon from '../../assets/icons/right-arrow.svg';
@@ -63,6 +63,19 @@ export default () => {
      `
      , pages: '02', pageCurrent:'01', likes: 137, share:25, comments: 45});
     const [modalVisible, setModalVisible] = useState(false);
+    const [ categories, setCategories] = useState(categoriesList);
+    const [ types, setTypes] = useState(typesList);
+
+    const handleActiveCategory = (key) => {
+        let newList = [...categories];
+        newList[key].active = !newList[key].active;
+        setCategories(newList);
+    }
+    const handleActiveTypes= (key) => {
+        let newList = [...types];
+        newList[key].active = !newList[key].active;
+        setTypes(newList);
+    }
 
     return( 
         <Container>
@@ -114,31 +127,38 @@ export default () => {
             <NextPage>
                 <UpArrowIcon  width="32" height="32" fill="#E3E1E1" />
             </NextPage>
-            <Modal visible={modalVisible} transparent>
-                <ModalArea>
-                    <ModalContainer>
-                        <ListFilter>
-                            <ListFilterText>CATEGORIA</ListFilterText>
-                            <ListFilterScroll showsHorizontalScrollIndicator={false} horizontal>
-                                {categories.map((item, key)=>(
-                                    <ChooseItemFilter key={key} choose={choose} type="follow" underlayColor="transparent" onPress={()=>setChoose('follow')}> 
-                                        <ChooseItemFilterText choose={choose} type="general">{item.name}</ChooseItemFilterText>
-                                    </ChooseItemFilter>
-                                ))}
-                            </ListFilterScroll>
-                        </ListFilter>
-                        <ListFilter>
-                            <ListFilterText>TIPO</ListFilterText>
-                            <ListFilterNormal>
-                                <ChooseItemFilter choose={choose} type="follow" underlayColor="transparent" onPress={()=>setChoose('follow')}> 
-                                    <ChooseItemFilterText choose={choose} type="general">POEMA</ChooseItemFilterText>
+            <Modal visible={modalVisible} transparent animationType="fade">
+                <ModalContainer>
+                    <ListFilter>
+                        <ListFilterText>CATEGORIA</ListFilterText>
+                        <ListFilterScroll showsHorizontalScrollIndicator={false} horizontal>
+
+                            {
+                            categories.map((item, key)=>(
+                                <ChooseItemFilter key={key} active={item.active} underlayColor="transparent" onPress={()=>handleActiveCategory(key)}> 
+                                    <ChooseItemFilterText active={item.active} >{item.name}</ChooseItemFilterText>
                                 </ChooseItemFilter>
-                                <ChooseItemFilter choose={choose} type="follow" underlayColor="transparent" onPress={()=>setChoose('follow')}> 
-                                    <ChooseItemFilterText choose={choose} type="general">CORDEL</ChooseItemFilterText>
+                            ))}
+                        </ListFilterScroll>
+                    </ListFilter>
+                    <ListFilter>
+                        <ListFilterText>TIPO</ListFilterText>
+                        <ListFilterScroll showsHorizontalScrollIndicator={false} horizontal>
+                            {
+                            typesList.map((item, key)=>(
+                                <ChooseItemFilter key={key} active={item.active} underlayColor="transparent" onPress={()=>handleActiveTypes(key)}> 
+                                    <ChooseItemFilterText active={item.active} >{item.name}</ChooseItemFilterText>
                                 </ChooseItemFilter>
-                            </ListFilterNormal>
-                        </ListFilter>
-                    </ModalContainer>
+                            ))}
+                        </ListFilterScroll>
+                    </ListFilter>
+
+                    <CloseModalButton onPress={()=>setModalVisible(false)}>
+                        <UpArrowIcon width="32" height="32" fill="white" />
+                    </CloseModalButton>
+                </ModalContainer>
+                <ModalArea onPress={()=>setModalVisible(false)} underlayColor="rgba(0,0,0,0.5)"> 
+                    <></>         
                 </ModalArea>
             </Modal>
         </Container>
