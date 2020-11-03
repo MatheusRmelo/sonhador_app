@@ -104,3 +104,47 @@ export const NextPage = styled.TouchableOpacity`
     justify-content: center;
     align-items:center;
 `;
+
+export const ModalArea = styled.View`
+    flex:1;
+    background-color: rgba(0,0,0,0.5);
+`;
+export const ModalContainer = styled.View`
+    width:100%;
+    height:50%;
+    background-color: ${colors.primary};
+    padding-top:32px;
+`;
+export const ListFilter = styled.View`
+    margin-left:32px;
+    width:100%;
+    height:35%;
+`;
+export const ListFilterText = styled.Text`
+    color:white;
+    font-size:12px;
+    margin-bottom: 16px;
+`;
+export const ListFilterScroll = styled.ScrollView`
+   width:100%;
+   height: 50px;
+`;
+export const ListFilterNormal = styled.View`
+    width:100%;
+    height: 50px;
+    flex-direction: row;
+`;
+export const ChooseItemFilter = styled.TouchableHighlight`
+    background-color: ${props=>props.choose===props.type ?colors.secondary:colors.light_1};
+    border-radius:8px;
+    height: 32px;
+    justify-content: center;
+    align-items: center;
+    width:40%;
+    margin-right: 16px;
+`;
+export const ChooseItemFilterText = styled.Text`
+    color: ${props=>props.choose===props.type ?'white':colors.light};
+    font-size:12px;
+    text-transform: uppercase;
+`;

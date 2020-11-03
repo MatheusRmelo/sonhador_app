@@ -18,10 +18,20 @@ import {
     OptionNumberItem,
     OptionFollowItem,
     OptionFollowItemText,
-    NextPage
+    NextPage,
+    ModalArea,
+    ModalContainer,
+    ListFilter,
+    ListFilterText,
+    ListFilterScroll,
+    ListFilterNormal,
+    ChooseItemFilter,
+    ChooseItemFilterText
 } from './styles';
-import { colors } from '../../commonStyles';
+import { Modal } from 'react-native';
 
+import { colors } from '../../commonStyles';
+import { categories } from '../../categories';
 import FilterIcon from '../../assets/icons/filter.svg';
 import DirectIcon from '../../assets/icons/direct.svg';
 import RightArrowIcon from '../../assets/icons/right-arrow.svg';
@@ -52,11 +62,12 @@ export default () => {
      Um simples jovem sonhador
      `
      , pages: '02', pageCurrent:'01', likes: 137, share:25, comments: 45});
+    const [modalVisible, setModalVisible] = useState(false);
 
     return( 
         <Container>
             <Header>
-                <FilterButton>
+                <FilterButton onPress={()=>setModalVisible(true)}>
                     <FilterIcon width="32" height="32" fill="white" />
                 </FilterButton>
                 <Logo>SONHADOR</Logo>
@@ -103,6 +114,33 @@ export default () => {
             <NextPage>
                 <UpArrowIcon  width="32" height="32" fill="#E3E1E1" />
             </NextPage>
+            <Modal visible={modalVisible} transparent>
+                <ModalArea>
+                    <ModalContainer>
+                        <ListFilter>
+                            <ListFilterText>CATEGORIA</ListFilterText>
+                            <ListFilterScroll showsHorizontalScrollIndicator={false} horizontal>
+                                {categories.map((item, key)=>(
+                                    <ChooseItemFilter key={key} choose={choose} type="follow" underlayColor="transparent" onPress={()=>setChoose('follow')}> 
+                                        <ChooseItemFilterText choose={choose} type="general">{item.name}</ChooseItemFilterText>
+                                    </ChooseItemFilter>
+                                ))}
+                            </ListFilterScroll>
+                        </ListFilter>
+                        <ListFilter>
+                            <ListFilterText>TIPO</ListFilterText>
+                            <ListFilterNormal>
+                                <ChooseItemFilter choose={choose} type="follow" underlayColor="transparent" onPress={()=>setChoose('follow')}> 
+                                    <ChooseItemFilterText choose={choose} type="general">POEMA</ChooseItemFilterText>
+                                </ChooseItemFilter>
+                                <ChooseItemFilter choose={choose} type="follow" underlayColor="transparent" onPress={()=>setChoose('follow')}> 
+                                    <ChooseItemFilterText choose={choose} type="general">CORDEL</ChooseItemFilterText>
+                                </ChooseItemFilter>
+                            </ListFilterNormal>
+                        </ListFilter>
+                    </ModalContainer>
+                </ModalArea>
+            </Modal>
         </Container>
     );
 }
