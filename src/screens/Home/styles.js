@@ -58,14 +58,15 @@ export const PoemPages = styled.Text`
 export const PoemBody = styled.Text`
     font-size: 12px;
     line-height:18px;
-    text-align: center;
 `;
 
-export const OptionsPageRight = styled.View`
+export const OptionsPage = styled.View`
     position:absolute;
     top:35%;
-    right:0;
+    right: ${props=>props.position === 'right'? 0:'auto'};
+    left: ${props=>props.position === 'left'? 0:'auto'};
 `;
+
 export const OptionItemFollow = styled.TouchableOpacity`
     margin: 12px 16px;
     width:40px;
@@ -105,7 +106,7 @@ export const NextPage = styled.TouchableOpacity`
     align-items:center;
 `;
 
-export const ModalArea = styled.View`
+export const ModalArea = styled.TouchableHighlight`
     width:100%;
     height:50%;
     background-color: rgba(0,0,0,0.5);
@@ -149,3 +150,31 @@ export const CloseModalButton = styled.TouchableOpacity`
     align-items: center;
     justify-content: center;
 `;
+export const Credits = styled.View`
+    height:50%;
+`;
+export const CreditSocial = styled.View`
+    margin-bottom:8px;
+    flex-direction:row;
+    justify-content: space-between;
+`;
+export const CreditSocialText = styled.Text`
+    font-size:12px;
+`;
+export const ButtonFollow = styled.TouchableOpacity`
+    margin-top:8px;
+    background-color:${colors.secondary};
+    border-radius:8px;
+    height: 40px;
+    justify-content: center;
+    align-items: center;
+    width:150px;
+`;
+export const ButtonFollowText = styled.Text`
+    color:white;
+    font-size:12px;
+    text-transform: uppercase;
+    font-family: 'Fredoka One';
+`;
+
+
