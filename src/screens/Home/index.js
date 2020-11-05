@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Container,
     Header,
@@ -35,6 +35,8 @@ import {
 } from './styles';
 import { Modal } from 'react-native';
 
+import Swiper from 'react-native-swiper';
+
 import { colors } from '../../commonStyles';
 import { categoriesList, typesList } from '../../categories';
 
@@ -51,28 +53,13 @@ import LeftArrowIcon from '../../assets/icons/left-arrow.svg';
 import InstagramIcon from '../../assets/icons/instagram.svg';
 import TwitterIcon from '../../assets/icons/twitter.svg';
 
+import { PoemApi } from '../../PoemApi';
+import { set } from 'react-native-reanimated';
 
 export default () => {
     const [choose, setChoose] = useState('follow');
-    const [poem, setPoem] = useState({title: 'Jovem sonhador', 
-    body: 
-    `
-     Como posso não sonhar?
-     Se tudo isso é o que restou
-     Se isso é tudo oque sou
-     Um simples jovem sonhador
-     
-     Como posso não sonhar?
-     Se tudo isso é o que restou
-     Se isso é tudo oque sou
-     Um simples jovem sonhador
-
-     Como posso não sonhar?
-     Se tudo isso é o que restou
-     Se isso é tudo oque sou
-     Um simples jovem sonhador
-     `
-     , pages:1, pageCurrent:1,creditPage:{autor:'@matheusr.melo',instagram:'@matheusr.melo',twitter: 'Indisponível'}, likes: 137, share:25, comments: 45});
+    const [poemList, setPoemList] = useState(PoemApi);
+    const [currentPoem, setCurrentPoem] = useState(0);
     const [modalVisible, setModalVisible] = useState(false);
     const [showCredits, setShowCredits] = useState(false);
     const [liked, setLiked]= useState(false);
@@ -93,39 +80,51 @@ export default () => {
 
     const handleNextPage = ()=>{
         //setShowCredits(false);
-        let pageNext = {...poem};
-        if(poem.pages>1){
-           pageNext.pageCurrent++
-           setPoem(pageNext);
-        }else{
-            if(!showCredits){
-                pageNext.pageCurrent++
-                setPoem(pageNext);
-                setShowCredits(true);
-            }
-        }
+        // let pageNext = {...poem};
+        // if(poem.pages>1){
+        //    pageNext.pageCurrent++
+        //    setPoem(pageNext);
+        // }else{
+        //     if(!showCredits){
+        //         pageNext.pageCurrent++
+        //         setPoem(pageNext);
+        //         setShowCredits(true);
+        //     }
+        // }
     }
     const handlePrevPage = ()=>{
-        if(showCredits || poem.pageCurrent>1){
-           let pageNext = {...poem};
-           pageNext.pageCurrent--
-           setPoem(pageNext);
-           setShowCredits(false);
-        }
+        // if(showCredits || poem.pageCurrent>1){
+        //    let pageNext = {...poem};
+        //    pageNext.pageCurrent--
+        //    setPoem(pageNext);
+        //    setShowCredits(false);
+        // }
     }
     const handleLikePoem = () => {
-        let likePoem = {...poem};
-        if(liked){
-            likePoem.likes--
-            setLiked(false);
-        }else{
-            likePoem.likes++
-            setLiked(true);
-        }
-        setPoem(likePoem);
+        // let likePoem = {...poem};
+        // if(liked){
+        //     likePoem.likes--
+        //     setLiked(false);
+        // }else{
+        //     likePoem.likes++
+        //     setLiked(true);
+        // }
+        // setPoem(likePoem);
     }
     const handleFollow = () =>{
         setFollowed(prevState=> !prevState);
+    }
+    useEffect(()=>{
+        console.log('x');
+    }, [poemList]);
+
+    const handleNextPoem = (i) => {
+        let next = i+1;
+        if(!poemList[next]){
+            console.log("Pegar nova lista");
+        }else{
+            setCurrentPoem(next);
+        }        
     }
 
     return( 
@@ -147,33 +146,41 @@ export default () => {
                     <ChooseItemText choose={choose} type="general">GERAL</ChooseItemText>
                 </ChooseItem>
             </TabChoose>
-            {
-                showCredits
-                ? 
-                <Poem>
-                    <PoemTitle>Créditos</PoemTitle>
-                    <Credits>
-                        <CreditSocial>
-                            <CreditSocialText>{poem.creditPage.instagram}</CreditSocialText>
-                            <InstagramIcon width="24" height="24" fill={colors.secondary} />
-                        </CreditSocial>
-                        <CreditSocial>
-                            <CreditSocialText>{poem.creditPage.twitter}</CreditSocialText>
-                            <TwitterIcon width="24" height="24" fill={colors.secondary} />
-                        </CreditSocial>
-                        <CreditSocial><CreditSocialText>{poem.creditPage.autor}</CreditSocialText></CreditSocial>
-                        <ButtonFollow onPress={handleFollow}>
-                            <ButtonFollowText>{followed? 'DEIXAR DE SEGUIR': 'SEGUIR'}</ButtonFollowText>
-                        </ButtonFollow>
-                    </Credits>
-                </Poem>
-                :
-                <Poem>
-                    <PoemPages>{poem.pageCurrent<10 ? `0${poem.pageCurrent}`: poem.pageCurrent}/{poem.pages< 10? `0${poem.pages}`: poem.pages}</PoemPages>
-                    <PoemTitle>{poem.title}</PoemTitle>
-                    <PoemBody>{poem.body}</PoemBody>
-                </Poem>
-            }
+            <Swiper horizontal={false} showsButtons={false} showsPagination={false} onMomentumScrollEnd={(e,state)=>handleNextPoem(state.index)}> 
+                
+                   {
+                       poemList.map((poem, index)=>(
+                        
+                            showCredits
+                            ? 
+                            <Poem key={index}>
+                                <PoemTitle>Créditos</PoemTitle>
+                                <Credits>
+                                    <CreditSocial>
+                                        <CreditSocialText>{poem.creditPage.instagram}</CreditSocialText>
+                                        <InstagramIcon width="24" height="24" fill={colors.secondary} />
+                                    </CreditSocial>
+                                    <CreditSocial>
+                                        <CreditSocialText>{poem.creditPage.twitter}</CreditSocialText>
+                                        <TwitterIcon width="24" height="24" fill={colors.secondary} />
+                                    </CreditSocial>
+                                    <CreditSocial><CreditSocialText>{poem.creditPage.autor}</CreditSocialText></CreditSocial>
+                                    <ButtonFollow onPress={handleFollow}>
+                                        <ButtonFollowText>{followed? 'DEIXAR DE SEGUIR': 'SEGUIR'}</ButtonFollowText>
+                                    </ButtonFollow>
+                                </Credits>
+                            </Poem>
+                            :
+                            <Poem key={index}>
+                                <PoemPages>{poem.pageCurrent<10 ? `0${poem.pageCurrent}`: poem.pageCurrent}/{poem.pages< 10? `0${poem.pages}`: poem.pages}</PoemPages>
+                                <PoemTitle>{poem.title}</PoemTitle>
+                                <PoemBody>{poem.body}</PoemBody>
+                            </Poem>
+                       )
+                       )
+                   }
+            </Swiper>
+           
             <OptionsPage position="left">
                 <OptionItem onPress={handlePrevPage}>
                     <LeftArrowIcon width="32" height="32" fill={colors.secondary} />
@@ -201,15 +208,15 @@ export default () => {
                         :
                         <HeartIcon width="32" height="32" fill={colors.secondary} />
                     }
-                    <OptionNumberItem>{poem.likes}</OptionNumberItem>
+                    <OptionNumberItem>{poemList[currentPoem].likes}</OptionNumberItem>
                 </OptionItem>
                 <OptionItem>
                     <MessengerIcon width="32" height="32" fill={colors.secondary} />
-                    <OptionNumberItem>{poem.comments}</OptionNumberItem>
+                    <OptionNumberItem>{poemList[currentPoem].comments}</OptionNumberItem>
                 </OptionItem>
                 <OptionItem>
                     <ShareIcon width="32" height="32" fill={colors.secondary} />
-                    <OptionNumberItem>{poem.share}</OptionNumberItem>
+                    <OptionNumberItem>{poemList[currentPoem].share}</OptionNumberItem>
                 </OptionItem>
             </OptionsPage>
             <NextPage>
