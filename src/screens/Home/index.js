@@ -53,12 +53,12 @@ import LeftArrowIcon from '../../assets/icons/left-arrow.svg';
 import InstagramIcon from '../../assets/icons/instagram.svg';
 import TwitterIcon from '../../assets/icons/twitter.svg';
 
-import { PoemApi } from '../../PoemApi';
-import { set } from 'react-native-reanimated';
+import { PoemApi, authorsApi } from '../../PoemApi';
 
 export default () => {
     const [choose, setChoose] = useState('follow');
     const [poemList, setPoemList] = useState(PoemApi);
+    const [authorsList, setAuthorsList] = useState(authorsApi);
     const [currentPoem, setCurrentPoem] = useState(0);
     const [modalVisible, setModalVisible] = useState(false);
     const [showCredits, setShowCredits] = useState(false);
@@ -66,6 +66,15 @@ export default () => {
     const [followed, setFollowed] = useState(false); 
     const [categories, setCategories] = useState(categoriesList);
     const [types, setTypes] = useState(typesList);
+
+    useEffect(()=>{
+        authorsApi.filter((i,k)=>{
+            if(i.name === poemList[currentPoem].creditPage.author){
+                setFollowed(i.follow);
+            }
+        });
+        
+    }, [currentPoem]);
 
     const handleActiveCategory = (key) => {
         let newList = [...categories];
@@ -79,52 +88,60 @@ export default () => {
     }
 
     const handleNextPage = ()=>{
-        //setShowCredits(false);
-        // let pageNext = {...poem};
-        // if(poem.pages>1){
-        //    pageNext.pageCurrent++
-        //    setPoem(pageNext);
-        // }else{
-        //     if(!showCredits){
-        //         pageNext.pageCurrent++
-        //         setPoem(pageNext);
-        //         setShowCredits(true);
-        //     }
-        // }
+        setShowCredits(false);
+        //let pageNext = {...poemList[currentPoem]};
+        let newList = [...poemList];
+        if(poemList[currentPoem].pages>1){
+           newList[currentPoem].pageCurrent++
+           setPoemList(newList);
+        }else{
+            if(!showCredits){
+                newList[currentPoem].pageCurrent++
+                setPoemList(newList);
+                setShowCredits(true);
+            }
+        }
     }
     const handlePrevPage = ()=>{
-        // if(showCredits || poem.pageCurrent>1){
-        //    let pageNext = {...poem};
-        //    pageNext.pageCurrent--
-        //    setPoem(pageNext);
-        //    setShowCredits(false);
-        // }
+        let newList = [...poemList];
+        if(showCredits || poemList[currentPoem].pageCurrent>1){
+           newList[currentPoem].pageCurrent--
+           setPoemList(newList);
+           setShowCredits(false);
+        }
     }
     const handleLikePoem = () => {
-        // let likePoem = {...poem};
-        // if(liked){
-        //     likePoem.likes--
-        //     setLiked(false);
-        // }else{
-        //     likePoem.likes++
-        //     setLiked(true);
-        // }
-        // setPoem(likePoem);
+        let newList = [...poemList];
+        if(newList[currentPoem].liked){
+            newList[currentPoem].likes--
+            newList[currentPoem].liked = false;
+        }else{
+            newList[currentPoem].likes++
+            newList[currentPoem].liked = true;
+        }
+        setPoemList(newList);
     }
     const handleFollow = () =>{
+        let newList = [...authorsApi];
+        //console.log(newList);
+        newList.filter((i, k)=>{
+            if(i.name === poemList[currentPoem].creditPage.author){
+                newList[k].follow = !i.follow;
+            }
+        });
         setFollowed(prevState=> !prevState);
+        setAuthorsList(newList);
     }
-    useEffect(()=>{
-        console.log('x');
-    }, [poemList]);
 
     const handleNextPoem = (i) => {
-        let next = i+1;
-        if(!poemList[next]){
-            console.log("Pegar nova lista");
-        }else{
-            setCurrentPoem(next);
-        }        
+        setTimeout(()=>{
+            if(i + 1 === poemList.length){
+                setCurrentPoem(i);
+                console.log("Pegar nova lista");
+            }else{
+                setCurrentPoem(i);
+            }      
+        }, 1);
     }
 
     return( 
@@ -146,7 +163,7 @@ export default () => {
                     <ChooseItemText choose={choose} type="general">GERAL</ChooseItemText>
                 </ChooseItem>
             </TabChoose>
-            <Swiper horizontal={false} showsButtons={false} showsPagination={false} onMomentumScrollEnd={(e,state)=>handleNextPoem(state.index)}> 
+            <Swiper horizontal={false} showsButtons={false} showsPagination={false} onIndexChanged={handleNextPoem} > 
                 
                    {
                        poemList.map((poem, index)=>(
@@ -164,9 +181,9 @@ export default () => {
                                         <CreditSocialText>{poem.creditPage.twitter}</CreditSocialText>
                                         <TwitterIcon width="24" height="24" fill={colors.secondary} />
                                     </CreditSocial>
-                                    <CreditSocial><CreditSocialText>{poem.creditPage.autor}</CreditSocialText></CreditSocial>
+                                    <CreditSocial><CreditSocialText>{poem.creditPage.author}</CreditSocialText></CreditSocial>
                                     <ButtonFollow onPress={handleFollow}>
-                                        <ButtonFollowText>{followed? 'DEIXAR DE SEGUIR': 'SEGUIR'}</ButtonFollowText>
+                                        <ButtonFollowText>{followed ? 'DEIXAR DE SEGUIR': 'SEGUIR'}</ButtonFollowText>
                                     </ButtonFollow>
                                 </Credits>
                             </Poem>
@@ -193,7 +210,7 @@ export default () => {
                 <OptionItemFollow>
                     <ProfileIcon width="24" height="24" fill="white" />
                     {
-                        !followed
+                        !followed 
                         &&
                         <OptionFollowItem onPress={handleFollow}>
                             <OptionFollowItemText>+</OptionFollowItemText>
@@ -202,7 +219,7 @@ export default () => {
                 </OptionItemFollow>
                 <OptionItem onPress={handleLikePoem}>
                     {
-                        liked
+                        poemList[currentPoem].liked
                         ?
                         <LikeIcon width="32" height="32" fill={colors.secondary} />
                         :
