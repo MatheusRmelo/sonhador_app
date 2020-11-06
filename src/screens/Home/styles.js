@@ -108,14 +108,47 @@ export const NextPage = styled.TouchableOpacity`
 
 export const ModalArea = styled.TouchableHighlight`
     width:100%;
-    height:50%;
+    height:${props=>props.height?props.height : '50%'};
     background-color: rgba(0,0,0,0.5);
 `;
 export const ModalContainer = styled.View`
     width:100%;
-    height:50%;
-    background-color: ${colors.primary};
+    height:${props=>props.height?props.height : '50%'};
+    background-color: ${props=>props.bgColor ? props.bgColor : colors.primary};
     padding-top:32px;
+`;
+export const ModalComments = styled.View`
+    width:100%;
+    height:70%;
+    background-color: white;
+    padding-top:32px;
+`;
+export const CloseModalButton = styled.TouchableOpacity`
+    margin-top: ${props=>props.marginTop ? props.marginTop : '32px'};
+    width:100%;
+    align-items: center;
+    justify-content: center;
+`;
+export const ListComments = styled.View`
+    flex:1;
+    padding:16px;
+`;
+export const CommentItem = styled.View`
+    background-color: #ccc;
+    width:100%;
+    height:60px;
+    border-radius:16px;
+    margin:16px 0px;
+    padding:8px;
+`;
+export const CommentAuthor = styled.Text`
+    font-size:18px;
+    font-weight:bold;
+    color:black;
+`;
+export const Comment = styled.Text`
+    font-size:12px;
+    color:black;
 `;
 export const ListFilter = styled.View`
     margin-left:32px;
@@ -144,12 +177,7 @@ export const ChooseItemFilterText = styled.Text`
     font-size:12px;
     text-transform: uppercase;
 `;
-export const CloseModalButton = styled.TouchableOpacity`
-    margin-top: 32px;
-    width:100%;
-    align-items: center;
-    justify-content: center;
-`;
+
 export const Credits = styled.View`
     height:50%;
 `;
@@ -175,6 +203,26 @@ export const ButtonFollowText = styled.Text`
     font-size:12px;
     text-transform: uppercase;
     font-family: 'Fredoka One';
+`;
+
+export const InputArea = styled.View`
+    position:absolute;
+    bottom:0px;
+    flex-direction:row;
+    background-color:#DDD;
+    border-width:1px;
+    border-color: ${colors.primary};
+    padding:8px;
+    border-radius:8px;
+    border-bottom-left-radius:0px;
+    border-bottom-right-radius:0px;
+    justify-content:center;
+    align-items:center;
+    width:100%;
+    height:56px;
+`;
+export const InputComment = styled.TextInput`
+    flex:1;
 `;
 
 

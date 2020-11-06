@@ -21,7 +21,8 @@ export const PoemApi = [
         , 
         pages:1, pageCurrent:1,
         creditPage:{author:'@matheusr.melo',instagram:'@matheusr.melo',twitter: 'Indisponível'},
-        likes: 137, share:25, comments: 45,liked:false
+        likes: 137, share:25, comments: 45,liked:false,
+        commentsList: []
     },
     {
         title: 'Jovem LEGAL', 
@@ -45,7 +46,11 @@ export const PoemApi = [
         , 
         pages:1, pageCurrent:1,
         creditPage:{author:'@r.melo',instagram:'@w.melo',twitter: 'Indisponível'},
-        likes: 456, share:25, comments: 45,liked:false
+        likes: 456, share:25, comments: 45,liked:false,
+        commentsList: [
+            {author: '@23.melo', comment: 'Muito legal!'},
+            {author: '@matheusr.melo', comment: 'LEGAL!'}
+        ]
     },
     {
         title: 'Jovem LEGAL', 
@@ -69,7 +74,10 @@ export const PoemApi = [
         , 
         pages:1, pageCurrent:1,
         creditPage:{author:'@23.melo',instagram:'@1.melo',twitter: 'Indisponível'},
-        likes: 333, share:25, comments: 45,liked:true
+        likes: 333, share:25, comments: 45,liked:true,
+        commentsList: [
+            {author: '@23.melo', comment: 'Muito legal!'},
+        ]
     },
     {
         title: 'Jovem Y', 
@@ -93,7 +101,10 @@ export const PoemApi = [
         , 
         pages:1, pageCurrent:1,
         creditPage:{author:'@42.melo',instagram:'@52.melo',twitter: 'Indisponível'},
-        likes: 333, share:25, comments: 45,liked:true
+        likes: 333, share:25, comments: 45,liked:true,
+        commentsList: [
+            {author: '@23.melo', comment: 'Muito legal!'},
+        ]
     },
     {
         title: 'Jovem X', 
@@ -117,7 +128,11 @@ export const PoemApi = [
         , 
         pages:1, pageCurrent:1,
         creditPage:{author:'@qwe.melo',instagram:'@sa.melo',twitter: 'Indisponível'},
-        likes: 333, share:25, comments: 45,liked:true
+        likes: 333, share:25, comments: 45,liked:true,
+        commentsList: [
+            {author: '@23.melo', comment: 'Muito legal!'},
+            {author: '@matheusr.melo', comment: 'LEGAL!'}
+        ]
     },
 ]
 export const authorsApi = [

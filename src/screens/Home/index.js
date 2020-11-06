@@ -21,6 +21,10 @@ import {
     NextPage,
     ModalArea,
     ModalContainer,
+    ListComments,
+    CommentItem,
+    CommentAuthor,
+    Comment,
     ListFilter,
     ListFilterText,
     ListFilterScroll,
@@ -31,7 +35,9 @@ import {
     CreditSocial,
     CreditSocialText,
     ButtonFollow,
-    ButtonFollowText
+    ButtonFollowText,
+    InputArea,
+    InputComment
 } from './styles';
 import { Modal } from 'react-native';
 
@@ -49,6 +55,7 @@ import LikeIcon from '../../assets/icons/like.svg';
 import MessengerIcon from '../../assets/icons/messenger.svg';
 import ShareIcon from '../../assets/icons/share.svg';
 import UpArrowIcon from '../../assets/icons/up-arrow.svg';
+import DownArrowIcon from '../../assets/icons/down-arrow.svg';
 import LeftArrowIcon from '../../assets/icons/left-arrow.svg';
 import InstagramIcon from '../../assets/icons/instagram.svg';
 import TwitterIcon from '../../assets/icons/twitter.svg';
@@ -61,6 +68,7 @@ export default () => {
     const [authorsList, setAuthorsList] = useState(authorsApi);
     const [currentPoem, setCurrentPoem] = useState(0);
     const [modalVisible, setModalVisible] = useState(false);
+    const [showComments, setShowComments] = useState(false);
     const [showCredits, setShowCredits] = useState(false);
     const [liked, setLiked]= useState(false);
     const [followed, setFollowed] = useState(false); 
@@ -88,10 +96,10 @@ export default () => {
     }
 
     const handleNextPage = ()=>{
-        setShowCredits(false);
+        //setShowCredits(false);
         //let pageNext = {...poemList[currentPoem]};
         let newList = [...poemList];
-        if(poemList[currentPoem].pages>1){
+        if(poemList[currentPoem].pages>poemList[currentPoem].pageCurrent){
            newList[currentPoem].pageCurrent++
            setPoemList(newList);
         }else{
@@ -135,6 +143,10 @@ export default () => {
 
     const handleNextPoem = (i) => {
         setTimeout(()=>{
+            setShowCredits(false);
+            let newList = [...poemList];
+            newList[currentPoem].pageCurrent = 1;
+            setPoemList(newList);
             if(i + 1 === poemList.length){
                 setCurrentPoem(i);
                 console.log("Pegar nova lista");
@@ -227,7 +239,7 @@ export default () => {
                     }
                     <OptionNumberItem>{poemList[currentPoem].likes}</OptionNumberItem>
                 </OptionItem>
-                <OptionItem>
+                <OptionItem onPress={()=>setShowComments(true)}>
                     <MessengerIcon width="32" height="32" fill={colors.secondary} />
                     <OptionNumberItem>{poemList[currentPoem].comments}</OptionNumberItem>
                 </OptionItem>
@@ -272,6 +284,39 @@ export default () => {
                 <ModalArea onPress={()=>setModalVisible(false)} underlayColor="rgba(0,0,0,0.5)"> 
                     <></>         
                 </ModalArea>
+            </Modal>
+            <Modal visible={showComments} transparent animationType="fade">
+                <ModalArea height="30%" onPress={()=>setShowComments(false)} underlayColor="rgba(0,0,0,0.5)"> 
+                    <></>         
+                </ModalArea>
+                <ModalContainer height="70%" bgColor="white">
+                    <CloseModalButton marginTop="0px" onPress={()=>setShowComments(false)}>
+                        <DownArrowIcon width="32" height="32" fill={colors.primary} />
+                    </CloseModalButton>       
+                    <ListComments>
+                        {
+                            poemList[currentPoem].commentsList.length > 0
+                            ?
+                            <ListFilterScroll showsVerticalScrollIndicator={false}>
+                                {poemList[currentPoem].commentsList.map((item, key)=>(
+                                    <CommentItem key={key}>
+                                        <CommentAuthor>{item.author}</CommentAuthor>
+                                        <Comment>{item.comment}</Comment>
+                                    </CommentItem>
+                                ))}
+                            </ListFilterScroll>
+                            :                     
+                            <OptionNumberItem>{poemList[currentPoem].share}</OptionNumberItem>
+
+                        }
+                    </ListComments>    
+                    <InputArea>
+                        <InputComment placeholder="Deixe sua opinião aqui" />
+                        <DirectButton>
+                            <DirectIcon width="24" height="24" fill="white" />
+                        </DirectButton>
+                    </InputArea>       
+                </ModalContainer>           
             </Modal>
         </Container>
     );
