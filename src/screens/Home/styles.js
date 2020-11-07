@@ -135,11 +135,12 @@ export const ListComments = styled.View`
 `;
 export const CommentItem = styled.View`
     background-color: #ccc;
-    width:100%;
-    height:60px;
+    flex:1;
     border-radius:16px;
     margin:8px 0px;
-    padding:8px;
+    padding:16px;
+    flex-direction:row;
+    justify-content:space-between;
 `;
 export const CommentAuthor = styled.Text`
     font-size:12px;
@@ -149,6 +150,13 @@ export const CommentAuthor = styled.Text`
 export const Comment = styled.Text`
     font-size:18px;
     color:black;
+`;
+export const CommentDelete = styled.TouchableOpacity`
+    align-items: center;
+    justify-content: center;
+`;
+export const CommentAreaText = styled.View`
+   
 `;
 export const ListFilter = styled.View`
     margin-left:32px;
@@ -206,8 +214,6 @@ export const ButtonFollowText = styled.Text`
 `;
 
 export const InputArea = styled.View`
-    position:absolute;
-    bottom:0px;
     flex-direction:row;
     background-color:#DDD;
     border-width:1px;
@@ -220,6 +226,7 @@ export const InputArea = styled.View`
     align-items:center;
     width:100%;
     height:56px;
+    margin-top:32px;
 `;
 export const InputComment = styled.TextInput`
     flex:1;

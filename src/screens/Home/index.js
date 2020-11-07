@@ -24,7 +24,9 @@ import {
     ListComments,
     CommentItem,
     CommentAuthor,
+    CommentAreaText,
     Comment,
+    CommentDelete,
     ListFilter,
     ListFilterText,
     ListFilterScroll,
@@ -59,6 +61,7 @@ import DownArrowIcon from '../../assets/icons/down-arrow.svg';
 import LeftArrowIcon from '../../assets/icons/left-arrow.svg';
 import InstagramIcon from '../../assets/icons/instagram.svg';
 import TwitterIcon from '../../assets/icons/twitter.svg';
+import TrashIcon from '../../assets/icons/trash.svg';
 
 import { PoemApi, authorsApi } from '../../PoemApi';
 
@@ -75,6 +78,7 @@ export default () => {
     const [categories, setCategories] = useState(categoriesList);
     const [types, setTypes] = useState(typesList);
     const [comment, setComment] = useState('');
+    const userLogged = '@matheusr.melo';
 
     useEffect(()=>{
         authorsApi.filter((i,k)=>{
@@ -156,14 +160,22 @@ export default () => {
         }, 1);
     }
     const handleComment = ()=>{
-        let newList = [...poemList];
-        newList[currentPoem].commentsList.push({author:'Usuário logado',comment});
-        newList[currentPoem].comments++;
-        setPoemList(newList);
-        setComment('');
-        Keyboard.dismiss();
+        if(comment){
+            let newList = [...poemList];
+            newList[currentPoem].commentsList.push({author:userLogged,comment});
+            newList[currentPoem].comments++;
+            setPoemList(newList);
+            setComment('');
+            Keyboard.dismiss();
+        }
+        
     }
-    
+    const handleDeleteComment = (key) => {
+        let newList = [...poemList];
+        newList[currentPoem].commentsList = newList[currentPoem].commentsList.filter((item, k)=>key!==k);
+        newList[currentPoem].comments--;
+        setPoemList(newList);
+    }
     const onShare = async () => {
         try {
             const result = await Share.share({
@@ -338,8 +350,20 @@ export default () => {
                             <ListFilterScroll showsVerticalScrollIndicator={false}>
                                 {poemList[currentPoem].commentsList.map((item, key)=>(
                                     <CommentItem key={key}>
-                                        <CommentAuthor>{item.author}</CommentAuthor>
-                                        <Comment>{item.comment}</Comment>
+                                        <CommentAreaText>
+                                            <CommentAuthor>{item.author}</CommentAuthor>
+                                            <Comment>{item.comment}</Comment>
+                                        </CommentAreaText>
+                                        {
+                                            item.author === userLogged 
+                                            ?
+                                            <CommentDelete onPress={()=>handleDeleteComment(key)}>
+                                                <TrashIcon width="32" height="32" fill={colors.primary} />
+                                            </CommentDelete> 
+                                            :
+                                            null
+                                        }
+                                         
                                     </CommentItem>
                                 ))}
                             </ListFilterScroll>
@@ -350,7 +374,7 @@ export default () => {
                     </ListComments>    
                     <InputArea>
                         <InputComment onSubmitEditing={handleComment} returnKeyType="send" value={comment} onChangeText={comment=>setComment(comment)} placeholder="Deixe sua opinião aqui" />
-                        <DirectButton onPress={handleComment}>
+                        <DirectButton disabled={!comment} onPress={handleComment}>
                             <DirectIcon width="24" height="24" fill={comment?'red':"white"} />
                         </DirectButton>
                     </InputArea>       
