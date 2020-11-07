@@ -138,16 +138,16 @@ export const CommentItem = styled.View`
     width:100%;
     height:60px;
     border-radius:16px;
-    margin:16px 0px;
+    margin:8px 0px;
     padding:8px;
 `;
 export const CommentAuthor = styled.Text`
-    font-size:18px;
+    font-size:12px;
     font-weight:bold;
     color:black;
 `;
 export const Comment = styled.Text`
-    font-size:12px;
+    font-size:18px;
     color:black;
 `;
 export const ListFilter = styled.View`

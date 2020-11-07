@@ -39,7 +39,7 @@ import {
     InputArea,
     InputComment
 } from './styles';
-import { Modal } from 'react-native';
+import { Modal, Keyboard, Share } from 'react-native';
 
 import Swiper from 'react-native-swiper';
 
@@ -74,6 +74,7 @@ export default () => {
     const [followed, setFollowed] = useState(false); 
     const [categories, setCategories] = useState(categoriesList);
     const [types, setTypes] = useState(typesList);
+    const [comment, setComment] = useState('');
 
     useEffect(()=>{
         authorsApi.filter((i,k)=>{
@@ -122,11 +123,10 @@ export default () => {
         let newList = [...poemList];
         if(newList[currentPoem].liked){
             newList[currentPoem].likes--
-            newList[currentPoem].liked = false;
         }else{
             newList[currentPoem].likes++
-            newList[currentPoem].liked = true;
         }
+        newList[currentPoem].liked = !newList[currentPoem].liked;
         setPoemList(newList);
     }
     const handleFollow = () =>{
@@ -154,6 +154,44 @@ export default () => {
                 setCurrentPoem(i);
             }      
         }, 1);
+    }
+    const handleComment = ()=>{
+        let newList = [...poemList];
+        newList[currentPoem].commentsList.push({author:'Usuário logado',comment});
+        newList[currentPoem].comments++;
+        setPoemList(newList);
+        setComment('');
+        Keyboard.dismiss();
+    }
+    
+    const onShare = async () => {
+        try {
+            const result = await Share.share({
+            message: `
+            
+            ${poemList[currentPoem].title}
+
+            ${poemList[currentPoem].body}
+
+
+            Autor:${poemList[currentPoem].creditPage.author}
+            Instagram: ${poemList[currentPoem].creditPage.instagram}
+            `,
+            });
+            if (result.action === Share.sharedAction) {
+            if (result.activityType) {
+                // shared with activity type of result.activityType
+            } else {
+                let newList = [...poemList];
+                newList[currentPoem].share++;
+                setPoemList(newList);
+            }
+            } else if (result.action === Share.dismissedAction) {
+            // dismissed
+            }
+        } catch (error) {
+            alert(error.message);
+        }
     }
 
     return( 
@@ -243,7 +281,7 @@ export default () => {
                     <MessengerIcon width="32" height="32" fill={colors.secondary} />
                     <OptionNumberItem>{poemList[currentPoem].comments}</OptionNumberItem>
                 </OptionItem>
-                <OptionItem>
+                <OptionItem onPress={onShare}>
                     <ShareIcon width="32" height="32" fill={colors.secondary} />
                     <OptionNumberItem>{poemList[currentPoem].share}</OptionNumberItem>
                 </OptionItem>
@@ -306,14 +344,14 @@ export default () => {
                                 ))}
                             </ListFilterScroll>
                             :                     
-                            <OptionNumberItem>{poemList[currentPoem].share}</OptionNumberItem>
+                            <OptionNumberItem>Seja o primeiro a elogiar e/ou aconselhar o nosso escritor</OptionNumberItem>
 
                         }
                     </ListComments>    
                     <InputArea>
-                        <InputComment placeholder="Deixe sua opinião aqui" />
-                        <DirectButton>
-                            <DirectIcon width="24" height="24" fill="white" />
+                        <InputComment onSubmitEditing={handleComment} returnKeyType="send" value={comment} onChangeText={comment=>setComment(comment)} placeholder="Deixe sua opinião aqui" />
+                        <DirectButton onPress={handleComment}>
+                            <DirectIcon width="24" height="24" fill={comment?'red':"white"} />
                         </DirectButton>
                     </InputArea>       
                 </ModalContainer>           
