@@ -22,7 +22,8 @@ export const PoemApi = [
         pages:1, pageCurrent:1,
         creditPage:{author:'@matheusr.melo',instagram:'@matheusr.melo',twitter: 'Indisponível'},
         likes: 137, share:25, comments: 45,liked:false,
-        commentsList: []
+        commentsList: [],
+        category: 'Geral'
     },
     {
         title: 'Jovem LEGAL', 
@@ -50,7 +51,8 @@ export const PoemApi = [
         commentsList: [
             {author: '@23.melo', comment: 'Muito legal!'},
             {author: '@matheusr.melo', comment: 'LEGAL!'}
-        ]
+        ],
+        category: 'Geral'
     },
     {
         title: 'Jovem LEGAL', 
@@ -77,7 +79,8 @@ export const PoemApi = [
         likes: 333, share:25, comments: 45,liked:true,
         commentsList: [
             {author: '@23.melo', comment: 'Muito legal!'},
-        ]
+        ],
+        category: 'Geral'
     },
     {
         title: 'Jovem Y', 
@@ -104,7 +107,8 @@ export const PoemApi = [
         likes: 333, share:25, comments: 45,liked:true,
         commentsList: [
             {author: '@23.melo', comment: 'Muito legal!'},
-        ]
+        ],
+        category: 'Geral'
     },
     {
         title: 'Jovem X', 
@@ -132,7 +136,8 @@ export const PoemApi = [
         commentsList: [
             {author: '@23.melo', comment: 'Muito legal!'},
             {author: '@matheusr.melo', comment: 'LEGAL!'}
-        ]
+        ],
+        category: 'Geral'
     },
 ]
 export const authorsApi = [

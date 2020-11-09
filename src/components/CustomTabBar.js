@@ -45,7 +45,7 @@ export default ({state, navigation})=>{
             <TabItem onPress={()=>goTo('Search')}>
                 <SearchIcon width="24" height="24" fill={state.index===1 ? 'white': 'black'} />
             </TabItem>
-            <TabItemCenter onPress={()=>goTo('Writer')}>
+            <TabItemCenter onPress={()=>goTo('WriterStack')}>
                 <WriterIcon width="32" height="32" fill='white' />
             </TabItemCenter>
             <TabItem onPress={()=>goTo('Library')}>
