@@ -8,7 +8,20 @@ export const colors = {
     gray_1:'#C4C4C4',
     gray_2:'#838383'
 }
-
+export const ButtonPrimary = styled.TouchableOpacity`
+    background-color: ${props=>props.choose===props.type ?colors.secondary:colors.light_1};
+    border-radius:8px;
+    height: ${props=>props.height};
+    justify-content: center;
+    align-items: center;
+    margin:8px;
+    width:${props=>props.width};
+`;
+export const ButtonText = styled.Text`
+    font-size:12px;
+    color: ${props => props.color ? props.color: 'black'};
+    font-family: 'Fredoka One';
+`;
 export const Heading1 = styled.Text`
     font-size:24px;
     color: ${props => props.color ? props.color: 'black'};

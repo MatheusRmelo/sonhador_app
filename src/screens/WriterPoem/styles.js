@@ -4,28 +4,15 @@ import { colors } from '../../commonStyles';
 export const Container = styled.SafeAreaView`
     flex:1;
     background-color: ${colors.primary_1};
-    justify-content:center;
-    align-items:center;
     padding:32px;
 `;
-export const Question = styled.Text`
-    font-size:36px;
-    color:white;
-    text-align:center;
-`;
-export const InputTitle = styled.TextInput`
-    width:100%;
-    height:56px;
+export const InputPoem = styled.TextInput`
+    flex:1;
     background-color:white;
     border-radius:16px;
     padding: 8px 16px;
-    margin:16px;
+    margin:16px 0px;
 `;
 export const Bold = styled.Text`
     font-weight:bold;
-`;
-export const CheckBoxArea = styled.View`
-    flex-direction:row;
-    justify-content:center;
-    align-items:center;
 `;

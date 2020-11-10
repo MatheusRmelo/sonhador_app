@@ -66,7 +66,7 @@ export default () => {
                     ))}
                 </PoemList>
             }
-            <ButtonAddPoem onPress={()=>navigation.navigate('WriterPoem')}>
+            <ButtonAddPoem onPress={()=>navigation.navigate('WriterTitle')}>
                 <ButtonAddPoemText>+</ButtonAddPoemText>
             </ButtonAddPoem>
         </Container>
