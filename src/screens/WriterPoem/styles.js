@@ -50,4 +50,48 @@ export const PartPoem = styled.View`
     align-items:center;
     justify-content:space-between;
 `;
-export const ButtonDelPage = styled.TouchableOpacity``;
+export const ButtonOptionPart = styled.TouchableOpacity``;
+
+export const ModalArea = styled.View`
+    flex:1;
+    background-color: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items:center;
+`;
+export const ButtonCloseModal = styled.TouchableOpacity`
+    justify-content:center;
+    align-items:center;
+    margin:16px;
+`;
+export const ModalContainer = styled.View`
+    background-color:white;
+    border-radius:16px;
+    height:50%;
+    width:80%;
+    justify-content:center;
+    align-items:center;
+    padding:64px 0px;
+`;
+export const ModalInput = styled.TextInput`
+    width:70%;
+    height:40px;
+    background-color:${colors.gray_1};
+    border-radius:16px;
+    padding: 8px 16px;
+    margin:16px;
+`;
+export const ButtonClose = styled.TouchableOpacity`
+    position:absolute;
+    top:16px;
+    right:16px;
+    background-color:${colors.primary};
+    width:40px;
+    height:40px;
+    border-radius:20px;
+    justify-content:center;
+    align-items:center;
+`;
+export const ButtonCloseText = styled.Text`
+    color:white;
+    font-size:12px;
+`;
