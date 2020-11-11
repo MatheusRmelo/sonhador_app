@@ -6,7 +6,8 @@ export const colors = {
     light:'#CCCCCC',
     light_1:'#F0F0F0',
     gray_1:'#C4C4C4',
-    gray_2:'#838383'
+    gray_2:'#838383',
+    contrast: '#AA7BC3'
 }
 export const ButtonPrimary = styled.TouchableOpacity`
     background-color: ${props=>props.choose===props.type ?colors.secondary:colors.light_1};

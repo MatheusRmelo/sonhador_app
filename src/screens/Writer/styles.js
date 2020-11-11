@@ -24,7 +24,7 @@ export const ButtonAddPoem = styled.TouchableOpacity`
     position:absolute;
     bottom:8%;
     right:16px;
-    background-color:#AA7BC3;
+    background-color:${colors.contrast};
     width:64px;
     height:64px;
     border-radius:32px;
