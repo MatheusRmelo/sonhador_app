@@ -69,7 +69,7 @@ export const GroupArea = styled.TouchableOpacity`
     flex-direction:row;
     height:50px;
     align-items:center;
-    background-color:${props=>props.active?'#6987C9':'transparent'};
+    background-color:${props=>props.active?colors.info:'transparent'};
     border-radius:16px;
     margin:${props=>props.active?'8px':'0px'};
     padding:${props=>props.active?'16px':'0px'};

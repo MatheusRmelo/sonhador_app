@@ -22,7 +22,7 @@ import Tabs from '../../components/Tabs';
 import PoemItem from '../../components/PoemItem';
 import AwesomeAlert from 'react-native-awesome-alerts';
 
-import { Heading2, Small } from '../../commonStyles';
+import { Heading2, Small, colors } from '../../commonStyles';
 
 import { PoemApi } from '../../PoemApi';
 
@@ -227,7 +227,7 @@ export default () => {
                 showConfirmButton={true}
                 cancelText="Cancelar"
                 confirmText="EXCLUIR"
-                confirmButtonColor="#DD6B55"
+                confirmButtonColor={colors.danger}
                 onCancelPressed={() => {
                     setShowDelete(false);
                 }}
@@ -243,7 +243,7 @@ export default () => {
                 showCancelButton={false}
                 showConfirmButton={true}
                 confirmText="OBRIGADO!"
-                confirmButtonColor="#32936F"
+                confirmButtonColor={colors.success}
                 onConfirmPressed={() => {
                     setShowAlert(false);
                 }}

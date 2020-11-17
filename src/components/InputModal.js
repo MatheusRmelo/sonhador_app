@@ -4,7 +4,7 @@ import {
     Keyboard
 } from 'react-native';
 import styled from 'styled-components/native';
-import { Heading2, Small } from '../commonStyles';
+import { Heading2, Small, colors } from '../commonStyles';
 
 const ModalArea = styled.TouchableOpacity`
     flex:1;
@@ -86,10 +86,10 @@ export default ({modalVisible, setModalVisible, action,value, setValue, placehol
                         <Input placeholder={placeholder} value={title} onChangeText={e=>setTitle(e)} />
                         <ActionArea>
                             <ActionItem onPress={()=>setModalVisible(false)}>
-                                <Heading2 color="blue">Cancelar</Heading2>
+                                <Heading2 color={colors.info}>Cancelar</Heading2>
                             </ActionItem>
                             <ActionItem onPress={handleActionButton}>
-                                <Heading2 color="blue">{action==='rename' ? 'Renomear':'Convidar usuário'}</Heading2>
+                                <Heading2 color={colors.info} >{action==='rename' ? 'Renomear':'Convidar usuário'}</Heading2>
                             </ActionItem>
                         </ActionArea>
                         
