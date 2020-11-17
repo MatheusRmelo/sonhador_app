@@ -56,19 +56,23 @@ export const ModalContainer = styled.TouchableHighlight`
     background-color:white;
     border-radius:16px;
     width:100%;
-    height:65%;
+    height:${props=>props.height?props.height:'65%'};
     align-items:center;
 `;
 export const GroupAction = styled.View`
     width:100%;
     border-bottom-width:1px;
-    border-bottom-color:#CCC;
+    border-bottom-color:${props=>props.color?props.color:'#CCC'};
     padding:0px 32px;
 `;
 export const GroupArea = styled.TouchableOpacity`
     flex-direction:row;
     height:50px;
     align-items:center;
+    background-color:${props=>props.active?'#6987C9':'transparent'};
+    border-radius:16px;
+    margin:${props=>props.active?'8px':'0px'};
+    padding:${props=>props.active?'16px':'0px'};
 `;
 export const ButtonPublish = styled.TouchableOpacity`
     border-radius:60px;

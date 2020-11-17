@@ -44,12 +44,16 @@ export default () => {
     const [poem, setPoem] = useState(PoemApi);
     const [search, setSearch] = useState('');
     const [filters, setFilters] = useState([
-        {filter: 'últimos visualizados por mim', order:'desc'}
+        {filter: 'últimos visualizados por mim', order:'desc',},
+        {filter: 'últimos alterados por mim', order:'desc'},
+        {filter: 'últimos criados por mim', order:'desc'},
+        {filter: 'nome', order:'desc'}
     ]);
     const [currentFilter, setCurrentFilter] = useState(0);
     const [currentPoem, setCurrentPoem] = useState(0);
     const [actionVisible, setActionVisible] = useState(false);
     const [inputVisible, setInputVisible] = useState(false);
+    const [filterVisible, setFilterVisible] = useState(false);
     const [action, setAction] = useState('');
     const [showDelete, setShowDelete] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
@@ -140,13 +144,17 @@ export default () => {
         setShowDelete(false);
         setActionVisible(false);
     }
+    const handleChangeFilter = (key) => {
+        setCurrentFilter(key);
+        setFilterVisible(false);
+    }
 
     return( 
         <Container>
             <SearchHeader input search={search} setSearch={(t)=>handleSearch(t)} placeholder="Pesquisar suas obras...">
                 <Tabs tabs={tabs} setActive={(key)=>handleActiveTab(key)} />
             </SearchHeader>
-            <FilterArea>
+            <FilterArea onPress={()=>setFilterVisible(true)}>
                 <Heading2 margin="8px" color="black">{filters[currentFilter].filter}</Heading2>
                 {filters[currentFilter].order ==='asc'?
                     <UpArrowIcon width="12" height="12" fill="black" />:
@@ -241,6 +249,29 @@ export default () => {
                 }}
             />
             <InputModal modalVisible={inputVisible} setModalVisible={value=>setInputVisible(value)} value={action==='add-user'?'':poem[currentPoem].title} setValue={title=>handleNewTitle(title)} action={action} placeholder={action === 'add-user'? "Nome do usuário": ''} addUser={user=>handleAddUser(user)}/>
+            <Modal transparent={true} visible={filterVisible} animationType="fade">
+                <ModalArea onPress={()=>setFilterVisible(false)}>
+                    <ModalContainer height="45%">
+                        <>
+                            <GroupAction>
+                                <GroupArea>
+                                    <Heading2 bold margin="16px" color="black">Classificar por</Heading2>
+                                </GroupArea>
+                            </GroupAction>
+                            <GroupAction color="white">
+                                {filters.map((item,key)=>(
+                                        <GroupArea key={key} active={currentFilter === key} onPress={()=>handleChangeFilter(key)}>
+                                            <DownArrowIcon width="12" height="12" fill="white" />
+                                            <Heading2 margin="16px" color={currentFilter === key ? 'white':'black'}>{item.filter}</Heading2>
+                                        </GroupArea>
+                                ))}
+                            </GroupAction>
+                        </>
+                   
+
+                    </ModalContainer>
+                </ModalArea>
+            </Modal>
         </Container>
     );
 }

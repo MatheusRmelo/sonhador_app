@@ -22,6 +22,8 @@ export default () => {
             <InputTitle placeholder="Escolha o título" />
             <CheckBoxArea>
                 <CheckBox
+                    boxType="circle"
+                    onTintColor="#000000"
                     disabled={false}
                     value={toggleCheckBox}
                     onValueChange={(newValue) => setToggleCheckBox(newValue)}
