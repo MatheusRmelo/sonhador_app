@@ -41,7 +41,7 @@ export default () => {
     const handleAddPage = ()=>{
         if( pages.length < currentPage + 2){
             let newList = [...pages];
-            newList.push({name:formatOrder(currentPage),page:newList.length+1,poem:''});
+            newList.push({name:formatOrder(newList.length+1),page:newList.length+1,poem:''});
             setPages(newList);
         }
         nextPage();
@@ -136,7 +136,7 @@ export default () => {
                 </ButtonAddPage>
             </OptionsPage>
             
-            <ButtonPrimary height="60px" width="100%">
+            <ButtonPrimary height="60px" width="100%" onPress={()=>navigation.navigate('Publish')}>
                 <ButtonText color="white">SALVAR</ButtonText>
             </ButtonPrimary>
         </Container>

@@ -27,13 +27,16 @@ export const Heading1 = styled.Text`
     font-size:24px;
     color: ${props => props.color ? props.color: 'black'};
     font-family: 'Fredoka One';
-    text-align: ${props=>props.center? 'center':'start'};
+    text-align: ${props=>props.center? 'center':'left'};
 `;
 export const Heading2 = styled.Text`
     font-size:18px;
     color: ${props => props.color ? props.color: 'black'};
     font-family: 'Fredoka One';
     text-transform: ${props => props.transform ? props.transform: 'none'};
+    margin: ${props=>props.margin?props.margin: '0px'};
+    font-weight:${props=>props.bold? 'bold' : 'normal'}; 
+    text-align: ${props=>props.center? 'center':'left'};
 `;
 export const Small = styled.Text`
     font-size:12px;

@@ -12,6 +12,10 @@ export const PoemList = styled.ScrollView`
     padding:16px;
     margin-bottom:9%;
 `;
+export const PoemArea = styled.View`
+    flex-direction:row;
+    flex-wrap:wrap;
+`;
 export const CategoryPhoto = styled.View`
     width:70px;
     height:70px;
@@ -34,4 +38,44 @@ export const ButtonAddPoem = styled.TouchableOpacity`
 export const ButtonAddPoemText = styled.Text`
     font-size:40px;
     color:white;
+`;
+
+export const FilterArea = styled.TouchableOpacity`
+    flex-direction:row;
+    align-items:center;
+    margin:8px;
+    width:100%;
+`;
+
+export const ModalArea = styled.TouchableOpacity`
+    flex:1;
+    background-color: rgba(0,0,0,0.5);
+    justify-content:flex-end;
+`;
+export const ModalContainer = styled.TouchableHighlight`
+    background-color:white;
+    border-radius:16px;
+    width:100%;
+    height:65%;
+    align-items:center;
+`;
+export const GroupAction = styled.View`
+    width:100%;
+    border-bottom-width:1px;
+    border-bottom-color:#CCC;
+    padding:0px 32px;
+`;
+export const GroupArea = styled.TouchableOpacity`
+    flex-direction:row;
+    height:50px;
+    align-items:center;
+`;
+export const ButtonPublish = styled.TouchableOpacity`
+    border-radius:60px;
+    width:200px;
+    height:50px;
+    background-color: ${colors.secondary};
+    margin:16px;
+    align-items:center;
+    justify-content:center;
 `;

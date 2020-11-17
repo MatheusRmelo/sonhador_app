@@ -1,9 +1,10 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import WriterPoem from '../screens/WriterPoem';
 import Writer from '../screens/Writer';
 import WriterTitle from '../screens/WriterTitle';
+import WriterPoem from '../screens/WriterPoem';
+import Publish from '../screens/Publish';
 
 // import AuthStack from './AuthStack';
 
@@ -16,5 +17,6 @@ export default () => (
         <WriterStack.Screen options={{headerShown:false}} name="Writer" component={Writer} />
         <WriterStack.Screen options={{title:'Bem vindo a poesia'}} name="WriterTitle" component={WriterTitle} />
         <WriterStack.Screen options={{title:'Escreva seu poema'}} name="WriterPoem" component={WriterPoem} />
+        <WriterStack.Screen options={{title:'Quase lá'}} name="Publish" component={Publish} />
     </WriterStack.Navigator>
 )
