@@ -26,17 +26,17 @@ export const PoemInfo = styled.View`
 `;
 export const ButtonAddPoem = styled.TouchableOpacity`
     position:absolute;
-    bottom:8%;
+    bottom:3%;
     right:16px;
     background-color:${colors.contrast};
-    width:64px;
-    height:64px;
+    width:48px;
+    height:48px;
     border-radius:32px;
     justify-content:center;
     align-items:center;
 `;
 export const ButtonAddPoemText = styled.Text`
-    font-size:40px;
+    font-size:32px;
     color:white;
 `;
 

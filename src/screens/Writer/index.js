@@ -20,6 +20,7 @@ import {
 import SearchHeader from '../../components/SearchHeader';
 import Tabs from '../../components/Tabs';
 import PoemItem from '../../components/PoemItem';
+import AwesomeAlert from 'react-native-awesome-alerts';
 
 import { Heading2, Small } from '../../commonStyles';
 
@@ -34,7 +35,7 @@ import DownloadIcon from '../../assets/icons/download.svg';
 import AddUserIcon from '../../assets/icons/add-user.svg';
 
 
-import { Modal } from 'react-native';
+import { Modal, Share } from 'react-native';
 import InputModal from '../../components/InputModal';
 
 
@@ -50,9 +51,39 @@ export default () => {
     const [actionVisible, setActionVisible] = useState(false);
     const [inputVisible, setInputVisible] = useState(false);
     const [action, setAction] = useState('');
+    const [showDelete, setShowDelete] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
 
     const navigation = useNavigation();
     const category = useCategory();
+
+    const onShare = async () => {
+        try {
+            const result = await Share.share({
+            message: `
+            
+            ${poem[currentPoem].title}
+
+            ${poem[currentPoem].body}
+
+
+            Autor:${poem[currentPoem].creditPage.author}
+            Instagram: ${poem[currentPoem].creditPage.instagram}
+            `,
+            });
+            if (result.action === Share.sharedAction) {
+            if (result.activityType) {
+                // shared with activity type of result.activityType
+            } else {
+
+            }
+            } else if (result.action === Share.dismissedAction) {
+            // dismissed
+            }
+        } catch (error) {
+            alert(error.message);
+        }
+    }
 
     const handleActiveTab = (key) => {
         let newList = [...tabs];
@@ -86,21 +117,29 @@ export default () => {
         setInputVisible(false);
         setActionVisible(false);
     }
+    const handleAddUser = (user)=>{
+        setShowAlert(true);
+        setInputVisible(false);
+        setActionVisible(false);
+    } 
 
     const handleActionOption = (act) => {
         setAction(act);
         setInputVisible(true);
     }
+    
     const handleDeletePoem = () => {
         let newList = [...poem];
         newList = newList.filter((i,k)=>k!==currentPoem);
-        if(currentPoem>0)
+        if(currentPoem>0){
             setCurrentPoem(prevState=>prevState-1);
+        }else{
+            setCurrentPoem(0);
+        }
         setPoem(newList);
-        setInputVisible(false);
+        setShowDelete(false);
         setActionVisible(false);
     }
-
 
     return( 
         <Container>
@@ -143,11 +182,11 @@ export default () => {
                                     <DownloadIcon width="12" height="12" fill="black" />
                                     <Heading2 margin="16px" color="black">Tornar disponível off-line</Heading2>
                                 </GroupArea>
-                                <GroupArea>
+                                <GroupArea onPress={onShare}>
                                     <ShareIcon width="12" height="12" fill="black" />
                                     <Heading2 margin="16px" color="black">Compartilhar</Heading2>
                                 </GroupArea>
-                                <GroupArea>
+                                <GroupArea onPress={()=>handleActionOption("add-user")}>
                                     <AddUserIcon width="12" height="12" fill="black" />
                                     <Heading2 margin="16px" color="black">Convidar alguém</Heading2>
                                 </GroupArea>
@@ -157,7 +196,7 @@ export default () => {
                                     <EditIcon width="12" height="12" fill="black" />
                                     <Heading2 margin="16px" color="black">Renomear</Heading2>
                                 </GroupArea>
-                                <GroupArea onPress={()=>handleActionOption("delete")}>
+                                <GroupArea onPress={()=>setShowDelete(true)}>
                                     <TrashIcon width="12" height="12" fill="black" />
                                     <Heading2 margin="16px" color="black">Excluir</Heading2>
                                 </GroupArea>
@@ -169,7 +208,39 @@ export default () => {
                     </ModalContainer>
                 </ModalArea>
             </Modal>
-            <InputModal modalVisible={inputVisible} setModalVisible={value=>setInputVisible(value)} oldValue={poem[currentPoem].title} placeholder={action==='delete'? `Digite o título para excluir`:''} value={action === 'delete' ? '' : poem[currentPoem].title} setValue={title=>handleNewTitle(title)} action={action} Delete={handleDeletePoem} />
+            <AwesomeAlert
+                show={showDelete}
+                showProgress={true}
+                title="Excluir a obra"
+                message="Deseja realmente excluir essa obra?"
+                closeOnTouchOutside={true}
+                closeOnHardwareBackPress={false}
+                showCancelButton={true}
+                showConfirmButton={true}
+                cancelText="Cancelar"
+                confirmText="EXCLUIR"
+                confirmButtonColor="#DD6B55"
+                onCancelPressed={() => {
+                    setShowDelete(false);
+                }}
+                onConfirmPressed={handleDeletePoem}
+            />
+            <AwesomeAlert
+                show={showAlert}
+                showProgress={true}
+                title="Convite de usuário"
+                message="Usuário convidado com sucesso!"
+                closeOnTouchOutside={true}
+                closeOnHardwareBackPress={false}
+                showCancelButton={false}
+                showConfirmButton={true}
+                confirmText="OBRIGADO!"
+                confirmButtonColor="#32936F"
+                onConfirmPressed={() => {
+                    setShowAlert(false);
+                }}
+            />
+            <InputModal modalVisible={inputVisible} setModalVisible={value=>setInputVisible(value)} value={action==='add-user'?'':poem[currentPoem].title} setValue={title=>handleNewTitle(title)} action={action} placeholder={action === 'add-user'? "Nome do usuário": ''} addUser={user=>handleAddUser(user)}/>
         </Container>
     );
 }

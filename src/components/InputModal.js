@@ -34,6 +34,7 @@ const Input = styled.TextInput`
     border-width:1px;
     border-color:black;
     font-size:18px;
+    padding:8px;
 `;
 const ActionArea = styled.View`
     flex-direction:row;
@@ -42,11 +43,9 @@ const ActionArea = styled.View`
 const ActionItem = styled.TouchableOpacity`
     margin:8px;
 `;
-export default ({modalVisible, setModalVisible, action,value,oldValue, setValue, placeholder, Delete}) => {
+export default ({modalVisible, setModalVisible, action,value, setValue, placeholder, addUser}) => {
     const [keyboardOpen, setKeyboardOpen] = useState(false);
     const [title, setTitle] = useState(value);
-    const [disabled, setDisabled] = useState(true);
-    const oldText = useRef(oldValue);
     const keyboardShowListener = useRef(null);
     const keyboardHideListener = useRef(null);
 
@@ -59,30 +58,19 @@ export default ({modalVisible, setModalVisible, action,value,oldValue, setValue,
             keyboardHideListener.current.remove();
         }
     });
+
     useEffect(()=>{
-        oldText.current = oldValue;
-    }, [oldValue]);
-    useEffect(()=>{
-        
         setTitle(value);
     }, [value]);
 
-    const handleChangeText = (e) => {
-        if(e === oldText.current){
-            setDisabled(false);
-        }else{
-            setDisabled(true);
-        }
-        setTitle(e);
-
-    }
-
+  
     const handleActionButton = () => {
         if(action==='rename'){
             setValue(title);
             setTitle('');
-        }else{
-            Delete();
+        }else
+        if(action === 'add-user'){
+            addUser(title);
             setTitle('');
         }
     }
@@ -93,21 +81,17 @@ export default ({modalVisible, setModalVisible, action,value,oldValue, setValue,
                 <ModalContainer keyboardOpen={keyboardOpen} onPress={()=>{}} underlayColor="white"> 
                     <>
                         <Header>
-                            <Heading2 center >{action==='rename' ? 'Renomear a obra': `Deletar a obra (${oldText.current})`}</Heading2>
+                            <Heading2 center >{action==='rename' ? 'Renomear a obra': 'Convidar um ajudante'}</Heading2>
                         </Header>
-                        <Input placeholder={placeholder} value={title} onChangeText={e=>handleChangeText(e)} />
+                        <Input placeholder={placeholder} value={title} onChangeText={e=>setTitle(e)} />
                         <ActionArea>
                             <ActionItem onPress={()=>setModalVisible(false)}>
                                 <Heading2 color="blue">Cancelar</Heading2>
                             </ActionItem>
-                            <ActionItem onPress={handleActionButton} disabled={action==='delete'?disabled:false}>
-                                <Heading2 color={action==='rename'?"blue":disabled ? 'gray':'blue'}>{action==='rename' ? 'Renomear':'Excluir'}</Heading2>
+                            <ActionItem onPress={handleActionButton}>
+                                <Heading2 color="blue">{action==='rename' ? 'Renomear':'Convidar usuário'}</Heading2>
                             </ActionItem>
                         </ActionArea>
-                        {
-                            action==='delete' && disabled &&
-                            <Small color="#CCC">Digite o título da obra para excluir</Small>
-                        }
                         
                     </>
                 </ModalContainer>
