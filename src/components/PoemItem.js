@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import { colors } from '../commonStyles';
+import { colors, Small } from '../commonStyles';
 import { useCategory } from '../CategorySVG';
 
 import MenuIcon from '../assets/icons/menu.svg';
@@ -41,9 +41,7 @@ const PoemDesc = styled.View`
     justify-content:space-around;
     align-items:center;
 `;
-const PoemTitle = styled.Text`
-    font-size:12px;
-`;
+
 const Options = styled.TouchableOpacity`
 
 `;
@@ -59,7 +57,7 @@ export default ({poem, setActionVisible}) => {
             </PoemView>
             <PoemDesc>
                 {category.getCategory(poem.category, '16', '16', 'red')}
-                <PoemTitle>{poem.title}</PoemTitle>
+                <Small>{poem.title}</Small>
                 <Options onPress={()=>setActionVisible()}>
                     <MenuIcon width="16" height="16" fill="black" />
                 </Options>

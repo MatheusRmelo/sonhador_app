@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import CheckBox from '@react-native-community/checkbox';
+import React, { useState, useLayoutEffect  } from 'react';
 import { Heading1, ButtonText, ButtonPrimary, colors, Small } from '../../commonStyles';
 import {
     Container,
@@ -18,6 +17,7 @@ import {
     ButtonClose,
     ButtonCloseText
 } from './styles';
+import InputModal from '../../components/InputModal';
 
 import RightArrowIcon from '../../assets/icons/right-arrow.svg';
 import LeftArrowIcon from '../../assets/icons/left-arrow.svg';
@@ -25,12 +25,14 @@ import TrashIcon from '../../assets/icons/trash.svg';
 import EditIcon from '../../assets/icons/edit.svg';
 
 import { useNavigation } from '@react-navigation/native';
-import { Modal, Text } from 'react-native';
+import AwesomeAlert from 'react-native-awesome-alerts';
 
 export default () => {
     const [pages, setPages] = useState([{name:'Primeira página',page:1, poem:''}]);
     const [currentPage, setCurrentPage] = useState(0);
     const [visibleInput, setVisibleInput] = useState(false);
+    const [showDelete, setShowDelete] = useState(false);
+
     const navigation = useNavigation();
 
     const handleChangePoem = (t) => {
@@ -41,21 +43,18 @@ export default () => {
     const handleAddPage = ()=>{
         if( pages.length < currentPage + 2){
             let newList = [...pages];
-            newList.push({name:formatOrder(newList.length+1),page:newList.length+1,poem:''});
+            newList.push({name:formatOrder(newList.length),page:newList.length,poem:''});
             setPages(newList);
         }
         nextPage();
     }
     const handleDeletePage = () => {
-        if( pages.length < currentPage + 2){
-            let newList = [...pages];
-            newList = newList.filter((i,k)=>currentPage !== k);
-            setPages(newList);
-        }
+        let newList = [...pages];
+        newList = newList.filter((i,k)=>currentPage !== k);
+        setPages(newList);
+        
+        setShowDelete(false);
         prevPage();
-    }
-    const handleEditPage = () => {
-
     }
     const nextPage = () => {
         setCurrentPage(prevState=>prevState+1);
@@ -70,31 +69,44 @@ export default () => {
         let newList = [...pages];
         newList[currentPage].name = t;
         setPages(newList);
+        setVisibleInput(false);
     }
     const formatOrder = (i) => {
         let list = ['Primeira', 'Segunda', 'Terceira', 'Quarta', 'Quinta', 'Sexta','Setima', 'Oitava', 'Nona', 'Decima'];
         return list[i] + ' Página';
     }
 
+    useLayoutEffect(()=>{
+        navigation.setOptions({
+            title: 'Escreva seu poema',
+            headerRight: () => (
+                <ButtonPrimary width="100%" height="60%" onPress={()=>navigation.navigate('EditNote')}>
+                    <ButtonText>Publicar</ButtonText>
+                </ButtonPrimary>
+            )
+        })
+    }, [])
+
     return(
         <Container>
-            <Modal visible={visibleInput} transparent={true}>
-                <ModalArea>
-                    <ModalContainer>
-                        <ButtonClose onPress={()=>setVisibleInput(false)}>
-                            <ButtonCloseText>X</ButtonCloseText>
-                        </ButtonClose>
-                        <Heading1 center>Nome da página</Heading1>
-                        <ModalInput value={pages[currentPage].name} onChangeText={t=>handleChangePage(t)} placeholder="Escolha o nome da página" />
-                        <ButtonPrimary height="40px" width="70%" onPress={()=>setVisibleInput(false)}>
-                            <ButtonText color="white">SALVAR</ButtonText>
-                        </ButtonPrimary>
-                        <ButtonCloseModal onPress={()=>setVisibleInput(false)}>
-                            <Small color="blue">Sair</Small>
-                        </ButtonCloseModal>
-                    </ModalContainer>
-                </ModalArea>
-            </Modal>
+            <InputModal modalVisible={visibleInput} setModalVisible={value=>setVisibleInput(value)} value={pages[currentPage].name} setValue={title=>handleChangePage(title)} action="rename-page" placeholder='' />
+            <AwesomeAlert
+                show={showDelete}
+                showProgress={true}
+                title="Excluir a página"
+                message="Deseja realmente excluir essa página?"
+                closeOnTouchOutside={true}
+                closeOnHardwareBackPress={false}
+                showCancelButton={true}
+                showConfirmButton={true}
+                cancelText="Cancelar"
+                confirmText="EXCLUIR"
+                confirmButtonColor={colors.danger}
+                onCancelPressed={() => {
+                    setShowDelete(false);
+                }}
+                onConfirmPressed={handleDeletePage}
+            />
             <PartPoem>
                 <Heading1 center color="white"><Bold>{pages[currentPage].name}</Bold></Heading1>
                 <ButtonOptionPart onPress={()=>setVisibleInput(true)}>
@@ -103,7 +115,7 @@ export default () => {
                 {
                     currentPage > 0
                     &&
-                    <ButtonOptionPart onPress={handleDeletePage}>
+                    <ButtonOptionPart onPress={()=>setShowDelete(true)}>
                         <TrashIcon width="24" height="24" fill="red" />
                     </ButtonOptionPart>
                 }
@@ -136,9 +148,7 @@ export default () => {
                 </ButtonAddPage>
             </OptionsPage>
             
-            <ButtonPrimary height="60px" width="100%" onPress={()=>navigation.navigate('Publish')}>
-                <ButtonText color="white">SALVAR</ButtonText>
-            </ButtonPrimary>
+           
         </Container>
     );
 }

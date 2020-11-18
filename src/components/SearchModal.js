@@ -10,7 +10,7 @@ import { useCategory } from '../CategorySVG';
 
 import { Heading2, Small, colors } from '../commonStyles';
 
-import LeftArrowIcon from '../assets/icons/left-arrow.svg';
+import LeftArrowIcon from '../assets/icons/arrow.svg';
 import MenuIcon from '../assets/icons/menu.svg';
 
 
@@ -25,11 +25,13 @@ const ModalHeader = styled.View`
     border-bottom-color: #CCC;
     padding: 8px 16px;
     align-items:center;
+    margin-bottom:16px;
 `;
 const Input = styled.TextInput`
-    font-size:18px;
+    font-size:12px;
     margin-right:24px;
     padding: 8px 16px;
+    font-family: 'Fredoka One';
 `;
 const BackButton = styled.TouchableOpacity`
 `;
@@ -44,9 +46,10 @@ const Information = styled.View`
     flex:1;
 `;
 const Title = styled.Text`
-
 `;
-export default ({visible, setVisible,placeholder, list}) => {
+const ButtonOption = styled.TouchableOpacity``;
+
+export default ({visible, setVisible,placeholder, list, setShowOption}) => {
     const category = useCategory();
     const [keyboardOpen, setKeyboardOpen] = useState(false);
     const [search, setSearch] = useState('');
@@ -80,7 +83,9 @@ export default ({visible, setVisible,placeholder, list}) => {
                                 <Heading2 color="black" >{item.title}</Heading2>
                                 <Small color={colors.gray_2}>Última modificação: 12 de set</Small>
                             </Information>
-                            <MenuIcon width="24" height="24" fill="black" />
+                            <ButtonOption onPress={()=>setShowOption(key)}>
+                                <MenuIcon width="24" height="24" fill="black"  />
+                            </ButtonOption>
                         </ModalItem>
                     ))
                 }

@@ -21,8 +21,8 @@ export const InputTitle = styled.TextInput`
     padding: 8px 16px;
     margin:16px;
 `;
-export const Bold = styled.Text`
-    font-weight:bold;
+export const Focus = styled.Text`
+    color: ${colors.danger};
 `;
 export const CheckBoxArea = styled.View`
     flex-direction:row;

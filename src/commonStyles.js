@@ -23,7 +23,7 @@ export const ButtonPrimary = styled.TouchableOpacity`
 `;
 export const ButtonText = styled.Text`
     font-size:12px;
-    color: ${props => props.color ? props.color: 'black'};
+    color: ${props => props.color ? props.color: 'white'};
     font-family: 'Fredoka One';
 `;
 export const Heading1 = styled.Text`
@@ -38,7 +38,7 @@ export const Heading2 = styled.Text`
     font-family: 'Fredoka One';
     text-transform: ${props => props.transform ? props.transform: 'none'};
     margin: ${props=>props.margin?props.margin: '0px'};
-    font-weight:${props=>props.bold? 'bold' : 'normal'}; 
+    font-weight:${props=>props.bold?'bold':'normal'};
     text-align: ${props=>props.center? 'center':'left'};
 `;
 export const Small = styled.Text`

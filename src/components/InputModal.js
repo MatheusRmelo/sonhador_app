@@ -29,7 +29,7 @@ const Input = styled.TextInput`
     margin:8px;
     width:100%;
     height:50px;
-    background-color:#ccc;
+    background-color:#EEEEEE;
     border-radius:8px;
     border-width:1px;
     border-color:black;
@@ -65,7 +65,7 @@ export default ({modalVisible, setModalVisible, action,value, setValue, placehol
 
   
     const handleActionButton = () => {
-        if(action==='rename'){
+        if(action==='rename' || action==='rename-page'){
             setValue(title);
             setTitle('');
         }else
@@ -81,7 +81,7 @@ export default ({modalVisible, setModalVisible, action,value, setValue, placehol
                 <ModalContainer keyboardOpen={keyboardOpen} onPress={()=>{}} underlayColor="white"> 
                     <>
                         <Header>
-                            <Heading2 center >{action==='rename' ? 'Renomear a obra': 'Convidar um ajudante'}</Heading2>
+                            <Heading2 center >{action==='rename' ? 'Renomear a obra': action==='rename-page'?'Renomear a página':'Convidar um ajudante'}</Heading2>
                         </Header>
                         <Input placeholder={placeholder} value={title} onChangeText={e=>setTitle(e)} />
                         <ActionArea>
@@ -89,7 +89,7 @@ export default ({modalVisible, setModalVisible, action,value, setValue, placehol
                                 <Heading2 color={colors.info}>Cancelar</Heading2>
                             </ActionItem>
                             <ActionItem onPress={handleActionButton}>
-                                <Heading2 color={colors.info} >{action==='rename' ? 'Renomear':'Convidar usuário'}</Heading2>
+                                <Heading2 color={colors.info} >{action==='rename' ||action==='rename-page' ? 'Renomear':'Convidar usuário'}</Heading2>
                             </ActionItem>
                         </ActionArea>
                         

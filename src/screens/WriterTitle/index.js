@@ -6,7 +6,7 @@ import {
     Container,
     Question,
     InputTitle,
-    Bold,
+    Focus,
     CheckBoxArea
 } from './styles';
 import { Button } from 'react-native';
@@ -18,7 +18,7 @@ export default () => {
     
     return(
         <Container>
-            <Heading1 center color="white">Vamos lá! antes de tudo qual o <Bold>título do poema?</Bold></Heading1>
+            <Heading1 center color="white">Vamos lá! antes de tudo qual o <Focus>título do poema?</Focus></Heading1>
             <InputTitle placeholder="Escolha o título" />
             <CheckBoxArea>
                 <CheckBox

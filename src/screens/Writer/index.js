@@ -272,7 +272,7 @@ export default () => {
                     </ModalContainer>
                 </ModalArea>
             </Modal>
-            <SearchModal visible={searchVisible} setVisible={value=>setSearchVisible(value)} placeholder="Pesquisar suas obras..." list={poem} />
+            <SearchModal visible={searchVisible} setVisible={value=>setSearchVisible(value)} placeholder="Pesquisar suas obras..." list={poem} setShowOption={(key)=>handleActionVisible(key)} />
         </Container>
     );
 }
