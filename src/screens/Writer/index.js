@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useCategory } from '../../CategorySVG';
 
@@ -15,7 +15,7 @@ import {
     ModalContainer,
     GroupAction,
     GroupArea,
-    ButtonPublish
+    ButtonPublish,
 } from './styles';
 import SearchHeader from '../../components/SearchHeader';
 import Tabs from '../../components/Tabs';
@@ -37,6 +37,7 @@ import AddUserIcon from '../../assets/icons/add-user.svg';
 
 import { Modal, Share } from 'react-native';
 import InputModal from '../../components/InputModal';
+import SearchModal from '../../components/SearchModal';
 
 
 export default () => {
@@ -54,6 +55,7 @@ export default () => {
     const [actionVisible, setActionVisible] = useState(false);
     const [inputVisible, setInputVisible] = useState(false);
     const [filterVisible, setFilterVisible] = useState(false);
+    const [searchVisible, setSearchVisible] = useState(false);
     const [action, setAction] = useState('');
     const [showDelete, setShowDelete] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
@@ -151,7 +153,7 @@ export default () => {
 
     return( 
         <Container>
-            <SearchHeader input search={search} setSearch={(t)=>handleSearch(t)} placeholder="Pesquisar suas obras...">
+            <SearchHeader onPress={()=>setSearchVisible(true)} placeholder="Pesquisar suas obras...">
                 <Tabs tabs={tabs} setActive={(key)=>handleActiveTab(key)} />
             </SearchHeader>
             <FilterArea onPress={()=>setFilterVisible(true)}>
@@ -267,11 +269,10 @@ export default () => {
                                 ))}
                             </GroupAction>
                         </>
-                   
-
                     </ModalContainer>
                 </ModalArea>
             </Modal>
+            <SearchModal visible={searchVisible} setVisible={value=>setSearchVisible(value)} placeholder="Pesquisar suas obras..." list={poem} />
         </Container>
     );
 }

@@ -28,7 +28,7 @@ const Input = styled.TextInput`
     margin-left:16px;
 `;
 
-export default ({children, placeholder, input, search, setSearch}) => {
+export default ({children, placeholder, input, search, setSearch, onPress}) => {
     const [keyboardOpen, setKeyboardOpen] = useState(false);
     const keyboardShowListener = useRef(null);
     const keyboardHideListener = useRef(null);
@@ -51,7 +51,7 @@ export default ({children, placeholder, input, search, setSearch}) => {
                     <Input value={search} onChangeText={t=>setSearch(t)} placeholder={placeholder} placeholderTextColor={colors.gray_2} />
                 </SearchInputArea>
                 :
-                <SearchClick>
+                <SearchClick onPress={onPress}>
                     <SearchIcon width="24" height="24" fill={colors.gray_2} />
                     <Small marginLeft="16px" color={colors.gray_2}>{placeholder}</Small>
                 </SearchClick>

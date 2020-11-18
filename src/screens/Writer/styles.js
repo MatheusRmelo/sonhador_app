@@ -59,6 +59,11 @@ export const ModalContainer = styled.TouchableHighlight`
     height:${props=>props.height?props.height:'65%'};
     align-items:center;
 `;
+export const SearchModal = styled.View`
+    flex:1;
+    background-color:white;
+`;
+
 export const GroupAction = styled.View`
     width:100%;
     border-bottom-width:1px;
@@ -83,3 +88,4 @@ export const ButtonPublish = styled.TouchableOpacity`
     align-items:center;
     justify-content:center;
 `;
+

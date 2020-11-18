@@ -45,5 +45,5 @@ export const Small = styled.Text`
     font-size:12px;
     color: ${props => props.color ? props.color: 'black'};
     font-family: 'Fredoka One';
-    margin-left: ${props=>props.marginLeft ? props.marginLeft : 'auto'};
+    margin-left: ${props=>props.marginLeft ? props.marginLeft : '0px'};
 `;
