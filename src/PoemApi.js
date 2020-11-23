@@ -23,7 +23,7 @@ export const PoemApi = [
         creditPage:{author:'@matheusr.melo',instagram:'@matheusr.melo',twitter: 'Indisponível'},
         likes: 137, share:25, comments: 45,liked:false,
         commentsList: [],
-        category: 'love'
+        category: 'poem'
     },
     {
         title: 'Jovem LEGAL', 
@@ -52,7 +52,7 @@ export const PoemApi = [
             {author: '@23.melo', comment: 'Muito legal!'},
             {author: '@matheusr.melo', comment: 'LEGAL!'}
         ],
-        category: 'love'
+        category: 'cordel'
     },
     {
         title: 'Jovem LEGAL', 
@@ -80,13 +80,13 @@ export const PoemApi = [
         commentsList: [
             {author: '@23.melo', comment: 'Muito legal!'},
         ],
-        category: 'love'
+        category: 'poem'
     },
     {
         title: 'Jovem Y', 
         body: 
         `
-        Como posso não sonhar?
+        <Bold>Como posso não sonhar?</Bold>
         Se tudo isso é o que restou
         Se isso é tudo oque sou
         Um simples jovem sonhador
@@ -108,7 +108,7 @@ export const PoemApi = [
         commentsList: [
             {author: '@23.melo', comment: 'Muito legal!'},
         ],
-        category: 'love'
+        category: 'poem'
     },
     {
         title: 'Jovem X', 
@@ -137,7 +137,7 @@ export const PoemApi = [
             {author: '@23.melo', comment: 'Muito legal!'},
             {author: '@matheusr.melo', comment: 'LEGAL!'}
         ],
-        category: 'science fiction'
+        category: 'book'
     },
 ]
 export const authorsApi = [

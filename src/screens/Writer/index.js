@@ -8,6 +8,9 @@ import {
     CategoryPhoto,
     PoemInfo,
     PoemArea,
+    OptionBook,
+    OptionItem,
+    OptionTextArea,
     ButtonAddPoem,
     ButtonAddPoemText,
     FilterArea,
@@ -17,14 +20,20 @@ import {
     GroupArea,
     ButtonPublish,
 } from './styles';
+
 import SearchHeader from '../../components/SearchHeader';
 import Tabs from '../../components/Tabs';
 import PoemItem from '../../components/PoemItem';
-import AwesomeAlert from 'react-native-awesome-alerts';
-
+import InputModal from '../../components/InputModal';
+import SearchModal from '../../components/SearchModal';
 import { Heading2, Small, colors } from '../../commonStyles';
 
+import AwesomeAlert from 'react-native-awesome-alerts';
+import { Modal, Share } from 'react-native';
+
+
 import { PoemApi } from '../../PoemApi';
+
 
 import UpArrowIcon from '../../assets/icons/up-arrow.svg';
 import DownArrowIcon from '../../assets/icons/down-arrow.svg';
@@ -34,10 +43,11 @@ import ShareIcon from '../../assets/icons/share.svg';
 import DownloadIcon from '../../assets/icons/download.svg';
 import AddUserIcon from '../../assets/icons/add-user.svg';
 
+import BookIcon from '../../assets/categories/book.svg';
+import PoemIcon from '../../assets/categories/poem.svg';
+import CordelIcon from '../../assets/categories/cordel.svg';
 
-import { Modal, Share } from 'react-native';
-import InputModal from '../../components/InputModal';
-import SearchModal from '../../components/SearchModal';
+
 
 
 export default () => {
@@ -50,12 +60,16 @@ export default () => {
         {filter: 'últimos criados por mim', order:'desc'},
         {filter: 'nome', order:'desc'}
     ]);
+
     const [currentFilter, setCurrentFilter] = useState(0);
     const [currentPoem, setCurrentPoem] = useState(0);
+
+
     const [actionVisible, setActionVisible] = useState(false);
     const [inputVisible, setInputVisible] = useState(false);
     const [filterVisible, setFilterVisible] = useState(false);
     const [searchVisible, setSearchVisible] = useState(false);
+    const [options, setOptions] = useState(false);
     const [action, setAction] = useState('');
     const [showDelete, setShowDelete] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
@@ -150,6 +164,10 @@ export default () => {
         setCurrentFilter(key);
         setFilterVisible(false);
     }
+    const handleGoWriter = (type) => {
+        setOptions(false);
+        navigation.navigate('WriterTitle', {type});
+    }
 
     return( 
         <Container>
@@ -173,7 +191,35 @@ export default () => {
                     </PoemArea>
                 </PoemList>
             }
-            <ButtonAddPoem onPress={()=>navigation.navigate('WriterTitle')}>
+            
+            <Modal visible={options} transparent={true} animationType="slide" >
+                <ModalArea onPress={()=>setOptions(false)}>
+                    <OptionBook onPress={()=>{}} underlayColor="white">
+                        <>
+                            <OptionItem onPress={()=>handleGoWriter('book')}>
+                                <BookIcon width="24" height="24" fill="black" />
+                                <OptionTextArea>
+                                    <Small>Livro</Small>
+                                </OptionTextArea>
+                            </OptionItem>
+                            <OptionItem onPress={()=>handleGoWriter('poem')}>
+                                <PoemIcon width="24" height="24" fill="black" />
+                                <OptionTextArea>
+                                    <Small>Poema</Small>
+                                </OptionTextArea>
+                            </OptionItem>
+                            <OptionItem onPress={()=>handleGoWriter('cordel')}>
+                                <CordelIcon width="24" height="24" fill="black" />
+                                <OptionTextArea>
+                                    <Small>Cordel</Small>
+                                </OptionTextArea>
+                            </OptionItem>
+                        </>
+                    </OptionBook>
+                </ModalArea>
+            </Modal>
+           
+            <ButtonAddPoem onPress={()=>setOptions(true)}>
                 <ButtonAddPoemText>+</ButtonAddPoemText>
             </ButtonAddPoem>
 
@@ -196,7 +242,7 @@ export default () => {
                                     <ShareIcon width="12" height="12" fill="black" />
                                     <Heading2 margin="16px" color="black">Compartilhar</Heading2>
                                 </GroupArea>
-                                <GroupArea onPress={()=>handleActionOption("add-user")}>
+                                <GroupArea onPress={()=>handleActionOption("add")}>
                                     <AddUserIcon width="12" height="12" fill="black" />
                                     <Heading2 margin="16px" color="black">Convidar alguém</Heading2>
                                 </GroupArea>
@@ -250,7 +296,15 @@ export default () => {
                     setShowAlert(false);
                 }}
             />
-            <InputModal modalVisible={inputVisible} setModalVisible={value=>setInputVisible(value)} value={action==='add-user'?'':poem[currentPoem].title} setValue={title=>handleNewTitle(title)} action={action} placeholder={action === 'add-user'? "Nome do usuário": ''} addUser={user=>handleAddUser(user)}/>
+            <InputModal 
+                modalVisible={inputVisible} 
+                setModalVisible={value=>setInputVisible(value)} 
+                value={action==='add'?'':poem[currentPoem].title} 
+                setValue={title=>handleNewTitle(title)} 
+                titleInput={action==='add'?'Convidar usuário':'Renomear obra'}
+                action={action} 
+                placeholder={action === 'add'? "Nome do usuário": ''} 
+                onAdd={user=>handleAddUser(user)}/>
             <Modal transparent={true} visible={filterVisible} animationType="fade">
                 <ModalArea onPress={()=>setFilterVisible(false)}>
                     <ModalContainer height="45%">

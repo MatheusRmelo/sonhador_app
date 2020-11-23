@@ -1,5 +1,8 @@
-import React, { useState, useLayoutEffect  } from 'react';
-import { Heading1, ButtonText, ButtonPrimary, colors, Small } from '../../commonStyles';
+import React, { useState, useLayoutEffect, useEffect  } from 'react';
+import { useNavigation, useRoute } from '@react-navigation/native';
+
+
+import { Heading2, ButtonText, ButtonPrimary, colors, Small } from '../../commonStyles';
 import {
     Container,
     InputPoem,
@@ -9,31 +12,40 @@ import {
     ButtonAddPageItem,
     ButtonAddPageItemText,
     PartPoem,
+    ButtonsOptions,
     ButtonOptionPart,
-    ModalArea,
-    ModalContainer,
-    ModalInput,
-    ButtonCloseModal,
-    ButtonClose,
-    ButtonCloseText
 } from './styles';
+
 import InputModal from '../../components/InputModal';
+import AwesomeAlert from 'react-native-awesome-alerts';
+import Categories from '../../components/Categories';
 
 import RightArrowIcon from '../../assets/icons/right-arrow.svg';
 import LeftArrowIcon from '../../assets/icons/left-arrow.svg';
 import TrashIcon from '../../assets/icons/trash.svg';
 import EditIcon from '../../assets/icons/edit.svg';
+import AlignCenterIcon from '../../assets/icons/center-alignment.svg';
+import AddIcon from '../../assets/icons/add.svg';
 
-import { useNavigation } from '@react-navigation/native';
-import AwesomeAlert from 'react-native-awesome-alerts';
+
+
 
 export default () => {
     const [pages, setPages] = useState([{name:'Primeira página',page:1, poem:''}]);
+    const [parts, setParts] = useState({label: 'Parte 1', pages:[{page: 1, poem: ``}]});
+    const [title, setTitle] = useState('');
+
+    const [currentPart, setCurrentPart] = useState(0);
     const [currentPage, setCurrentPage] = useState(0);
+    const [action, setAction] = useState('');
+
     const [visibleInput, setVisibleInput] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
+    const [categoryVisible, setCategoryVisible] = useState(false);
+
 
     const navigation = useNavigation();
+    const route = useRoute();
 
     const handleChangePoem = (t) => {
         let newList = [...pages];
@@ -72,15 +84,31 @@ export default () => {
         setVisibleInput(false);
     }
     const formatOrder = (i) => {
-        let list = ['Primeira', 'Segunda', 'Terceira', 'Quarta', 'Quinta', 'Sexta','Setima', 'Oitava', 'Nona', 'Decima'];
-        return list[i] + ' Página';
+        if(i%2===0){
+            return title;
+        }else{
+            return parts.label;
+        }
     }
 
+    const handleShowPart = (act) => {
+        setAction(act);
+        setVisibleInput(true);
+    }
+
+    
+    useEffect(() => {
+        if (route.params?.title) {
+            setTitle(route.params?.title);
+        }
+    }, [route.params?.title]);
+
+   
     useLayoutEffect(()=>{
         navigation.setOptions({
             title: 'Escreva seu poema',
             headerRight: () => (
-                <ButtonPrimary width="100%" height="60%" onPress={()=>navigation.navigate('EditNote')}>
+                <ButtonPrimary width="100%" height="60%" onPress={()=>setCategoryVisible(true)}>
                     <ButtonText>Publicar</ButtonText>
                 </ButtonPrimary>
             )
@@ -89,7 +117,15 @@ export default () => {
 
     return(
         <Container>
-            <InputModal modalVisible={visibleInput} setModalVisible={value=>setVisibleInput(value)} value={pages[currentPage].name} setValue={title=>handleChangePage(title)} action="rename-page" placeholder='' />
+            <Categories modalVisible={categoryVisible} />
+            <InputModal 
+                modalVisible={visibleInput} 
+                setModalVisible={value=>setVisibleInput(value)} 
+                value={action === 'add' ? '':parts.label} 
+                titleInput={action === 'add' ? 'Adicionar uma nova parte':'Renomear a parte'} 
+                setValue={title=>handleEditPart(title)} 
+                action={action} 
+                placeholder='' />
             <AwesomeAlert
                 show={showDelete}
                 showProgress={true}
@@ -108,17 +144,12 @@ export default () => {
                 onConfirmPressed={handleDeletePage}
             />
             <PartPoem>
-                <Heading1 center color="white"><Bold>{pages[currentPage].name}</Bold></Heading1>
-                <ButtonOptionPart onPress={()=>setVisibleInput(true)}>
-                        <EditIcon width="24" height="24" fill="white" />
-                </ButtonOptionPart>
-                {
-                    currentPage > 0
-                    &&
-                    <ButtonOptionPart onPress={()=>setShowDelete(true)}>
-                        <TrashIcon width="24" height="24" fill="red" />
+                <Heading2 center color="white"><Bold>{currentPage % 2 === 0 ? parts.label : title}</Bold></Heading2>
+                <ButtonsOptions>
+                    <ButtonOptionPart onPress={()=>handleShowPart('rename')}>
+                            <EditIcon width="24" height="24" fill="white" />
                     </ButtonOptionPart>
-                }
+                </ButtonsOptions>
             </PartPoem>
             <InputPoem
                 multiline={true}
@@ -128,6 +159,9 @@ export default () => {
                 textAlignVertical="top"
                 value={pages[currentPage].poem}
                 onChangeText={t=>handleChangePoem(t)}
+                scrollEnabled={false}
+                maxLength={480}
+                
             />
             <OptionsPage position="left">
                 <ButtonAddPage onPress={prevPage}>
@@ -144,7 +178,6 @@ export default () => {
                             <ButtonAddPageItemText>+</ButtonAddPageItemText>
                         </ButtonAddPageItem>
                     }
-                    
                 </ButtonAddPage>
             </OptionsPage>
             

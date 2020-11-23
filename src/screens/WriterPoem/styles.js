@@ -50,7 +50,12 @@ export const PartPoem = styled.View`
     align-items:center;
     justify-content:space-between;
 `;
-export const ButtonOptionPart = styled.TouchableOpacity``;
+export const ButtonsOptions = styled.View`
+    flex-direction:row;
+`;
+export const ButtonOptionPart = styled.TouchableOpacity`
+    margin:0 8px;
+`;
 
 export const ModalArea = styled.View`
     flex:1;

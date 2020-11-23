@@ -24,6 +24,29 @@ export const CategoryPhoto = styled.View`
 `;
 export const PoemInfo = styled.View`
 `;
+
+export const OptionBook = styled.TouchableHighlight`
+    position:absolute;
+    bottom:8%;
+    right:64px;
+    background-color:white;
+    width:50%;
+    height:30%;
+    border-radius:16px;
+    padding:8px;
+`;
+export const OptionItem  = styled.TouchableOpacity`
+    flex-direction:row;
+    padding:0px 8px;
+    margin:16px 0px;
+`;
+export const OptionTextArea = styled.View`
+    flex:1;
+    border-bottom-width:1px;
+    border-bottom-color: #CCC;
+    padding:0 8px;
+    margin:0 8px;
+`;
 export const ButtonAddPoem = styled.TouchableOpacity`
     position:absolute;
     bottom:3%;

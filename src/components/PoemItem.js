@@ -56,7 +56,7 @@ export default ({poem, setActionVisible}) => {
                 </Poem>
             </PoemView>
             <PoemDesc>
-                {category.getCategory(poem.category, '16', '16', 'red')}
+                {category.getCategory(poem.category, '16', '16', 'black')}
                 <Small>{poem.title}</Small>
                 <Options onPress={()=>setActionVisible()}>
                     <MenuIcon width="16" height="16" fill="black" />

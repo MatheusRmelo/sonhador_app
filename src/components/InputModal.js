@@ -43,7 +43,7 @@ const ActionArea = styled.View`
 const ActionItem = styled.TouchableOpacity`
     margin:8px;
 `;
-export default ({modalVisible, setModalVisible, action,value, setValue, placeholder, addUser}) => {
+export default ({modalVisible, setModalVisible, action,value, setValue, placeholder,titleInput,onAdd}) => {
     const [keyboardOpen, setKeyboardOpen] = useState(false);
     const [title, setTitle] = useState(value);
     const keyboardShowListener = useRef(null);
@@ -65,12 +65,13 @@ export default ({modalVisible, setModalVisible, action,value, setValue, placehol
 
   
     const handleActionButton = () => {
-        if(action==='rename' || action==='rename-page'){
+        if(action==='rename'){
             setValue(title);
             setTitle('');
         }else
-        if(action === 'add-user'){
-            addUser(title);
+        if(action === 'add'){
+            //addUser(title);
+            onAdd(title);
             setTitle('');
         }
     }
@@ -81,7 +82,7 @@ export default ({modalVisible, setModalVisible, action,value, setValue, placehol
                 <ModalContainer keyboardOpen={keyboardOpen} onPress={()=>{}} underlayColor="white"> 
                     <>
                         <Header>
-                            <Heading2 center >{action==='rename' ? 'Renomear a obra': action==='rename-page'?'Renomear a página':'Convidar um ajudante'}</Heading2>
+                            <Heading2 center >{titleInput}</Heading2>
                         </Header>
                         <Input placeholder={placeholder} value={title} onChangeText={e=>setTitle(e)} />
                         <ActionArea>
@@ -89,7 +90,7 @@ export default ({modalVisible, setModalVisible, action,value, setValue, placehol
                                 <Heading2 color={colors.info}>Cancelar</Heading2>
                             </ActionItem>
                             <ActionItem onPress={handleActionButton}>
-                                <Heading2 color={colors.info} >{action==='rename' ||action==='rename-page' ? 'Renomear':'Convidar usuário'}</Heading2>
+                                <Heading2 color={colors.info} >{action==='rename'? 'Renomear':action === 'add'?'Adicionar':''}</Heading2>
                             </ActionItem>
                         </ActionArea>
                         
