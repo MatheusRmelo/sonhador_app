@@ -30,6 +30,17 @@
 		2C3AE28DEAC748B3AFB844B2 /* EBGaramond-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A8DB7B433E8C46098EC1932C /* EBGaramond-SemiBoldItalic.ttf */; };
 		357402F99C9243C5AA6096A1 /* Fredoka One.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EB10E4EDFC60434893F8E61B /* Fredoka One.ttf */; };
 		6D0A2001F2C14112A78CED3E /* Lato.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3F7FE446FAAC48389327CD4C /* Lato.ttf */; };
+		09C6CC7EAB69412DBB66D0D4 /* EBGaramond-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 14EF21697A1745BF8AFBEA84 /* EBGaramond-Bold.ttf */; };
+		F4743E2E28364F60A520EFCA /* EBGaramond-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C85DE3D018B94EA2A94288E2 /* EBGaramond-BoldItalic.ttf */; };
+		6811650A151143E6BA511A2F /* EBGaramond-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 571D58438E554BC39E73D635 /* EBGaramond-ExtraBold.ttf */; };
+		40E5AE46785F4C859AF5C0B6 /* EBGaramond-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1D879442ADCE4AA1BACB67E4 /* EBGaramond-ExtraBoldItalic.ttf */; };
+		6EB3C9012C4249749E9C8C1A /* EBGaramond-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6E0D60A079504532AB419928 /* EBGaramond-Italic.ttf */; };
+		D5E09A96C5DA4DA4A460C245 /* EBGaramond-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 02755B2A49B24A35A30DE769 /* EBGaramond-Medium.ttf */; };
+		98075443E9AA4704AC7FCD6D /* EBGaramond-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 068F64C6D03B416BBD58AA3E /* EBGaramond-MediumItalic.ttf */; };
+		5BE4D6C30E0A4CD5A08B24B8 /* EBGaramond-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A380E97378E485688ED2A30 /* EBGaramond-Regular.ttf */; };
+		F88938C44720427D9200B448 /* EBGaramond-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FD42C5DDC6744D6DA5489FAE /* EBGaramond-SemiBold.ttf */; };
+		B69E92E8AE154A4BAB42883D /* EBGaramond-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1C971552519348AABDB45647 /* EBGaramond-SemiBoldItalic.ttf */; };
+		4479989B39294D649E038F86 /* EBGaramond.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 63B77B3C79754343A2F6EEFA /* EBGaramond.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -79,6 +90,17 @@
 		A8DB7B433E8C46098EC1932C /* EBGaramond-SemiBoldItalic.ttf */ = {isa = PBXFileReference; name = "EBGaramond-SemiBoldItalic.ttf"; path = "../src/assets/fonts/EB_Garamond/static/EBGaramond-SemiBoldItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		EB10E4EDFC60434893F8E61B /* Fredoka One.ttf */ = {isa = PBXFileReference; name = "Fredoka One.ttf"; path = "../src/assets/fonts/Fredoka One.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		3F7FE446FAAC48389327CD4C /* Lato.ttf */ = {isa = PBXFileReference; name = "Lato.ttf"; path = "../src/assets/fonts/Lato.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		14EF21697A1745BF8AFBEA84 /* EBGaramond-Bold.ttf */ = {isa = PBXFileReference; name = "EBGaramond-Bold.ttf"; path = "../src/assets/fonts/EBGaramond-Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		C85DE3D018B94EA2A94288E2 /* EBGaramond-BoldItalic.ttf */ = {isa = PBXFileReference; name = "EBGaramond-BoldItalic.ttf"; path = "../src/assets/fonts/EBGaramond-BoldItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		571D58438E554BC39E73D635 /* EBGaramond-ExtraBold.ttf */ = {isa = PBXFileReference; name = "EBGaramond-ExtraBold.ttf"; path = "../src/assets/fonts/EBGaramond-ExtraBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		1D879442ADCE4AA1BACB67E4 /* EBGaramond-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; name = "EBGaramond-ExtraBoldItalic.ttf"; path = "../src/assets/fonts/EBGaramond-ExtraBoldItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		6E0D60A079504532AB419928 /* EBGaramond-Italic.ttf */ = {isa = PBXFileReference; name = "EBGaramond-Italic.ttf"; path = "../src/assets/fonts/EBGaramond-Italic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		02755B2A49B24A35A30DE769 /* EBGaramond-Medium.ttf */ = {isa = PBXFileReference; name = "EBGaramond-Medium.ttf"; path = "../src/assets/fonts/EBGaramond-Medium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		068F64C6D03B416BBD58AA3E /* EBGaramond-MediumItalic.ttf */ = {isa = PBXFileReference; name = "EBGaramond-MediumItalic.ttf"; path = "../src/assets/fonts/EBGaramond-MediumItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		4A380E97378E485688ED2A30 /* EBGaramond-Regular.ttf */ = {isa = PBXFileReference; name = "EBGaramond-Regular.ttf"; path = "../src/assets/fonts/EBGaramond-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		FD42C5DDC6744D6DA5489FAE /* EBGaramond-SemiBold.ttf */ = {isa = PBXFileReference; name = "EBGaramond-SemiBold.ttf"; path = "../src/assets/fonts/EBGaramond-SemiBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		1C971552519348AABDB45647 /* EBGaramond-SemiBoldItalic.ttf */ = {isa = PBXFileReference; name = "EBGaramond-SemiBoldItalic.ttf"; path = "../src/assets/fonts/EBGaramond-SemiBoldItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		63B77B3C79754343A2F6EEFA /* EBGaramond.ttf */ = {isa = PBXFileReference; name = "EBGaramond.ttf"; path = "../src/assets/fonts/EBGaramond.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -203,6 +225,17 @@
 				A8DB7B433E8C46098EC1932C /* EBGaramond-SemiBoldItalic.ttf */,
 				EB10E4EDFC60434893F8E61B /* Fredoka One.ttf */,
 				3F7FE446FAAC48389327CD4C /* Lato.ttf */,
+				14EF21697A1745BF8AFBEA84 /* EBGaramond-Bold.ttf */,
+				C85DE3D018B94EA2A94288E2 /* EBGaramond-BoldItalic.ttf */,
+				571D58438E554BC39E73D635 /* EBGaramond-ExtraBold.ttf */,
+				1D879442ADCE4AA1BACB67E4 /* EBGaramond-ExtraBoldItalic.ttf */,
+				6E0D60A079504532AB419928 /* EBGaramond-Italic.ttf */,
+				02755B2A49B24A35A30DE769 /* EBGaramond-Medium.ttf */,
+				068F64C6D03B416BBD58AA3E /* EBGaramond-MediumItalic.ttf */,
+				4A380E97378E485688ED2A30 /* EBGaramond-Regular.ttf */,
+				FD42C5DDC6744D6DA5489FAE /* EBGaramond-SemiBold.ttf */,
+				1C971552519348AABDB45647 /* EBGaramond-SemiBoldItalic.ttf */,
+				63B77B3C79754343A2F6EEFA /* EBGaramond.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -360,6 +393,17 @@
 				2C3AE28DEAC748B3AFB844B2 /* EBGaramond-SemiBoldItalic.ttf in Resources */,
 				357402F99C9243C5AA6096A1 /* Fredoka One.ttf in Resources */,
 				6D0A2001F2C14112A78CED3E /* Lato.ttf in Resources */,
+				09C6CC7EAB69412DBB66D0D4 /* EBGaramond-Bold.ttf in Resources */,
+				F4743E2E28364F60A520EFCA /* EBGaramond-BoldItalic.ttf in Resources */,
+				6811650A151143E6BA511A2F /* EBGaramond-ExtraBold.ttf in Resources */,
+				40E5AE46785F4C859AF5C0B6 /* EBGaramond-ExtraBoldItalic.ttf in Resources */,
+				6EB3C9012C4249749E9C8C1A /* EBGaramond-Italic.ttf in Resources */,
+				D5E09A96C5DA4DA4A460C245 /* EBGaramond-Medium.ttf in Resources */,
+				98075443E9AA4704AC7FCD6D /* EBGaramond-MediumItalic.ttf in Resources */,
+				5BE4D6C30E0A4CD5A08B24B8 /* EBGaramond-Regular.ttf in Resources */,
+				F88938C44720427D9200B448 /* EBGaramond-SemiBold.ttf in Resources */,
+				B69E92E8AE154A4BAB42883D /* EBGaramond-SemiBoldItalic.ttf in Resources */,
+				4479989B39294D649E038F86 /* EBGaramond.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

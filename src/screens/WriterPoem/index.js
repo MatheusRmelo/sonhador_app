@@ -31,16 +31,13 @@ import AddIcon from '../../assets/icons/add.svg';
 
 
 export default () => {
-    const [pages, setPages] = useState([{name:'Primeira página',page:1, poem:''}]);
     const [parts, setParts] = useState({label: 'Parte 1', pages:[{page: 1, poem: ``}]});
     const [title, setTitle] = useState('');
 
-    const [currentPart, setCurrentPart] = useState(0);
     const [currentPage, setCurrentPage] = useState(0);
     const [action, setAction] = useState('');
 
     const [visibleInput, setVisibleInput] = useState(false);
-    const [showDelete, setShowDelete] = useState(false);
     const [categoryVisible, setCategoryVisible] = useState(false);
 
 
@@ -48,47 +45,40 @@ export default () => {
     const route = useRoute();
 
     const handleChangePoem = (t) => {
-        let newList = [...pages];
-        newList[currentPage].poem = t;
-        setPages(newList); 
+        let newList = {...parts};
+        newList.pages[currentPage].poem = t;
+        setParts(newList); 
     }
     const handleAddPage = ()=>{
-        if( pages.length < currentPage + 2){
-            let newList = [...pages];
-            newList.push({name:formatOrder(newList.length),page:newList.length,poem:''});
-            setPages(newList);
+        if(parts.pages.length < currentPage + 2){
+            let newList = {...parts};
+            newList.pages.push({page:currentPage+2,poem:``});
+            setParts(newList); 
         }
+
         nextPage();
     }
-    const handleDeletePage = () => {
-        let newList = [...pages];
-        newList = newList.filter((i,k)=>currentPage !== k);
-        setPages(newList);
+    const handleDeletePage = (prevPage = true) => {
+        let newList = {...parts};
+        newList.pages = newList.pages.filter((i,k)=>k!==currentPage);
+        setParts(newList);
+    
+        if(prevPage){
+            prevPage();
+        }
         
-        setShowDelete(false);
-        prevPage();
     }
     const nextPage = () => {
         setCurrentPage(prevState=>prevState+1);
     }
     const prevPage = () => {
         if(currentPage > 0){
+            if(!parts.pages[currentPage].poem){
+                handleDeletePage(false);
+            }
             setCurrentPage(prevState=>prevState-1);
         }
         
-    }
-    const handleChangePage = (t) => {
-        let newList = [...pages];
-        newList[currentPage].name = t;
-        setPages(newList);
-        setVisibleInput(false);
-    }
-    const formatOrder = (i) => {
-        if(i%2===0){
-            return title;
-        }else{
-            return parts.label;
-        }
     }
 
     const handleShowPart = (act) => {
@@ -96,6 +86,16 @@ export default () => {
         setVisibleInput(true);
     }
 
+    const handleEditTitleOrPart = (newTitle) => {
+        if(currentPage%2===0){
+            let newList = {...parts};
+            newList.label = newTitle;
+            setParts(newList); 
+        }else{
+            setTitle(newTitle);
+        }
+        setVisibleInput(false);
+    }
     
     useEffect(() => {
         if (route.params?.title) {
@@ -117,34 +117,18 @@ export default () => {
 
     return(
         <Container>
-            <Categories modalVisible={categoryVisible} />
+            <Categories modalVisible={categoryVisible} setModalVisible={value=>setCategoryVisible(value)} />
             <InputModal 
                 modalVisible={visibleInput} 
                 setModalVisible={value=>setVisibleInput(value)} 
-                value={action === 'add' ? '':parts.label} 
-                titleInput={action === 'add' ? 'Adicionar uma nova parte':'Renomear a parte'} 
-                setValue={title=>handleEditPart(title)} 
+                value={currentPage % 2 === 0 ? parts.label : title} 
+                titleInput={currentPage % 2 === 0 ?  'Renomear a parte':'Renomear o título'} 
+                setValue={handleEditTitleOrPart} 
                 action={action} 
                 placeholder='' />
-            <AwesomeAlert
-                show={showDelete}
-                showProgress={true}
-                title="Excluir a página"
-                message="Deseja realmente excluir essa página?"
-                closeOnTouchOutside={true}
-                closeOnHardwareBackPress={false}
-                showCancelButton={true}
-                showConfirmButton={true}
-                cancelText="Cancelar"
-                confirmText="EXCLUIR"
-                confirmButtonColor={colors.danger}
-                onCancelPressed={() => {
-                    setShowDelete(false);
-                }}
-                onConfirmPressed={handleDeletePage}
-            />
             <PartPoem>
                 <Heading2 center color="white"><Bold>{currentPage % 2 === 0 ? parts.label : title}</Bold></Heading2>
+                <Small color="white">{`${currentPage+1}/${parts.pages.length}`}</Small>
                 <ButtonsOptions>
                     <ButtonOptionPart onPress={()=>handleShowPart('rename')}>
                             <EditIcon width="24" height="24" fill="white" />
@@ -157,7 +141,7 @@ export default () => {
                 placeholder="Começe a escrever"
                 textAlign="center"
                 textAlignVertical="top"
-                value={pages[currentPage].poem}
+                value={parts.pages[currentPage].poem}
                 onChangeText={t=>handleChangePoem(t)}
                 scrollEnabled={false}
                 maxLength={480}
@@ -172,7 +156,7 @@ export default () => {
                 <ButtonAddPage onPress={handleAddPage}>
                     <RightArrowIcon width="24" height="24" fill="white" />
                     {
-                        pages.length < currentPage + 2
+                        parts.pages.length < currentPage + 2
                         &&
                         <ButtonAddPageItem>
                             <ButtonAddPageItemText>+</ButtonAddPageItemText>

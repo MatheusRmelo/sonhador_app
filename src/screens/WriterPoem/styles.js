@@ -12,6 +12,9 @@ export const InputPoem = styled.TextInput`
     border-radius:16px;
     padding: 8px 16px;
     margin:16px 0px;
+    font-size:13px;
+    font-family: 'EBGaramond';
+    line-height: 19px;
 `;
 export const Bold = styled.Text`
     font-weight:bold;

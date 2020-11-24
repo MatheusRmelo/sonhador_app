@@ -13,8 +13,8 @@ export const colors = {
     danger:'#DD6B55'
 }
 export const ButtonPrimary = styled.TouchableOpacity`
-    background-color: ${props=>props.choose===props.type ?colors.secondary:colors.light_1};
-    border-radius:8px;
+    background-color: ${props=>props.choose===props.type?colors.secondary:colors.light_1};
+    border-radius:${props=>props.rounded ? props.rounded : '8px'};
     height: ${props=>props.height};
     justify-content: center;
     align-items: center;
