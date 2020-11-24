@@ -7,7 +7,7 @@ import rootReducer from './reducers'
 const persistConfig = {
     key: 'root',
     storage: AsyncStorage,
-    whiteList: ['user', 'books']
+    whiteList: ['user', 'book']
 }
 
 const pReducer = persistReducer(persistConfig, rootReducer)

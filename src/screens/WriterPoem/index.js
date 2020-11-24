@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect, useEffect  } from 'react';
+import React, { useState, useLayoutEffect, useEffect } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 
@@ -19,6 +19,8 @@ import {
 import InputModal from '../../components/InputModal';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import Categories from '../../components/Categories';
+import { Keyboard } from 'react-native';
+
 
 import RightArrowIcon from '../../assets/icons/right-arrow.svg';
 import LeftArrowIcon from '../../assets/icons/left-arrow.svg';
@@ -26,6 +28,7 @@ import TrashIcon from '../../assets/icons/trash.svg';
 import EditIcon from '../../assets/icons/edit.svg';
 import AlignCenterIcon from '../../assets/icons/center-alignment.svg';
 import AddIcon from '../../assets/icons/add.svg';
+import { useDispatch } from 'react-redux';
 
 
 
@@ -39,10 +42,12 @@ export default () => {
 
     const [visibleInput, setVisibleInput] = useState(false);
     const [categoryVisible, setCategoryVisible] = useState(false);
+    const [keyboardVisible, setKeyboardVisible] = useState(false);
 
 
     const navigation = useNavigation();
     const route = useRoute();
+    const dispatch = useDispatch();
 
     const handleChangePoem = (t) => {
         let newList = {...parts};
@@ -103,6 +108,26 @@ export default () => {
         }
     }, [route.params?.title]);
 
+    useEffect(() => {
+        Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
+        Keyboard.addListener("keyboardDidHide", _keyboardDidHide);
+    
+        // cleanup function
+        return () => {
+          Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
+          Keyboard.removeListener("keyboardDidHide", _keyboardDidHide);
+        };
+    }, []);
+
+    const _keyboardDidShow = () => {
+        setKeyboardVisible(true);
+        dispatch({type: 'SET_VISIBLE', payload:{visible: false}});
+    };
+    
+    const _keyboardDidHide = () => {
+    setKeyboardVisible(false);
+    dispatch({type: 'SET_VISIBLE', payload:{visible: true}});
+    };
    
     useLayoutEffect(()=>{
         navigation.setOptions({
@@ -113,7 +138,7 @@ export default () => {
                 </ButtonPrimary>
             )
         })
-    }, [])
+    }, []);
 
     return(
         <Container>

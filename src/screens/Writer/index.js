@@ -171,7 +171,7 @@ export default () => {
 
     return( 
         <Container>
-            <SearchHeader onPress={()=>setSearchVisible(true)} placeholder="Pesquisar suas obras...">
+            <SearchHeader onPress={()=>navigation.navigate('SearchComponent')} placeholder="Pesquisar suas obras...">
                 <Tabs tabs={tabs} setActive={(key)=>handleActiveTab(key)} />
             </SearchHeader>
             <FilterArea onPress={()=>setFilterVisible(true)}>
