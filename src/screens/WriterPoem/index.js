@@ -87,8 +87,8 @@ export default () => {
     }
 
     const handleShowPart = (act) => {
-        setAction(act);
         setVisibleInput(true);
+        setAction(act);
     }
 
     const handleEditTitleOrPart = (newTitle) => {
@@ -124,9 +124,9 @@ export default () => {
         dispatch({type: 'SET_VISIBLE', payload:{visible: false}});
     };
     
-    const _keyboardDidHide = () => {
-    setKeyboardVisible(false);
-    dispatch({type: 'SET_VISIBLE', payload:{visible: true}});
+    const _keyboardDidHide = () => { 
+        setKeyboardVisible(false);
+        dispatch({type: 'SET_VISIBLE', payload:{visible: true}});
     };
    
     useLayoutEffect(()=>{
@@ -150,7 +150,9 @@ export default () => {
                 titleInput={currentPage % 2 === 0 ?  'Renomear a parte':'Renomear o título'} 
                 setValue={handleEditTitleOrPart} 
                 action={action} 
-                placeholder='' />
+                placeholder=''
+                height={keyboardVisible ? '45%' : '30%'}
+            />
             <PartPoem>
                 <Heading2 center color="white"><Bold>{currentPage % 2 === 0 ? parts.label : title}</Bold></Heading2>
                 <Small color="white">{`${currentPage+1}/${parts.pages.length}`}</Small>

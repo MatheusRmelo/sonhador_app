@@ -72,15 +72,15 @@ export default () => {
             <AwesomeAlert
                 show={showAlert}
                 showProgress={true}
-                title="Título não está legal :("
-                message="Amigo, marque a opção sem título ou escreva um título"
+                title="A obra precisa de um título"
+                message="Amigo, marque a opção colocar título depois ou escreva um título"
                 closeOnTouchOutside={true}
                 closeOnHardwareBackPress={false}
                 showCancelButton={false}
                 showConfirmButton={true}
                 cancelText="Cancelar"
                 confirmText="ENTENDIDO"
-                confirmButtonColor={colors.info}
+                confirmButtonColor={colors.danger}
                 onCancelPressed={() => {}}
                 onConfirmPressed={()=>setShowAlert(false)}
             />

@@ -29,7 +29,7 @@ import SearchModal from '../../components/SearchModal';
 import { Heading2, Small, colors } from '../../commonStyles';
 
 import AwesomeAlert from 'react-native-awesome-alerts';
-import { Modal, Share } from 'react-native';
+import { Modal, Share, Keyboard } from 'react-native';
 
 
 import { PoemApi } from '../../PoemApi';
@@ -69,6 +69,7 @@ export default () => {
     const [inputVisible, setInputVisible] = useState(false);
     const [filterVisible, setFilterVisible] = useState(false);
     const [searchVisible, setSearchVisible] = useState(false);
+    const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [options, setOptions] = useState(false);
     const [action, setAction] = useState('');
     const [showDelete, setShowDelete] = useState(false);
@@ -104,6 +105,27 @@ export default () => {
             alert(error.message);
         }
     }
+
+    useEffect(() => {
+        Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
+        Keyboard.addListener("keyboardDidHide", _keyboardDidHide);
+    
+        // cleanup function
+        return () => {
+          Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
+          Keyboard.removeListener("keyboardDidHide", _keyboardDidHide);
+        };
+    }, []);
+
+    const _keyboardDidShow = () => {
+        setKeyboardVisible(true);
+        //dispatch({type: 'SET_VISIBLE', payload:{visible: false}});
+    };
+    
+    const _keyboardDidHide = () => { 
+        setKeyboardVisible(false);
+        //dispatch({type: 'SET_VISIBLE', payload:{visible: true}});
+    };
 
     const handleActiveTab = (key) => {
         let newList = [...tabs];
@@ -304,7 +326,9 @@ export default () => {
                 titleInput={action==='add'?'Convidar usuário':'Renomear obra'}
                 action={action} 
                 placeholder={action === 'add'? "Nome do usuário": ''} 
-                onAdd={user=>handleAddUser(user)}/>
+                onAdd={user=>handleAddUser(user)}
+                height={keyboardVisible ? '45%' : '30%'}
+                />
             <Modal transparent={true} visible={filterVisible} animationType="fade">
                 <ModalArea onPress={()=>setFilterVisible(false)}>
                     <ModalContainer height="45%">

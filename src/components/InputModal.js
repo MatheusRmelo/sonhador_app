@@ -17,7 +17,7 @@ const ModalContainer = styled.TouchableHighlight`
     background-color:white;
     border-radius:16px;
     width:100%;
-    height:${props=>props.keyboardOpen? '50%': '30%'};
+    height:${props=>props.height? props.height: '30%'};
     padding:16px;
     align-items:center;
 `;
@@ -43,7 +43,7 @@ const ActionArea = styled.View`
 const ActionItem = styled.TouchableOpacity`
     margin:8px;
 `;
-export default ({modalVisible, setModalVisible, action,value, setValue, placeholder,titleInput,onAdd}) => {
+export default ({modalVisible, setModalVisible, action,value, setValue, placeholder,titleInput,onAdd, height}) => {
     const [keyboardOpen, setKeyboardOpen] = useState(false);
     const [title, setTitle] = useState(value);
     const keyboardShowListener = useRef(null);
@@ -79,7 +79,7 @@ export default ({modalVisible, setModalVisible, action,value, setValue, placehol
     return(
         <Modal visible={modalVisible} transparent={true}>
             <ModalArea onPress={()=>setModalVisible(false)}>
-                <ModalContainer keyboardOpen={keyboardOpen} onPress={()=>{}} underlayColor="white"> 
+                <ModalContainer keyboardOpen={keyboardOpen} height={height} onPress={()=>{}} underlayColor="white"> 
                     <>
                         <Header>
                             <Heading2 center >{titleInput}</Heading2>
