@@ -30,9 +30,6 @@ import AlignCenterIcon from '../../assets/icons/center-alignment.svg';
 import AddIcon from '../../assets/icons/add.svg';
 import { useDispatch } from 'react-redux';
 
-
-
-
 export default () => {
     const [parts, setParts] = useState({label: 'Parte 1', pages:[{page: 1, poem: ``}]});
     const [title, setTitle] = useState('');
@@ -142,7 +139,7 @@ export default () => {
 
     return(
         <Container>
-            <Categories modalVisible={categoryVisible} setModalVisible={value=>setCategoryVisible(value)} />
+            <Categories modalVisible={categoryVisible} setModalVisible={value=>setCategoryVisible(value)} book={{parts, title}} />
             <InputModal 
                 modalVisible={visibleInput} 
                 setModalVisible={value=>setVisibleInput(value)} 
