@@ -62,13 +62,13 @@ export const PoemBody = styled.Text`
 
 export const OptionsPage = styled.View`
     position:absolute;
-    top:35%;
+    top:25%;
     right: ${props=>props.position === 'right'? 0:'auto'};
     left: ${props=>props.position === 'left'? 0:'auto'};
 `;
 
-export const OptionItemFollow = styled.TouchableOpacity`
-    margin: 12px 16px;
+export const OptionItem = styled.TouchableOpacity`
+    margin: 12px;
     width:40px;
     height:40px;
     background-color: ${colors.secondary};
@@ -76,20 +76,21 @@ export const OptionItemFollow = styled.TouchableOpacity`
     justify-content: center;
     align-items: center;
 `;
-export const OptionItem = styled.TouchableOpacity`
+export const OptionItemFollow = styled.TouchableOpacity`
     margin: 12px 16px;
     justify-content: center;
     align-items: center;
 `;
 export const OptionNumberItem = styled.Text`
-    font-size:12px;
-    color:${colors.secondary};
+    font-size:5px;
+    color:white;
+    text-align:center;
 `;
 export const OptionFollowItem = styled.TouchableOpacity`
     position: absolute;
     bottom:0;
     right: 0;
-    background-color: gray;
+    background-color: ${colors.contrast};
     width: 18px;
     height:18px;
     border-radius:9px;
@@ -232,4 +233,34 @@ export const InputComment = styled.TextInput`
     flex:1;
 `;
 
-
+export const SwiperArea = styled.View`
+    flex:1;
+    background-color: ${colors.primary_1};
+    padding:32px;
+`;
+export const BookArea = styled.View`
+    flex:1;
+`;
+export const Book = styled.View`
+    flex:1;
+    background-color:white;
+    border-radius:16px;
+    padding-right: 28px;
+    padding-left:8px;
+    margin:16px 0px;
+`;
+export const BookText = styled.Text`
+    font-size:16px;
+    font-family: 'EBGaramond';
+    line-height: 24px;
+    text-align:${props=>props.type==='book' ? 'left': 'center'};
+    width:100%;
+    height:100%;
+`;
+export const PartBook = styled.View`
+    width:100%;
+    height:5%;
+    flex-direction:row;
+    align-items:center;
+    justify-content:space-between;
+`;

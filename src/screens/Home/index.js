@@ -39,13 +39,18 @@ import {
     ButtonFollow,
     ButtonFollowText,
     InputArea,
-    InputComment
+    InputComment,
+    SwiperArea,
+    PartBook,
+    BookArea,
+    Book,
+    BookText
 } from './styles';
 import { Modal, Keyboard, Share } from 'react-native';
 
 import Swiper from 'react-native-swiper';
 
-import { colors } from '../../commonStyles';
+import { colors, Heading2, Small } from '../../commonStyles';
 import { categoriesList, typesList } from '../../categories';
 
 import FilterIcon from '../../assets/icons/filter.svg';
@@ -67,17 +72,143 @@ import { PoemApi, authorsApi } from '../../PoemApi';
 
 export default () => {
     const [choose, setChoose] = useState('follow');
+
     const [poemList, setPoemList] = useState(PoemApi);
     const [authorsList, setAuthorsList] = useState(authorsApi);
     const [currentPoem, setCurrentPoem] = useState(0);
+
+    const [books, setBooks] = useState([
+        {
+            title:'Título',
+            parts:{
+                label:'Parte 1',
+                pages:[
+                    {
+                        page:1, 
+                        book: `
+        Como posso não sonhar?
+        Se tudo isso é o que restou
+        Se isso é tudo oque sou
+        Um simples jovem sonhador
+
+        Como posso não sonhar?
+        Se tudo isso é o que restou
+        Se isso é tudo oque sou
+        Um simples jovem sonhador
+
+        Como posso não sonhar?
+        Se tudo isso é o que restou
+        Se isso é tudo oque sou
+        Um simples jovem sonhador
+                        `
+                    },
+                    {
+                        page:2,
+                        book: `
+        TESTE                
+                        `
+                    }
+                ]
+            },
+            numbers:{
+                views:120,
+                likes:123,
+                comments:[{author:'du', comment:'MASSA!'}],
+                shared: 40
+            }
+        },
+        {
+            title:'Título',
+            parts:{
+                label:'Parte 1',
+                pages:[
+                    {
+                        page:1, 
+                        book: `
+        Como posso não sonhar?
+        Se tudo isso é o que restou
+        Se isso é tudo oque sou
+        Um simples jovem sonhador
+
+        Como posso não sonhar?
+        Se tudo isso é o que restou
+        Se isso é tudo oque sou
+        Um simples jovem sonhador
+
+        Como posso não sonhar?
+        Se tudo isso é o que restou
+        Se isso é tudo oque sou
+        Um simples jovem sonhador
+                        `
+                    },
+                    {
+                        page:2,
+                        book: `
+        TESTE                
+                        `
+                    }
+                ]
+            },
+            numbers:{
+                views:120,
+                likes:123,
+                comments:[{author:'du', comment:'MASSA!'}],
+                shared: 40
+            }
+        },
+        {
+            title:'Título',
+            parts:{
+                label:'Parte 1',
+                pages:[
+                    {
+                        page:1, 
+                        book: `
+        Como posso não sonhar?
+        Se tudo isso é o que restou
+        Se isso é tudo oque sou
+        Um simples jovem sonhador
+
+        Como posso não sonhar?
+        Se tudo isso é o que restou
+        Se isso é tudo oque sou
+        Um simples jovem sonhador
+
+        Como posso não sonhar?
+        Se tudo isso é o que restou
+        Se isso é tudo oque sou
+        Um simples jovem sonhador
+                        `
+                    },
+                    {
+                        page:2,
+                        book: `
+        TESTE                
+                        `
+                    }
+                ]
+            },
+            numbers:{
+                views:120,
+                likes:123,
+                comments:[{author:'du', comment:'MASSA!'}],
+                shared: 40
+            }
+        },
+        
+    ]);
+    const [currentPage, setCurrentPage] = useState(0);
+
     const [modalVisible, setModalVisible] = useState(false);
     const [showComments, setShowComments] = useState(false);
     const [showCredits, setShowCredits] = useState(false);
+
     const [liked, setLiked]= useState(false);
     const [followed, setFollowed] = useState(false); 
     const [categories, setCategories] = useState(categoriesList);
     const [types, setTypes] = useState(typesList);
     const [comment, setComment] = useState('');
+
     const userLogged = '@matheusr.melo';
 
     useEffect(()=>{
@@ -101,27 +232,10 @@ export default () => {
     }
 
     const handleNextPage = ()=>{
-        //setShowCredits(false);
-        //let pageNext = {...poemList[currentPoem]};
-        let newList = [...poemList];
-        if(poemList[currentPoem].pages>poemList[currentPoem].pageCurrent){
-           newList[currentPoem].pageCurrent++
-           setPoemList(newList);
-        }else{
-            if(!showCredits){
-                newList[currentPoem].pageCurrent++
-                setPoemList(newList);
-                setShowCredits(true);
-            }
-        }
+        setCurrentPage(prevState => prevState+1);
     }
     const handlePrevPage = ()=>{
-        let newList = [...poemList];
-        if(showCredits || poemList[currentPoem].pageCurrent>1){
-           newList[currentPoem].pageCurrent--
-           setPoemList(newList);
-           setShowCredits(false);
-        }
+        setCurrentPage(prevState=>prevState - 1);
     }
     const handleLikePoem = () => {
         let newList = [...poemList];
@@ -217,90 +331,66 @@ export default () => {
                     <DirectIcon width="32" height="32" fill="white" />
                 </DirectButton>
             </Header>
-            <TabChoose>
-                <ChooseItem choose={choose} type="follow" underlayColor="transparent" onPress={()=>setChoose('follow')}> 
-                    <ChooseItemText choose={choose} type="general">SEGUINDO</ChooseItemText>
-                </ChooseItem>
-                <ChooseItem choose={choose} type="general" underlayColor="transparent" onPress={()=>setChoose('general')}>
-                    <ChooseItemText choose={choose} type="general">GERAL</ChooseItemText>
-                </ChooseItem>
-            </TabChoose>
-            <Swiper horizontal={false} showsButtons={false} showsPagination={false} onIndexChanged={handleNextPoem} > 
-                
-                   {
-                       poemList.map((poem, index)=>(
-                        
-                            showCredits
-                            ? 
-                            <Poem key={index}>
-                                <PoemTitle>Créditos</PoemTitle>
-                                <Credits>
-                                    <CreditSocial>
-                                        <CreditSocialText>{poem.creditPage.instagram}</CreditSocialText>
-                                        <InstagramIcon width="24" height="24" fill={colors.secondary} />
-                                    </CreditSocial>
-                                    <CreditSocial>
-                                        <CreditSocialText>{poem.creditPage.twitter}</CreditSocialText>
-                                        <TwitterIcon width="24" height="24" fill={colors.secondary} />
-                                    </CreditSocial>
-                                    <CreditSocial><CreditSocialText>{poem.creditPage.author}</CreditSocialText></CreditSocial>
-                                    <ButtonFollow onPress={handleFollow}>
-                                        <ButtonFollowText>{followed ? 'DEIXAR DE SEGUIR': 'SEGUIR'}</ButtonFollowText>
-                                    </ButtonFollow>
-                                </Credits>
-                            </Poem>
+            <SwiperArea>
+                <Swiper horizontal={false} showsButtons={false} showsPagination={false} onIndexChanged={handleNextPoem}>
+                    {
+                        books.map((book, index)=>(
+                            <BookArea key={index}>
+                                <PartBook>
+                                    <Heading2 center color="white">{currentPage % 2 === 0 ? book.parts.label : book.title}</Heading2>
+                                    <Small color="white">{`${currentPage+1}/${book.parts.pages.length}`}</Small>
+                                </PartBook> 
+                                <Book>
+                                    <BookText type="book">{book.parts.pages[currentPage].book}</BookText>
+                                </Book>
+                            
+                            </BookArea>
+                        ))
+                    }
+                </Swiper>
+                <OptionsPage position="left">
+                    <OptionItem style={{opacity: currentPage === 0 ? 0:1}} disabled={currentPage===0} onPress={handlePrevPage}>
+                        <LeftArrowIcon width="24" height="24" fill='white' />
+                    </OptionItem>
+                </OptionsPage>
+                <OptionsPage position="right">
+                    <OptionItem onPress={handleNextPage}>
+                        <RightArrowIcon width="24" height="24" fill="white" />
+                    </OptionItem>
+                    <OptionItem>
+                        <ProfileIcon width="24" height="24" fill="white" />
+                        {
+                            !followed 
+                            &&
+                            <OptionFollowItem onPress={handleFollow}>
+                                <OptionFollowItemText>+</OptionFollowItemText>
+                            </OptionFollowItem>
+                        }
+                    </OptionItem>
+                    <OptionItem onPress={handleLikePoem}>
+                        {
+                            poemList[currentPoem].liked
+                            ?
+                            <LikeIcon width="24" height="24" fill='white' />
                             :
-                            <Poem key={index}>
-                                <PoemPages>{poem.pageCurrent<10 ? `0${poem.pageCurrent}`: poem.pageCurrent}/{poem.pages< 10? `0${poem.pages}`: poem.pages}</PoemPages>
-                                <PoemTitle>{poem.title}</PoemTitle>
-                                <PoemBody>{poem.body}</PoemBody>
-                            </Poem>
-                       )
-                       )
-                   }
-            </Swiper>
-           
-            <OptionsPage position="left">
-                <OptionItem onPress={handlePrevPage}>
-                    <LeftArrowIcon width="32" height="32" fill={colors.secondary} />
-                </OptionItem>
-            </OptionsPage>
-            <OptionsPage position="right">
-                <OptionItem onPress={handleNextPage}>
-                    <RightArrowIcon width="32" height="32" fill={colors.secondary} />
-                </OptionItem>
-                <OptionItemFollow>
-                    <ProfileIcon width="24" height="24" fill="white" />
-                    {
-                        !followed 
-                        &&
-                        <OptionFollowItem onPress={handleFollow}>
-                            <OptionFollowItemText>+</OptionFollowItemText>
-                        </OptionFollowItem>
-                    }
-                </OptionItemFollow>
-                <OptionItem onPress={handleLikePoem}>
-                    {
-                        poemList[currentPoem].liked
-                        ?
-                        <LikeIcon width="32" height="32" fill={colors.secondary} />
-                        :
-                        <HeartIcon width="32" height="32" fill={colors.secondary} />
-                    }
-                    <OptionNumberItem>{poemList[currentPoem].likes}</OptionNumberItem>
-                </OptionItem>
-                <OptionItem onPress={()=>setShowComments(true)}>
-                    <MessengerIcon width="32" height="32" fill={colors.secondary} />
-                    <OptionNumberItem>{poemList[currentPoem].comments}</OptionNumberItem>
-                </OptionItem>
-                <OptionItem onPress={onShare}>
-                    <ShareIcon width="32" height="32" fill={colors.secondary} />
-                    <OptionNumberItem>{poemList[currentPoem].share}</OptionNumberItem>
-                </OptionItem>
-            </OptionsPage>
-            <NextPage>
-                <UpArrowIcon  width="32" height="32" fill="#E3E1E1" />
-            </NextPage>
+                            <HeartIcon width="24" height="24" fill='white' />
+                        }
+                        <OptionNumberItem>{books[currentPoem].numbers.likes}</OptionNumberItem>
+                    </OptionItem>
+                    <OptionItem onPress={()=>setShowComments(true)}>
+                        <MessengerIcon width="24" height="24" fill='white' />
+                        <OptionNumberItem>{books[currentPoem].numbers.comments.length}</OptionNumberItem>
+                    </OptionItem>
+                    <OptionItem onPress={onShare}>
+                        <ShareIcon width="24" height="24" fill='white' />
+                        <OptionNumberItem>{books[currentPoem].numbers.shared}</OptionNumberItem>
+                    </OptionItem>
+                </OptionsPage>
+            </SwiperArea>
+            
+
+
+
             <Modal visible={modalVisible} transparent animationType="fade">
                 <ModalContainer>
                     <ListFilter>

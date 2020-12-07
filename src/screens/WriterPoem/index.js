@@ -155,7 +155,7 @@ export default () => {
                 <Small color="white">{`${currentPage+1}/${parts.pages.length}`}</Small>
                 <ButtonsOptions>
                     <ButtonOptionPart onPress={()=>handleShowPart('rename')}>
-                            <EditIcon width="24" height="24" fill="white" />
+                        <EditIcon width="24" height="24" fill="white" />
                     </ButtonOptionPart>
                 </ButtonsOptions>
             </PartPoem>
