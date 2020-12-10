@@ -10,14 +10,14 @@ export default ()=>{
     //TODO - configurar async storage
     useEffect(()=>{
         setTimeout(()=>{
-            let token = 'reqjo'
+            let token = ''
             if(token){
                 navigation.reset({
                     routes: [{name: 'MainTab'}]
                 });
             }else{
                 navigation.reset({
-                    routes: [{name: 'MainTab'}]
+                    routes: [{name: 'Login'}]
                 });
             }
         }, 1000);

@@ -1,5 +1,7 @@
 const initialState = {
-    name:''
+    name:'',
+    email:'',
+    uid: ''
 }
 
 export default (state = initialState, action)=>{
@@ -8,7 +10,11 @@ export default (state = initialState, action)=>{
         case 'SET_NAME':
             return {...state,name:action.payload.name}
         break
+        case 'LOGIN':
+            return {...action.payload.user};
+        break;
     }
+
 
     return state
 }

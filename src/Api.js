@@ -1,56 +1,19 @@
-const BASEAPI = 'http://192.168.2.9:5000';
+import auth from '@react-native-firebase/auth';
+import { GoogleSignin } from '@react-native-community/google-signin';
 
-const apiFetchPost = async (endpoint, body) => {
-    const res = await fetch(BASEAPI+endpoint, {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            "Content-Type":'application/json'
-        },
-        body: JSON.stringify(body)
-    });
-    const json = await res.json();
+GoogleSignin.configure({
+    webClientId: '793601712243-ughg5eivepl4o93n91mvp8vn8pgt0kir.apps.googleusercontent.com',
+  });
+  
+export default {
+    login: async ()=>{
+        // Get the users ID token
+        const { idToken } = await GoogleSignin.signIn();
 
-    // if(json.notallowed){
-    //     window.location.href = '/signin';
-    //     return;
-    // }
+        // Create a Google credential with the token
+        const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
-    return json;
-}
-const apiFetchGet = async (endpoint, body = []) => {
-    // if(!body.token){
-    //     let token = Cookies.get('token');
-    //     if(token){
-    //         body.token = token;
-    //     }
-    // }
-
-    const res = await fetch(`${BASEAPI+endpoint}`);
-    const json = await res.json();
-
-    // if(json.notallowed){
-    //     window.location.href = '/signin';
-    //     return;
-    // }
-
-    return json;
-}
-
-const api = {
-    saveBook: async (book)=>{
-        const json = await apiFetchPost(
-            '/book/add',
-            book
-        );  
-        return json;
-    },
-    ping: async ()=>{
-        const json = await apiFetchGet('/ping');
-
-        return json;
+        // Sign-in the user with the credential
+        return auth().signInWithCredential(googleCredential);
     }
 }
-
-
-export default ()=>api;

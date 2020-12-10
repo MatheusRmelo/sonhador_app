@@ -4,7 +4,7 @@ import styled from 'styled-components/native';
 import { colors, Small, Heading2, ButtonPrimary, ButtonText } from '../commonStyles';
 
 import { useCategory } from '../CategorySVG';
-import useApi from '../Api';
+import api from '../api';
 
 
 import CloseIcon from '../assets/icons/close.svg';
@@ -77,7 +77,6 @@ export default ({modalVisible, setModalVisible, book}) => {
     const [loading, setLoading] = useState(false);
 
     const category = useCategory();
-    const api = useApi();
     const navigation = useNavigation();
 
     const handleSelectCategory = (key) => {
