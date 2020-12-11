@@ -11,7 +11,10 @@ export default (state = initialState, action)=>{
             return {...state,name:action.payload.name}
         break
         case 'LOGIN':
-            return {...action.payload.user};
+            return {...state,name:action.payload.name,email:action.payload.email,uid:action.payload.uid};
+        break;
+        case 'LOGOUT':
+            return initialState;
         break;
     }
 

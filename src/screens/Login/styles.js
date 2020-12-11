@@ -34,3 +34,27 @@ export const Message = styled.Text`
     color:white;
     font-family: 'Fredoka One';
 `;
+
+export const Terms = styled.View`
+    height:32px;
+    width:100%;
+    margin:8px;
+    align-items:center;
+`;
+export const TermsArea = styled.View`
+    flex-direction:row;
+`;
+export const TermsAction = styled.TouchableOpacity`
+    justify-content:center;
+    margin:0px 4px;
+    border-bottom-width:1px;
+    border-bottom-color: ${colors.gray_1};
+`;
+export const TermsActionText = styled.Text`
+    color: ${colors.gray_1};
+    font-size:12px;
+`;
+export const TermsText = styled.Text`
+    color: ${colors.gray_1};
+    font-size:12px;
+`;

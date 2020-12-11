@@ -1,17 +1,20 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
+
 import {
     Container 
 } from './styles';
-import { useNavigation } from '@react-navigation/native';
 import { Text } from 'react-native';
+
 
 export default ()=>{
     const navigation = useNavigation();
-    //TODO - configurar async storage
+    const userId = useSelector(state=>state.user.uid);
+    
     useEffect(()=>{
         setTimeout(()=>{
-            let token = ''
-            if(token){
+            if(userId){
                 navigation.reset({
                     routes: [{name: 'MainTab'}]
                 });

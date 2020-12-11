@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+
 import {
     Container,
     Header,
@@ -69,14 +70,15 @@ import TwitterIcon from '../../assets/icons/twitter.svg';
 import TrashIcon from '../../assets/icons/trash.svg';
 
 import { PoemApi, authorsApi } from '../../PoemApi';
+import { useSelector } from 'react-redux';
 
 export default () => {
     const [choose, setChoose] = useState('follow');
-
     const [poemList, setPoemList] = useState(PoemApi);
     const [authorsList, setAuthorsList] = useState(authorsApi);
     const [currentPoem, setCurrentPoem] = useState(0);
 
+    const userId = useSelector(state=>state.user.uid);
     const [books, setBooks] = useState([
         {
             title:'Título',
