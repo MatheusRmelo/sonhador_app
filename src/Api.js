@@ -1,5 +1,9 @@
 import auth from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-community/google-signin';
+import firestore from '@react-native-firebase/firestore';
+
+const usersCollection = firestore().collection('Users');
+const booksCollection = firestore().collection('Books');
 
 GoogleSignin.configure({
     webClientId: '793601712243-ughg5eivepl4o93n91mvp8vn8pgt0kir.apps.googleusercontent.com',
@@ -33,5 +37,55 @@ export default {
         await GoogleSignin.signOut();
         return auth().signOut();
     },
+    firstUse: async (userId, userName)=>{
+        const user = await usersCollection.doc(userId).get();
+        let data = user.data();
+
+        var nome = userName.split(" ")[0];
+        var qtdnome = userName.split(" ").length;
+        var sobrenome = userName.split(" ")[qtdnome-1]; 
+        let newUserName = (nome+sobrenome).toLowerCase();
+
+        if(data){
+            return true;
+        }else{
+            let users = [];
+            let result = await usersCollection.where('userName','==',newUserName)
+            .get()
+            .then(snapshot => {
+                if (snapshot.empty) {
+                    console.log('No matching documents.');
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    //console.log(doc.id, '=>', doc.data());
+                    users.push(doc.data());
+                });
+            })
+            .catch(err => {
+                console.log('Error getting documents', err);
+            });
+            if(users.length>0){
+                newUserName=newUserName+users.length.toString();
+            }
+            await usersCollection.doc(userId).set({
+                userName:newUserName
+            }).then(()=>true)
+            .catch(e=>console.log(e));
+        }
+    },
+    saveBook:async (book)=>{
+
+        let result = await booksCollection.add({
+           ...book
+        })
+        .then(() => {
+            return {error:''};
+        }).catch((e)=>{
+            return {error:e};
+        })
+
+        return result;
+    }
     
 }

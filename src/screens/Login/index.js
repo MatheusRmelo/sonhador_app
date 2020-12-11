@@ -31,26 +31,30 @@ export default ()=>{
     const [initializing, setInitializing] = useState(true);
     const [user, setUser] = useState();
     const userId = useSelector(state=>state.user.uid);
+    const userEmail = useSelector(state=>state.user.email);
 
     const dispatch = useDispatch();
     const navigation = useNavigation();
 
-    function onAuthStateChanged(user) {
+    async function onAuthStateChanged(user) {
         setUser(user);
+        //console.log(user);
         if(user){
+            await Api.firstUse(user.uid,user.displayName);
             dispatch({
                 type:'LOGIN',
                 payload:{
-                    name: 'Matheus',
+                    name: user.displayName,
                     email: user.email,
                     uid: user.uid
                 }
             });
         }
+        
         if (initializing) setInitializing(false);
     }
 
-    function onGoogleButtonPress() {
+    async function onGoogleButtonPress() {
         Api.loginGmail();
     }
 
@@ -65,6 +69,7 @@ export default ()=>{
                 routes: [{name: 'MainTab'}]
             });
         }
+       
     },[userId]);
 
     if (initializing) return null;

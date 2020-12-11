@@ -4,11 +4,12 @@ import styled from 'styled-components/native';
 import { colors, Small, Heading2, ButtonPrimary, ButtonText } from '../commonStyles';
 
 import { useCategory } from '../CategorySVG';
-import api from '../api';
+import Api from '../api';
 
 
 import CloseIcon from '../assets/icons/close.svg';
 import { useNavigation } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 
 const Container = styled.View`
     background-color:white;
@@ -78,6 +79,7 @@ export default ({modalVisible, setModalVisible, book}) => {
 
     const category = useCategory();
     const navigation = useNavigation();
+    const userId = useSelector(state=>state.user.uid);
 
     const handleSelectCategory = (key) => {
         let newList = [...categories];
@@ -100,23 +102,13 @@ export default ({modalVisible, setModalVisible, book}) => {
                 listSelected.push(categories[i].name);
             }
         }
-        let json = await api.saveBook({user:'matheusRmelo',ads:true,part:parts.label, pages:parts.pages, title, categories:listSelected});
-        
-        if(json.notallowed){
-            setLoading(false);
-            alert('Usuário não permitido');
-           //console.log(json);
-            return;
-        }
-        if(json.error){
-            setLoading(false);
-            alert('ERRO');
-            //console.log(json);
-            return;
-        }
-        //console.log(parts.pages);
-        navigation.navigate('Writer');
+        let result = await Api.saveBook({userId,ads:true,part:parts.label, pages:parts.pages, title, categories:listSelected});
         setLoading(false);
+        if(result.error !== ''){
+            alert('ERRO:'+result.error);
+            return;
+        }
+        navigation.navigate('Writer');
         //console.log(json);
 
     }
