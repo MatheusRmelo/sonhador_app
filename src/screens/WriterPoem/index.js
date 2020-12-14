@@ -19,6 +19,8 @@ import {
 import InputModal from '../../components/InputModal';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import Categories from '../../components/Categories';
+import PhotoBook from '../../components/PhotoBook';
+
 import { Keyboard } from 'react-native';
 
 
@@ -39,6 +41,7 @@ export default () => {
 
     const [visibleInput, setVisibleInput] = useState(false);
     const [categoryVisible, setCategoryVisible] = useState(false);
+    const [photoBookVisible, setPhotoBookVisible] = useState(false);
     const [keyboardVisible, setKeyboardVisible] = useState(false);
 
 
@@ -130,16 +133,23 @@ export default () => {
         navigation.setOptions({
             title: 'Escreva seu poema',
             headerRight: () => (
-                <ButtonPrimary width="100%" height="60%" onPress={()=>setCategoryVisible(true)}>
+                <ButtonPrimary width="100%" height="60%" onPress={()=>setPhotoBookVisible(true)}>
                     <ButtonText>Publicar</ButtonText>
                 </ButtonPrimary>
             )
         })
     }, []);
 
+    const onSavePhoto = (value) => {
+        setCategoryVisible(value);
+        setPhotoBookVisible(!value);
+    }
+
     return(
         <Container>
             <Categories modalVisible={categoryVisible} setModalVisible={value=>setCategoryVisible(value)} book={{parts, title}} />
+            <PhotoBook modalVisible={photoBookVisible} setModalVisible={value=>setPhotoBookVisible(value)} onSave={onSavePhoto} />
+
             <InputModal 
                 modalVisible={visibleInput} 
                 setModalVisible={value=>setVisibleInput(value)} 

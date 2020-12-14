@@ -47,7 +47,6 @@ const CloseButton = styled.TouchableOpacity`
     align-items:center;
     justify-content:center;
 `;
-const CloseButtonText = styled.Text``;
 const LoadingArea = styled.View`
     background-color: rgba(0,0,0,0.5);
     justify-content:center;
