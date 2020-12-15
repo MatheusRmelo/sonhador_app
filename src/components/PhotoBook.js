@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { ActivityIndicator, Modal, Alert } from 'react-native';
 import styled from 'styled-components/native';
@@ -56,7 +56,7 @@ const Photo = styled.Image`
     width:100%;
     margin:16px 0px;
     border-radius:32px;
-    background-color:red;
+    background-color:#CCC;
 `;
 const ButtonAddPhoto = styled.TouchableOpacity`
     justify-content:center;
@@ -102,9 +102,10 @@ export default ({modalVisible, setModalVisible, onSave}) => {
     const [uploading, setUploading] = useState(false);
     const [transferred, setTransferred] = useState(0);
 
-
     const navigation = useNavigation();
     const userId = useSelector(state=>state.user.uid);
+    const dispatch = useDispatch();
+
 
     useEffect(()=>{
         if(image){
@@ -112,6 +113,7 @@ export default ({modalVisible, setModalVisible, onSave}) => {
         }else{
             setEnabled(false);
         }
+        
     }, [image]);
 
     const uploadImage = async () => {
@@ -135,11 +137,13 @@ export default ({modalVisible, setModalVisible, onSave}) => {
           console.error(e);
         }
         setLoading(false);
-        Alert.alert(
-          'Foto Salva com sucesso!',
-          'A foto do seu poema foi salva com sucesso!'
-        );
         setImage(null);
+        dispatch({
+            type: 'SET_PHOTO',
+            payload:{
+                photo: uri
+            }
+        });
         onSave(true);
     }      
     const handleGetPhoto = (local) => {

@@ -4,6 +4,7 @@ import firestore from '@react-native-firebase/firestore';
 
 const usersCollection = firestore().collection('Users');
 const booksCollection = firestore().collection('Books');
+const booksPublishedCollection = firestore().collection('BooksPublished');
 
 GoogleSignin.configure({
     webClientId: '793601712243-ughg5eivepl4o93n91mvp8vn8pgt0kir.apps.googleusercontent.com',
@@ -86,6 +87,42 @@ export default {
         })
 
         return result;
-    }
+    },
+    getMyBooks:async (userId)=>{
+        let books = [];
+        await booksCollection.where('userId', '==', userId)
+            .limit(20)
+            .get()
+            .then(snapshot => {
+                if (snapshot.empty) {
+                  console.log('No matching documents.');
+                  return;
+                }
+                snapshot.forEach(doc => {
+                  //console.log(doc.id, '=>', doc.data());
+                  books.push({id:doc.id, book:doc.data()});
+                });
+              })
+            .catch(err => {
+                console.log('Error getting documents', err);
+            }
+        );
+        return books;
+    },
+    publishBook:async (book)=>{
+
+        let result = await booksPublishedCollection.add({
+           ...book
+        })
+        .then(() => {
+            return {error:''};
+        }).catch((e)=>{
+            return {error:e};
+        })
+
+        return result;
+    },
+
+
     
 }

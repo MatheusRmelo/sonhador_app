@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components/native';
 import { colors, Small } from '../commonStyles';
 import { useCategory } from '../CategorySVG';
@@ -15,7 +15,7 @@ const PoemArea = styled.TouchableOpacity`
     margin-bottom:24px;
 `;
 const PoemView = styled.View`
-    background-color: ${colors.gray_1};    
+    background-color: ${colors.primary_1};    
     width:100%;
     padding:8px;
     border-radius:16px;
@@ -25,7 +25,7 @@ const PoemView = styled.View`
 `;
 const Poem = styled.View`
     background-color:white;
-    width:70%;
+    width:50%;
     padding:16px;
     align-items:center;
     justify-content:center;
@@ -34,6 +34,7 @@ const Poem = styled.View`
 const PoemBody = styled.Text`
     font-size:3px;
     color:black;
+    height:48px;
 `;
 const PoemDesc = styled.View`
     flex-direction:row;

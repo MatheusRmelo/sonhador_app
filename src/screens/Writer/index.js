@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useCategory } from '../../CategorySVG';
+import { useSelector } from 'react-redux';
 
 import {
     Container,
     PoemList,
-    CategoryPhoto,
-    PoemInfo,
     PoemArea,
     OptionBook,
     OptionItem,
@@ -33,7 +32,7 @@ import { Modal, Share, Keyboard } from 'react-native';
 
 
 import { PoemApi } from '../../PoemApi';
-
+import Api from '../../api';
 
 import UpArrowIcon from '../../assets/icons/up-arrow.svg';
 import DownArrowIcon from '../../assets/icons/down-arrow.svg';
@@ -53,6 +52,7 @@ import CordelIcon from '../../assets/categories/cordel.svg';
 export default () => {
     const [tabs, setTabs] = useState([{name:'RASCUNHOS', active: true},{name:'PUBLICADAS', active: false}]);
     const [poem, setPoem] = useState(PoemApi);
+    const [books, setBooks] = useState([]);
     const [search, setSearch] = useState('');
     const [filters, setFilters] = useState([
         {filter: 'últimos visualizados por mim', order:'desc',},
@@ -75,6 +75,7 @@ export default () => {
     const [showDelete, setShowDelete] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
 
+    const userId = useSelector(state=>state.user.uid);
     const navigation = useNavigation();
     const category = useCategory();
 
@@ -139,15 +140,6 @@ export default () => {
         
         setTabs(newList);
     }
-    const handleSearch = (t) => {
-        setSearch(t);
-        if(t===''){
-            setPoem(PoemApi);
-            return;
-        }
-        let newList = PoemApi.filter((item,key)=>(item.title===t));
-        setPoem(newList);
-    }
     const handleActionVisible = (key) => {
         setCurrentPoem(key);
         setActionVisible(true);
@@ -191,6 +183,14 @@ export default () => {
         navigation.navigate('WriterTitle', {type});
     }
 
+    useEffect(()=>{
+        const getMyBooks = async () => {
+            let result = await Api.getMyBooks(userId);
+            setBooks(result);
+        }
+        getMyBooks();
+    }, []);
+
     return( 
         <Container>
             <SearchHeader onPress={()=>navigation.navigate('SearchComponent')} placeholder="Pesquisar suas obras...">
@@ -204,11 +204,11 @@ export default () => {
                 }
             </FilterArea>
             {
-                poem.length > 0 &&
+                books.length > 0 &&
                 <PoemList showsVerticalScrollIndicator={false}>
                     <PoemArea>
-                        {poem.map((item, key)=>(
-                            <PoemItem key={key} poem={item} setActionVisible={()=>handleActionVisible(key)} />
+                        {books.map((item, key)=>(
+                            <PoemItem key={key} poem={item.book} setActionVisible={()=>handleActionVisible(key)} />
                         ))}
                     </PoemArea>
                 </PoemList>
@@ -328,7 +328,7 @@ export default () => {
                 placeholder={action === 'add'? "Nome do usuário": ''} 
                 onAdd={user=>handleAddUser(user)}
                 height={keyboardVisible ? '45%' : '30%'}
-                />
+            />
             <Modal transparent={true} visible={filterVisible} animationType="fade">
                 <ModalArea onPress={()=>setFilterVisible(false)}>
                     <ModalContainer height="45%">

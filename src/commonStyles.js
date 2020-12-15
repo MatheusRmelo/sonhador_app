@@ -21,6 +21,17 @@ export const ButtonPrimary = styled.TouchableOpacity`
     margin:8px;
     width:${props=>props.width};
 `;
+export const ButtonSecondary = styled.TouchableOpacity`
+    background-color: white;
+    border-radius:${props=>props.rounded ? props.rounded : '8px'};
+    border-width:1px;
+    border-color: ${colors.secondary};
+    height: ${props=>props.height};
+    justify-content: center;
+    align-items: center;
+    margin:8px;
+    width:${props=>props.width};
+`;
 export const ButtonText = styled.Text`
     font-size:12px;
     color: ${props => props.color ? props.color: 'white'};

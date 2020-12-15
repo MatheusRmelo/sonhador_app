@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import CheckBox from '@react-native-community/checkbox';
-import { Heading1, Small, ButtonPrimary, ButtonText, colors } from '../../commonStyles';
+import { Heading1, Small, ButtonPrimary,ButtonSecondary, ButtonText, colors } from '../../commonStyles';
+import { Modal, ActivityIndicator } from 'react-native';
 
 import AwesomeAlert from 'react-native-awesome-alerts';
 
@@ -9,19 +10,27 @@ import {
     Question,
     InputTitle,
     Focus,
-    CheckBoxArea
+    CheckBoxArea,
+    ModalArea
 } from './styles';
 
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 
+import Api from '../../api';
+
 export default () => {
     const [toggleCheckBox, setToggleCheckBox] = useState(false);
     const [type, setType] = useState('livro');
     const [title, setTitle] = useState('');
+
+    const [loading, setLoading] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
 
+
+
     const titleOld = '';//useSelector(state=>state.book.title);
+    const userId = useSelector(state=>state.user.uid);
     const dispatch = useDispatch();
 
     const navigation = useNavigation();
@@ -54,7 +63,18 @@ export default () => {
         })
     }, [route.params?.type]);
 
-    const handleGoWriter = () => {
+    const handleNewText = async () => {
+        //SALVAR BOOK
+        setLoading(true);
+        let book = {
+            title: title ? title : 'Sem título',
+            partNumber:1,
+            partLabel:'Parte 1',
+            category: route.params?.type,
+            userId
+        };
+        const result = await Api.saveBook({...book});
+        setLoading(false);
         if(route.params?.type === 'poem'){
             if(!title && !toggleCheckBox){
                 setShowAlert(true);
@@ -63,12 +83,18 @@ export default () => {
                 navigation.navigate('WriterPoem',toggleCheckBox ? {title: 'Sem título'} : {title});
                 setTitle('');
             }
-            
         }
+        
+
     }
     
     return(
         <Container>
+            <Modal visible={loading} transparent={true}>
+                <ModalArea>
+                    <ActivityIndicator size="large" color={colors.primary} />
+                </ModalArea>
+            </Modal>
             <AwesomeAlert
                 show={showAlert}
                 showProgress={true}
@@ -96,11 +122,12 @@ export default () => {
                 />
                 <Small color="white">Colocar título depois</Small>
             </CheckBoxArea>
-            <ButtonPrimary width="80%" height="48px" onPress={handleGoWriter}>
-                <ButtonText color="white">CONTINUAR A HISTÓRIA</ButtonText>
+            <ButtonPrimary width="80%" height="48px" onPress={handleNewText}>
+                <ButtonText color="white">NOVA HISTÓRIA</ButtonText>
             </ButtonPrimary>
-
-            
+            <ButtonSecondary width="80%" height="48px" onPress={handleNewText}>
+                <ButtonText color={colors.secondary}>CONTINUAR UMA HISTÓRIA</ButtonText>
+            </ButtonSecondary>
         </Container>
     );
 }
