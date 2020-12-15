@@ -28,21 +28,11 @@ export default () => {
     const [showAlert, setShowAlert] = useState(false);
 
 
-
-    const titleOld = '';//useSelector(state=>state.book.title);
     const userId = useSelector(state=>state.user.uid);
     const dispatch = useDispatch();
 
     const navigation = useNavigation();
     const route = useRoute();
-
-    useEffect(()=>{
-        if(titleOld !== '') {
-            navigation.reset({
-                routes: [{name: 'Writer'}]
-            }); 
-        }
-    }, [titleOld])
 
     useEffect(() => {
         if (route.params?.type) {
@@ -65,27 +55,29 @@ export default () => {
 
     const handleNewText = async () => {
         //SALVAR BOOK
-        setLoading(true);
-        let book = {
-            title: title ? title : 'Sem título',
-            partNumber:1,
-            partLabel:'Parte 1',
-            category: route.params?.type,
-            userId
-        };
-        const result = await Api.saveBook({...book});
-        setLoading(false);
         if(route.params?.type === 'poem'){
             if(!title && !toggleCheckBox){
                 setShowAlert(true);
             }else{
-                dispatch({type:'SET_TITLE', payload:{title}});
-                navigation.navigate('WriterPoem',toggleCheckBox ? {title: 'Sem título'} : {title});
+                setLoading(true);
+                let book = {
+                    title: title ? title : 'Sem título',
+                    partNumber:1,
+                    partLabel:'Parte 1',
+                    category: route.params?.type,
+                    userId
+                };
+                await Api.saveBook({...book});
+                const books = await Api.getMyBooks(userId);
+                setLoading(false);
+                dispatch({type:'SET_MYBOOKS', payload:{books}});
+                navigation.reset({
+                    routes: [{name: 'Writer'},{name: 'WriterPoem'}]
+                });
+                //navigation.navigate('WriterPoem',toggleCheckBox ? {title: 'Sem título'} : {title});
                 setTitle('');
             }
         }
-        
-
     }
     
     return(

@@ -30,10 +30,12 @@ import TrashIcon from '../../assets/icons/trash.svg';
 import EditIcon from '../../assets/icons/edit.svg';
 import AlignCenterIcon from '../../assets/icons/center-alignment.svg';
 import AddIcon from '../../assets/icons/add.svg';
-import { useDispatch } from 'react-redux';
+
+import { useDispatch, useSelector } from 'react-redux';
+import Api from '../../api';
 
 export default () => {
-    const [parts, setParts] = useState({label: 'Parte 1', pages:[{page: 1, poem: ``}]});
+    const [parts, setParts] = useState({label:'Parte 1', pages:[{page: 1, poem: ``}]});
     const [title, setTitle] = useState('');
 
     const [currentPage, setCurrentPage] = useState(0);
@@ -45,6 +47,7 @@ export default () => {
     const [keyboardVisible, setKeyboardVisible] = useState(false);
 
 
+    const books = useSelector(state=>state.book);
     const navigation = useNavigation();
     const route = useRoute();
     const dispatch = useDispatch();
@@ -101,12 +104,36 @@ export default () => {
         }
         setVisibleInput(false);
     }
+
+    const _keyboardDidShow = () => {
+        setKeyboardVisible(true);
+        dispatch({type: 'SET_VISIBLE', payload:{visible: false}});
+    };
     
+    const _keyboardDidHide = () => { 
+        setKeyboardVisible(false);
+        dispatch({type: 'SET_VISIBLE', payload:{visible: true}});
+    };
+
+    const onSavePhoto = (value) => {
+        setCategoryVisible(value);
+        setPhotoBookVisible(!value);
+    }
+
     useEffect(() => {
-        if (route.params?.title) {
-            setTitle(route.params?.title);
+        const getBookById = async (id) => {
+            const result = await Api.getBookById(id);
+            setParts({
+                label: result.partLabel,
+                pages: result.pages ? result.pages : [{page: 1, poem: ``}]
+            });
+            setTitle(result.title);
+
         }
-    }, [route.params?.title]);
+        if(route.params?.bookId){
+            getBookById(route.params?.bookId);
+        }
+    }, [route.params?.bookId]);
 
     useEffect(() => {
         Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
@@ -118,16 +145,6 @@ export default () => {
           Keyboard.removeListener("keyboardDidHide", _keyboardDidHide);
         };
     }, []);
-
-    const _keyboardDidShow = () => {
-        setKeyboardVisible(true);
-        dispatch({type: 'SET_VISIBLE', payload:{visible: false}});
-    };
-    
-    const _keyboardDidHide = () => { 
-        setKeyboardVisible(false);
-        dispatch({type: 'SET_VISIBLE', payload:{visible: true}});
-    };
    
     useLayoutEffect(()=>{
         navigation.setOptions({
@@ -140,10 +157,7 @@ export default () => {
         })
     }, []);
 
-    const onSavePhoto = (value) => {
-        setCategoryVisible(value);
-        setPhotoBookVisible(!value);
-    }
+   
 
     return(
         <Container>

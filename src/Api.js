@@ -76,7 +76,6 @@ export default {
         }
     },
     saveBook:async (book)=>{
-
         let result = await booksCollection.add({
            ...book
         })
@@ -85,8 +84,12 @@ export default {
         }).catch((e)=>{
             return {error:e};
         })
-
-        return result;
+    },
+    deleteBook:async (id)=>{
+        const deleted = await booksCollection.doc(id).delete()
+            .then(() =>true)
+            .catch((e)=>false);
+        return deleted;
     },
     getMyBooks:async (userId)=>{
         let books = [];
@@ -108,6 +111,17 @@ export default {
             }
         );
         return books;
+    },
+    getBookById:async (id)=>{
+        let book = {};
+        await booksCollection.doc(id).get()
+            .then(documentSnapshot => {
+                //console.log('User exists: ', documentSnapshot.exists);
+                if (documentSnapshot.exists) {
+                    book = documentSnapshot.data();
+                };
+        });
+        return book;
     },
     publishBook:async (book)=>{
 

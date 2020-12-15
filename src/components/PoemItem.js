@@ -4,6 +4,7 @@ import { colors, Small } from '../commonStyles';
 import { useCategory } from '../CategorySVG';
 
 import MenuIcon from '../assets/icons/menu.svg';
+import { useNavigation } from '@react-navigation/native';
 
 
 const PoemArea = styled.TouchableOpacity`
@@ -46,11 +47,16 @@ const PoemDesc = styled.View`
 const Options = styled.TouchableOpacity`
 
 `;
-export default ({poem, setActionVisible}) => {
+export default ({poem, setActionVisible, bookId}) => {
     const category = useCategory();
+    const navigation = useNavigation();
+
+    const handleOpenBook = () => {
+        navigation.navigate('WriterPoem', {bookId});
+    }
 
     return(
-        <PoemArea>
+        <PoemArea onPress={handleOpenBook}>
             <PoemView>
                 <Poem>
                     <PoemBody>{poem.body}</PoemBody>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useCategory } from '../../CategorySVG';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import {
     Container,
@@ -25,7 +25,7 @@ import Tabs from '../../components/Tabs';
 import PoemItem from '../../components/PoemItem';
 import InputModal from '../../components/InputModal';
 import SearchModal from '../../components/SearchModal';
-import { Heading2, Small, colors } from '../../commonStyles';
+import { Heading1, Heading2, Small, colors } from '../../commonStyles';
 
 import AwesomeAlert from 'react-native-awesome-alerts';
 import { Modal, Share, Keyboard } from 'react-native';
@@ -52,7 +52,6 @@ import CordelIcon from '../../assets/categories/cordel.svg';
 export default () => {
     const [tabs, setTabs] = useState([{name:'RASCUNHOS', active: true},{name:'PUBLICADAS', active: false}]);
     const [poem, setPoem] = useState(PoemApi);
-    const [books, setBooks] = useState([]);
     const [search, setSearch] = useState('');
     const [filters, setFilters] = useState([
         {filter: 'últimos visualizados por mim', order:'desc',},
@@ -76,8 +75,11 @@ export default () => {
     const [showAlert, setShowAlert] = useState(false);
 
     const userId = useSelector(state=>state.user.uid);
+    const books = useSelector(state=>state.book.myBooks);
+
     const navigation = useNavigation();
     const category = useCategory();
+    const dispatch = useDispatch();
 
     const onShare = async () => {
         try {
@@ -162,17 +164,18 @@ export default () => {
         setInputVisible(true);
     }
     
-    const handleDeletePoem = () => {
-        let newList = [...poem];
-        newList = newList.filter((i,k)=>k!==currentPoem);
-        if(currentPoem>0){
-            setCurrentPoem(prevState=>prevState-1);
+    const handleDeletePoem = async () => {
+        let bookId = books[currentPoem].id;
+        let deleted = await Api.deleteBook(bookId);
+        if(deleted){
+            getMyBooks();
+            setShowDelete(false);
+            setActionVisible(false);
         }else{
-            setCurrentPoem(0);
+            alert("Falha na exclusão!");
         }
-        setPoem(newList);
-        setShowDelete(false);
-        setActionVisible(false);
+
+       
     }
     const handleChangeFilter = (key) => {
         setCurrentFilter(key);
@@ -182,12 +185,17 @@ export default () => {
         setOptions(false);
         navigation.navigate('WriterTitle', {type});
     }
+    const getMyBooks = async () => {
+        let result = await Api.getMyBooks(userId);
+        dispatch({
+            type: 'SET_MYBOOKS',
+            payload:{
+                books:result
+            }
+        });
+    }
 
     useEffect(()=>{
-        const getMyBooks = async () => {
-            let result = await Api.getMyBooks(userId);
-            setBooks(result);
-        }
         getMyBooks();
     }, []);
 
@@ -208,7 +216,7 @@ export default () => {
                 <PoemList showsVerticalScrollIndicator={false}>
                     <PoemArea>
                         {books.map((item, key)=>(
-                            <PoemItem key={key} poem={item.book} setActionVisible={()=>handleActionVisible(key)} />
+                            <PoemItem key={key} poem={item.book} bookId={item.id} setActionVisible={()=>handleActionVisible(key)} />
                         ))}
                     </PoemArea>
                 </PoemList>
@@ -249,25 +257,25 @@ export default () => {
                 <ModalArea onPress={()=>setActionVisible(false)}>
                     <ModalContainer onPress={()=>{}} underlayColor="white">
                         <>
-                            <GroupAction>
+                            <GroupAction header>
                                 <GroupArea>
-                                    {category.getCategory(poem[currentPoem].category, '12', '12','black')}
-                                    <Heading2 bold margin="16px" color="black">{poem[currentPoem].title}</Heading2>
+                                    {category.getCategory(poem[currentPoem].category, '24', '24','white')}
+                                    <Heading2 margin="16px" color="white">{poem[currentPoem].title}</Heading2>
                                 </GroupArea>
                             </GroupAction>
                             <GroupAction>
-                                <GroupArea>
+                                {/* <GroupArea>
                                     <DownloadIcon width="12" height="12" fill="black" />
                                     <Heading2 margin="16px" color="black">Tornar disponível off-line</Heading2>
-                                </GroupArea>
+                                </GroupArea> */}
                                 <GroupArea onPress={onShare}>
                                     <ShareIcon width="12" height="12" fill="black" />
                                     <Heading2 margin="16px" color="black">Compartilhar</Heading2>
                                 </GroupArea>
-                                <GroupArea onPress={()=>handleActionOption("add")}>
+                                {/* <GroupArea onPress={()=>handleActionOption("add")}>
                                     <AddUserIcon width="12" height="12" fill="black" />
                                     <Heading2 margin="16px" color="black">Convidar alguém</Heading2>
-                                </GroupArea>
+                                </GroupArea> */}
                             </GroupAction>
                             <GroupAction>
                                 <GroupArea onPress={()=>handleActionOption("rename")}>

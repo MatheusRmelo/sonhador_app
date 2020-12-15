@@ -89,9 +89,10 @@ export const SearchModal = styled.View`
 
 export const GroupAction = styled.View`
     width:100%;
-    border-bottom-width:1px;
+    border-bottom-width: ${props=>props.header ? 3: 1}px;
     border-bottom-color:${props=>props.color?props.color:'#CCC'};
     padding:0px 32px;
+    background-color: ${props=>props.header ? colors.primary: 'white'};
 `;
 export const GroupArea = styled.TouchableOpacity`
     flex-direction:row;

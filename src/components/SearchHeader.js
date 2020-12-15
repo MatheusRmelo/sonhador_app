@@ -10,7 +10,7 @@ import { colors, Small } from '../commonStyles';
 const SearchArea = styled.View`
     background-color: ${colors.gray_1};
     width:100%;
-    height:${props=>props.keyboardOpen? '30%': '20%'};
+    height:20%;
 `;
 const SearchClick = styled.TouchableOpacity`
     flex-direction:row;

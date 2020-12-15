@@ -1,6 +1,7 @@
 const initialState = {
     title:'',
-    photo:''
+    photo:'',
+    myBooks: []
 }
 
 export default (state = initialState, action)=>{
@@ -11,6 +12,9 @@ export default (state = initialState, action)=>{
         break;
         case 'SET_PHOTO':
             return {...state,photo:action.payload.photo}
+        break;
+        case 'SET_MYBOOKS':
+            return {...state,myBooks:action.payload.books}
         break;
     }
 
