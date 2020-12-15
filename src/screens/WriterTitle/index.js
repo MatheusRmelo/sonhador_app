@@ -65,6 +65,7 @@ export default () => {
                     partNumber:1,
                     partLabel:'Parte 1',
                     category: route.params?.type,
+                    published:false,
                     userId
                 };
                 await Api.saveBook({...book});

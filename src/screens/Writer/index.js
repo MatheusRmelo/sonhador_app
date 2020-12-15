@@ -13,6 +13,7 @@ import {
     ButtonAddPoem,
     ButtonAddPoemText,
     FilterArea,
+    LoadingArea,
     ModalArea,
     ModalContainer,
     GroupAction,
@@ -28,7 +29,7 @@ import SearchModal from '../../components/SearchModal';
 import { Heading1, Heading2, Small, colors } from '../../commonStyles';
 
 import AwesomeAlert from 'react-native-awesome-alerts';
-import { Modal, Share, Keyboard } from 'react-native';
+import { Modal, Share, Keyboard, ActivityIndicator } from 'react-native';
 
 
 import { PoemApi } from '../../PoemApi';
@@ -41,6 +42,8 @@ import EditIcon from '../../assets/icons/edit.svg';
 import ShareIcon from '../../assets/icons/share.svg';
 import DownloadIcon from '../../assets/icons/download.svg';
 import AddUserIcon from '../../assets/icons/add-user.svg';
+import AddIcon from '../../assets/icons/plus.svg';
+
 
 import BookIcon from '../../assets/categories/book.svg';
 import PoemIcon from '../../assets/categories/poem.svg';
@@ -73,6 +76,7 @@ export default () => {
     const [action, setAction] = useState('');
     const [showDelete, setShowDelete] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const userId = useSelector(state=>state.user.uid);
     const books = useSelector(state=>state.book.myBooks);
@@ -146,12 +150,17 @@ export default () => {
         setCurrentPoem(key);
         setActionVisible(true);
     }
-    const handleNewTitle = (title) => {
-        let newList = [...poem];
-        newList[currentPoem].title = title;
-        setPoem(newList);
-        setInputVisible(false);
-        setActionVisible(false);
+    const handleNewTitle = async (title) => {
+        setLoading(true);
+        const updated = await Api.updateBook(books[currentPoem].id, {title});
+        if(updated){
+            getMyBooks();
+            setInputVisible(false);
+            setActionVisible(false);
+        }else{
+            alert("Falha na edição!");
+        }
+        setLoading(false);
     }
     const handleAddUser = (user)=>{
         setShowAlert(true);
@@ -166,6 +175,11 @@ export default () => {
     
     const handleDeletePoem = async () => {
         let bookId = books[currentPoem].id;
+        if(currentPoem>0){
+            setCurrentPoem(prevState=>prevState-1);
+        }
+        
+        setLoading(true);
         let deleted = await Api.deleteBook(bookId);
         if(deleted){
             getMyBooks();
@@ -174,6 +188,8 @@ export default () => {
         }else{
             alert("Falha na exclusão!");
         }
+        setLoading(false);
+
 
        
     }
@@ -186,6 +202,7 @@ export default () => {
         navigation.navigate('WriterTitle', {type});
     }
     const getMyBooks = async () => {
+        setLoading(true);
         let result = await Api.getMyBooks(userId);
         dispatch({
             type: 'SET_MYBOOKS',
@@ -193,6 +210,7 @@ export default () => {
                 books:result
             }
         });
+        setLoading(false);
     }
 
     useEffect(()=>{
@@ -221,7 +239,11 @@ export default () => {
                     </PoemArea>
                 </PoemList>
             }
-            
+            <Modal visible={loading} transparent={true}>
+                <LoadingArea>
+                    <ActivityIndicator size="large" color={colors.primary} />
+                </LoadingArea>
+            </Modal>
             <Modal visible={options} transparent={true} animationType="slide" >
                 <ModalArea onPress={()=>setOptions(false)}>
                     <OptionBook onPress={()=>{}} underlayColor="white">
@@ -250,7 +272,7 @@ export default () => {
             </Modal>
            
             <ButtonAddPoem onPress={()=>setOptions(true)}>
-                <ButtonAddPoemText>+</ButtonAddPoemText>
+                <AddIcon width="16" height="16" fill="white" />
             </ButtonAddPoem>
 
             <Modal visible={actionVisible} transparent={true} animationType="fade">
@@ -259,8 +281,8 @@ export default () => {
                         <>
                             <GroupAction header>
                                 <GroupArea>
-                                    {category.getCategory(poem[currentPoem].category, '24', '24','white')}
-                                    <Heading2 margin="16px" color="white">{poem[currentPoem].title}</Heading2>
+                                    {category.getCategory(books[currentPoem]?books[currentPoem].book.category:'', '24', '24','white')}
+                                    <Heading2 margin="16px" color="white">{books[currentPoem] ? books[currentPoem].book.title:''}</Heading2>
                                 </GroupArea>
                             </GroupAction>
                             <GroupAction>
@@ -329,7 +351,7 @@ export default () => {
             <InputModal 
                 modalVisible={inputVisible} 
                 setModalVisible={value=>setInputVisible(value)} 
-                value={action==='add'?'':poem[currentPoem].title} 
+                value={action==='add'?'':books[currentPoem]?books[currentPoem].book.title:''} 
                 setValue={title=>handleNewTitle(title)} 
                 titleInput={action==='add'?'Convidar usuário':'Renomear obra'}
                 action={action} 

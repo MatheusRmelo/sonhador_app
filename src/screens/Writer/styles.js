@@ -69,7 +69,12 @@ export const FilterArea = styled.TouchableOpacity`
     margin:8px;
     width:100%;
 `;
-
+export const LoadingArea = styled.View`
+    flex:1;
+    background-color: rgba(0,0,0,0.5);
+    justify-content:center;
+    align-items:center;
+`;
 export const ModalArea = styled.TouchableOpacity`
     flex:1;
     background-color: rgba(0,0,0,0.5);

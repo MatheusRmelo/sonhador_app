@@ -91,6 +91,14 @@ export default {
             .catch((e)=>false);
         return deleted;
     },
+    updateBook: async (id, book)=>{
+        const updated = await booksCollection.doc(id).update({
+            ...book
+        })
+        .then(() =>true)
+        .catch((e)=>false);
+        return updated;
+    },
     getMyBooks:async (userId)=>{
         let books = [];
         await booksCollection.where('userId', '==', userId)
