@@ -94,11 +94,15 @@ export const ModalArea = styled.TouchableOpacity`
     background-color: rgba(0,0,0,0.5);
     justify-content:flex-end;
 `;
-export default ({modalVisible, setModalVisible, onSave}) => {
+export default ({modalVisible, setModalVisible, onSave, bookId}) => {
     const [enabled, setEnabled] = useState(false);
     const [loading, setLoading] = useState(false);
     const [optionsVisible, setOptionsVisible] = useState(false);
     const [image, setImage] = useState(null);
+    const [changeImage, setChangeImage] = useState(false);
+
+    const [file, setFile] = useState('');
+    const [fileExists, setFileExists] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [transferred, setTransferred] = useState(0);
 
@@ -115,6 +119,23 @@ export default ({modalVisible, setModalVisible, onSave}) => {
         }
         
     }, [image]);
+
+    useEffect(()=>{
+        const getBookById = async (id) => {
+            setLoading(true);
+            const result = await Api.getBookById(id);
+            if(result.cover){
+                const url = await storage()
+                .ref(result.cover)
+                .getDownloadURL();
+                setImage({uri:url});
+                setFile(result.cover);
+                setFileExists(true);
+            }
+            setLoading(false);
+        }
+        getBookById(bookId);
+    }, [modalVisible]);
 
     const uploadImage = async () => {
         const { uri } = image;
@@ -138,12 +159,16 @@ export default ({modalVisible, setModalVisible, onSave}) => {
         }
         setLoading(false);
         setImage(null);
-        dispatch({
-            type: 'SET_PHOTO',
-            payload:{
-                photo: uri
-            }
-        });
+        const save = await Api.updateBook(bookId, {cover:filename});
+        onSave(true);
+    }      
+    const updateImage = async () => {
+        if(changeImage){
+            const deleted = await storage()
+                .ref(file)
+                .delete();
+            uploadImage();
+        }
         onSave(true);
     }      
     const handleGetPhoto = (local) => {
@@ -185,7 +210,9 @@ export default ({modalVisible, setModalVisible, onSave}) => {
                 }
             });
         }
-
+        if(fileExists){
+            setChangeImage(true);
+        }
         setOptionsVisible(false);
         
     }
@@ -195,7 +222,7 @@ export default ({modalVisible, setModalVisible, onSave}) => {
         <Modal visible={modalVisible}>
             <Modal transparent={true} visible={loading} >
                 <LoadingArea>
-                    <ActivityIndicator size="large" color="#00ff00" />
+                    <ActivityIndicator size="large" color={colors.primary} />
                     {/* <Progress.Bar progress={transferred} width={300} /> */}
                 </LoadingArea>
             </Modal>
@@ -213,8 +240,8 @@ export default ({modalVisible, setModalVisible, onSave}) => {
                 </PhotoArea>
                 
                 <ButtonArea>
-                    <ButtonPrimary onPress={uploadImage} disabled={!enabled} style={{backgroundColor: enabled ? colors.secondary : colors.light_1}} width="80%" height="40%" rounded="60px">
-                        <ButtonText>SALVAR E CONTINUAR</ButtonText>
+                    <ButtonPrimary onPress={fileExists ? updateImage :uploadImage} disabled={!enabled} style={{backgroundColor: enabled ? colors.secondary : colors.light_1}} width="80%" height="40%" rounded="60px">
+                        <ButtonText>{fileExists ? 'ATUALIZAR E CONTINUAR':'SALVAR E CONTINUAR'}</ButtonText>
                     </ButtonPrimary>
                 </ButtonArea>
             </Container>

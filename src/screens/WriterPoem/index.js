@@ -95,14 +95,18 @@ export default () => {
         setVisibleInput(true);
         setAction(act);
     }
-    const handleEditTitleOrPart = (newTitle) => {
+    const handleEditTitleOrPart = async (newTitle) => {
+        setLoading(true);
         if(currentPage%2===0){
-            let newList = {...parts};
-            newList.label = newTitle;
-            setParts(newList); 
+            updateBook({partLabel: newTitle});
+            let newParts = {...parts};
+            newParts.label = newTitle;
+            setParts(newParts);
         }else{
+            updateBook({title: newTitle});
             setTitle(newTitle);
         }
+        setLoading(false);
         setVisibleInput(false);
     }
     const _keyboardDidShow = () => {
@@ -118,14 +122,16 @@ export default () => {
         setPhotoBookVisible(!value);
     }
     const onSaveBook = async () => {
+        updateBook({pages: parts.pages});
+    }
+    const updateBook  = async (changes)=>{
         let id = route.params?.bookId;
-        const updated = await Api.updateBook(id, {pages: parts.pages});
+        const updated = await Api.updateBook(id, {...changes});
         if(updated){
             setSaved('- salvo');
         }else{
             setSaved('- erro ao salvar');
         }
-        
     }
     const getBookById = async (id) => {
         setLoading(true);
@@ -179,7 +185,7 @@ export default () => {
     return(
         <Container>
             <Categories modalVisible={categoryVisible} setModalVisible={value=>setCategoryVisible(value)} book={{parts, title}} />
-            <PhotoBook modalVisible={photoBookVisible} setModalVisible={value=>setPhotoBookVisible(value)} onSave={onSavePhoto} />
+            <PhotoBook modalVisible={photoBookVisible} setModalVisible={value=>setPhotoBookVisible(value)} onSave={onSavePhoto} bookId={route.params?.bookId} />
             <Modal visible={loading} transparent={true}>
                 <ModalArea>
                     <ActivityIndicator size="large" color={colors.primary}/>
