@@ -184,7 +184,7 @@ export default () => {
 
     return(
         <Container>
-            <Categories modalVisible={categoryVisible} setModalVisible={value=>setCategoryVisible(value)} book={{parts, title}} />
+            <Categories modalVisible={categoryVisible} setModalVisible={value=>setCategoryVisible(value)} bookId={route.params?.bookId} />
             <PhotoBook modalVisible={photoBookVisible} setModalVisible={value=>setPhotoBookVisible(value)} onSave={onSavePhoto} bookId={route.params?.bookId} />
             <Modal visible={loading} transparent={true}>
                 <ModalArea>

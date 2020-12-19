@@ -14,7 +14,7 @@ export default () => {
 
     return(
         <Container>
-            <Categories modalVisible={true} />
+            <Categories modalVisible={false} />
             <Heading1 color="white">Tudo feito vamos publicar!</Heading1>
             <CheckBoxArea>
                 <CheckBox

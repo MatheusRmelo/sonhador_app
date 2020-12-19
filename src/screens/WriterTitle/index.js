@@ -68,12 +68,12 @@ export default () => {
                     published:false,
                     userId
                 };
-                await Api.saveBook({...book});
+                const saveBook = await Api.saveBook({...book});
                 const books = await Api.getMyBooks(userId);
                 setLoading(false);
                 dispatch({type:'SET_MYBOOKS', payload:{books}});
                 navigation.reset({
-                    routes: [{name: 'Writer'},{name: 'WriterPoem'}]
+                    routes: [{name: 'Writer'},{name: 'WriterPoem', params: { bookId: saveBook.bookId }}]
                 });
                 //navigation.navigate('WriterPoem',toggleCheckBox ? {title: 'Sem título'} : {title});
                 setTitle('');

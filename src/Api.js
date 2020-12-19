@@ -79,11 +79,13 @@ export default {
         let result = await booksCollection.add({
            ...book
         })
-        .then(() => {
-            return {error:''};
+        .then((document) => {
+            bookId = document.id;
+            return {error:'', bookId};
         }).catch((e)=>{
             return {error:e};
         })
+        return result;
     },
     deleteBook:async (id)=>{
         const deleted = await booksCollection.doc(id).delete()

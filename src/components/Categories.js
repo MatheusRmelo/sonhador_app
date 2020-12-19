@@ -6,10 +6,9 @@ import { colors, Small, Heading2, ButtonPrimary, ButtonText } from '../commonSty
 import { useCategory } from '../CategorySVG';
 import Api from '../api';
 
-
 import CloseIcon from '../assets/icons/close.svg';
 import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Container = styled.View`
     background-color:white;
@@ -54,7 +53,7 @@ const LoadingArea = styled.View`
     width:100%;
     height:100%;
 `;
-export default ({modalVisible, setModalVisible, book}) => {
+export default ({modalVisible, setModalVisible, bookId}) => {
     const [categories, setCategories] = useState([
         {name:'science fiction', selected: false},
         {name:'love', selected: false},
@@ -79,6 +78,7 @@ export default ({modalVisible, setModalVisible, book}) => {
     const category = useCategory();
     const navigation = useNavigation();
     const userId = useSelector(state=>state.user.uid);
+    const dispatch = useDispatch();
 
     const handleSelectCategory = (key) => {
         let newList = [...categories];
@@ -91,24 +91,34 @@ export default ({modalVisible, setModalVisible, book}) => {
             setEnabled(false);
         }
     }
+    const getMyBooks = async () => {
+        let result = await Api.getMyBooks(userId);
+        dispatch({
+            type: 'SET_MYBOOKS',
+            payload:{
+                books:result
+            }
+        });
+    }
 
     const publishPoem = async () => {
         setLoading(true);
-        let {parts, title} = book;
         let listSelected = [];
         for (let i in categories){
             if(categories[i].selected){
                 listSelected.push(categories[i].name);
             }
         }
-        let result = await Api.saveBook({userId,ads:true,part:parts.label, pages:parts.pages, title, categories:listSelected});
+        let result = await Api.updateBook(bookId, {ads:true,categories:listSelected, published: true});
+        getMyBooks();
         setLoading(false);
-        if(result.error !== ''){
-            alert('ERRO:'+result.error);
-            return;
-        }
         navigation.navigate('Writer');
-        //console.log(json);
+
+        // if(result){
+        //     navigation.navigate('Writer');
+        // }else{
+        //     console.log('ERRO');
+        // }
 
     }
 

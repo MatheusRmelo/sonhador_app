@@ -62,6 +62,7 @@ export default () => {
         {filter: 'últimos criados por mim', order:'desc'},
         {filter: 'nome', order:'desc'}
     ]);
+    const [listBooks, setListBooks] = useState([]);
 
     const [currentFilter, setCurrentFilter] = useState(0);
     const [currentPoem, setCurrentPoem] = useState(0);
@@ -80,6 +81,7 @@ export default () => {
 
     const userId = useSelector(state=>state.user.uid);
     const books = useSelector(state=>state.book.myBooks);
+
 
     const navigation = useNavigation();
     const category = useCategory();
@@ -136,6 +138,7 @@ export default () => {
 
     const handleActiveTab = (key) => {
         let newList = [...tabs];
+        let newBooks = [];
         for(let i in newList){
             if(i==key){
                 newList[i].active = true;
@@ -143,8 +146,27 @@ export default () => {
                 newList[i].active = false;
             }
         }
-        
         setTabs(newList);
+        newList.forEach((item)=>{
+            if(item.active){
+                if(item.name === 'PUBLICADAS'){
+                    books.forEach((item)=>{
+                        if(item.book.published){
+                            newBooks.push(item);
+                        }
+                    });
+                }else{
+                    books.forEach((item)=>{
+                        if(!item.book.published){
+                            newBooks.push(item);
+                        }
+
+                    });
+
+                }
+            }
+        });
+        setListBooks(newBooks);
     }
     const handleActionVisible = (key) => {
         setCurrentPoem(key);
@@ -214,6 +236,10 @@ export default () => {
     }
 
     useEffect(()=>{
+        handleActiveTab(0);
+    }, [books]);
+
+    useEffect(()=>{
         getMyBooks();
     }, []);
 
@@ -230,10 +256,10 @@ export default () => {
                 }
             </FilterArea>
             {
-                books.length > 0 &&
+                listBooks.length > 0 &&
                 <PoemList showsVerticalScrollIndicator={false}>
                     <PoemArea>
-                        {books.map((item, key)=>(
+                        {listBooks.map((item, key)=>(
                             <PoemItem key={key} poem={item.book} bookId={item.id} setActionVisible={()=>handleActionVisible(key)} />
                         ))}
                     </PoemArea>
@@ -281,8 +307,8 @@ export default () => {
                         <>
                             <GroupAction header>
                                 <GroupArea>
-                                    {category.getCategory(books[currentPoem]?books[currentPoem].book.category:'', '24', '24','white')}
-                                    <Heading2 margin="16px" color="white">{books[currentPoem] ? books[currentPoem].book.title:''}</Heading2>
+                                    {category.getCategory(listBooks[currentPoem]?listBooks[currentPoem].book.category:'', '24', '24','white')}
+                                    <Heading2 margin="16px" color="white">{listBooks[currentPoem] ? listBooks[currentPoem].book.title:''}</Heading2>
                                 </GroupArea>
                             </GroupAction>
                             <GroupAction>
