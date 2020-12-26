@@ -118,9 +118,9 @@ export default () => {
             <ButtonPrimary width="80%" height="48px" onPress={handleNewText}>
                 <ButtonText color="white">NOVA HISTÓRIA</ButtonText>
             </ButtonPrimary>
-            <ButtonSecondary width="80%" height="48px" onPress={handleNewText}>
+            {/* <ButtonSecondary width="80%" height="48px" onPress={handleNewText}>
                 <ButtonText color={colors.secondary}>CONTINUAR UMA HISTÓRIA</ButtonText>
-            </ButtonSecondary>
+            </ButtonSecondary> */}
         </Container>
     );
 }

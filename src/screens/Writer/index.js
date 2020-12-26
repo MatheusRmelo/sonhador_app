@@ -45,6 +45,7 @@ import ShareIcon from '../../assets/icons/share.svg';
 import DownloadIcon from '../../assets/icons/download.svg';
 import AddUserIcon from '../../assets/icons/add-user.svg';
 import AddIcon from '../../assets/icons/plus.svg';
+import NewIcon from '../../assets/icons/new.svg';
 
 import WriterIcon from '../../assets/writer_now.svg';
 
@@ -331,10 +332,14 @@ export default () => {
                                 </GroupArea>
                             </GroupAction>
                             <GroupAction>
-                                {/* <GroupArea>
-                                    <DownloadIcon width="12" height="12" fill="black" />
-                                    <Heading2 margin="16px" color="black">Tornar disponível off-line</Heading2>
-                                </GroupArea> */}
+                                {
+                                    listBooks[currentPoem] && listBooks[currentPoem].book.published &&
+                                    <GroupArea>
+                                        <NewIcon width="24" height="24" fill="black" />
+                                        <Heading2 margin="16px" color="black">Criar continuação da história</Heading2>
+                                    </GroupArea>
+                                }
+                                
                                 <GroupArea onPress={onShare}>
                                     <ShareIcon width="12" height="12" fill="black" />
                                     <Heading2 margin="16px" color="black">Compartilhar</Heading2>
