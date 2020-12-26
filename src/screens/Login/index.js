@@ -23,7 +23,7 @@ import GoogleIcon from '../../assets/icons/google.svg';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 
-import Api from '../../api';
+import Api from '../../Api';
 
 
 

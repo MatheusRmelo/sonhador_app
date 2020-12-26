@@ -17,7 +17,7 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 
-import Api from '../../api';
+import Api from '../../Api';
 
 export default () => {
     const [toggleCheckBox, setToggleCheckBox] = useState(false);

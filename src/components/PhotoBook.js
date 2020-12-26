@@ -10,7 +10,7 @@ import * as Progress from 'react-native-progress';
 import * as ImagePicker from 'react-native-image-picker';
 import storage from '@react-native-firebase/storage';
 
-import Api from '../api';
+import Api from '../Api';
 
 import CloseIcon from '../assets/icons/close.svg';
 import AddIcon from '../assets/icons/plus.svg';

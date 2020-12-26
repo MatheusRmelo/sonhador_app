@@ -4,7 +4,7 @@ import styled from 'styled-components/native';
 import { colors, Small, Heading2, ButtonPrimary, ButtonText } from '../commonStyles';
 
 import { useCategory } from '../CategorySVG';
-import Api from '../api';
+import Api from '../Api';
 
 import CloseIcon from '../assets/icons/close.svg';
 import { useNavigation } from '@react-navigation/native';

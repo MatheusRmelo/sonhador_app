@@ -9,7 +9,7 @@ import {
 } from './styles';
 
 import { Button, Text } from 'react-native';
-import Api from '../../api';
+import Api from '../../Api';
 
 
 export default () => {

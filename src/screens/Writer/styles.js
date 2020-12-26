@@ -118,3 +118,18 @@ export const ButtonPublish = styled.TouchableOpacity`
     justify-content:center;
 `;
 
+export const WriterArea = styled.View`
+    flex:1;
+    justify-content:center;
+    align-items:center;
+    padding: 32px;
+`;
+export const ButtonWriter = styled.TouchableOpacity`
+    background-color:${colors.contrast};
+    width:64px;
+    height:64px;
+    border-radius:32px;
+    justify-content:center;
+    align-items:center;
+    margin:16px;
+`;

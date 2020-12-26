@@ -19,6 +19,8 @@ import {
     GroupAction,
     GroupArea,
     ButtonPublish,
+    WriterArea,
+    ButtonWriter
 } from './styles';
 
 import SearchHeader from '../../components/SearchHeader';
@@ -33,7 +35,7 @@ import { Modal, Share, Keyboard, ActivityIndicator } from 'react-native';
 
 
 import { PoemApi } from '../../PoemApi';
-import Api from '../../api';
+import Api from '../../Api';
 
 import UpArrowIcon from '../../assets/icons/up-arrow.svg';
 import DownArrowIcon from '../../assets/icons/down-arrow.svg';
@@ -44,6 +46,7 @@ import DownloadIcon from '../../assets/icons/download.svg';
 import AddUserIcon from '../../assets/icons/add-user.svg';
 import AddIcon from '../../assets/icons/plus.svg';
 
+import WriterIcon from '../../assets/writer_now.svg';
 
 import BookIcon from '../../assets/categories/book.svg';
 import PoemIcon from '../../assets/categories/poem.svg';
@@ -248,13 +251,16 @@ export default () => {
             <SearchHeader onPress={()=>navigation.navigate('SearchComponent')} placeholder="Pesquisar suas obras...">
                 <Tabs tabs={tabs} setActive={(key)=>handleActiveTab(key)} />
             </SearchHeader>
-            <FilterArea onPress={()=>setFilterVisible(true)}>
-                <Heading2 margin="8px" color="black">{filters[currentFilter].filter}</Heading2>
-                {filters[currentFilter].order ==='asc'?
-                    <UpArrowIcon width="12" height="12" fill="black" />:
-                    <DownArrowIcon width="12" height="12" fill="black" />
-                }
-            </FilterArea>
+            {
+                listBooks.length > 0 &&
+                <FilterArea onPress={()=>setFilterVisible(true)}>
+                    <Heading2 margin="8px" color="black">{filters[currentFilter].filter}</Heading2>
+                    {filters[currentFilter].order ==='asc'?
+                        <UpArrowIcon width="12" height="12" fill="black" />:
+                        <DownArrowIcon width="12" height="12" fill="black" />
+                    }
+                </FilterArea>
+            }
             {
                 listBooks.length > 0 &&
                 <PoemList showsVerticalScrollIndicator={false}>
@@ -264,6 +270,16 @@ export default () => {
                         ))}
                     </PoemArea>
                 </PoemList>
+            }
+            {
+                listBooks.length === 0 &&
+                <WriterArea>
+                    <Heading2 color="black">Escreva agora uma nova história</Heading2>
+                    <WriterIcon width="100%" height="50%" fill='white'/>
+                    <ButtonWriter onPress={()=>setOptions(true)}>
+                        <AddIcon width="24" height="24" fill="white" />
+                    </ButtonWriter>
+                </WriterArea>
             }
             <Modal visible={loading} transparent={true}>
                 <LoadingArea>
@@ -296,10 +312,13 @@ export default () => {
                     </OptionBook>
                 </ModalArea>
             </Modal>
-           
-            <ButtonAddPoem onPress={()=>setOptions(true)}>
-                <AddIcon width="16" height="16" fill="white" />
-            </ButtonAddPoem>
+            {
+                listBooks.length > 0 &&
+                <ButtonAddPoem onPress={()=>setOptions(true)}>
+                    <AddIcon width="16" height="16" fill="white" />
+                </ButtonAddPoem>
+            }
+            
 
             <Modal visible={actionVisible} transparent={true} animationType="fade">
                 <ModalArea onPress={()=>setActionVisible(false)}>

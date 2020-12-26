@@ -33,7 +33,7 @@ import AlignCenterIcon from '../../assets/icons/center-alignment.svg';
 import AddIcon from '../../assets/icons/add.svg';
 
 import { useDispatch, useSelector } from 'react-redux';
-import Api from '../../api';
+import Api from '../../Api';
 
 let timer;
 
