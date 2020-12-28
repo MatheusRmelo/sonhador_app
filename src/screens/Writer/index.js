@@ -375,6 +375,9 @@ export default () => {
                 closeOnHardwareBackPress={false}
                 showCancelButton={true}
                 showConfirmButton={true}
+                onDismiss={() => {
+                    setShowDelete(false);
+                }}
                 cancelText="Cancelar"
                 confirmText="EXCLUIR"
                 confirmButtonColor={colors.danger}

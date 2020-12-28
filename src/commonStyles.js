@@ -12,6 +12,21 @@ export const colors = {
     success:'#32936F',
     danger:'#DD6B55'
 }
+export const styles = {
+    heading1: {
+        fontFamily: 'Fredoka One',
+        fontSize: 24
+    },
+    heading2: {
+        fontFamily: 'Fredoka One',
+        fontSize: 18
+    },
+    small_light: {
+        fontFamily: 'Fredoka One',
+        fontSize: 12,
+        color: 'white'
+    }
+}
 export const ButtonPrimary = styled.TouchableOpacity`
     background-color: ${props=>props.choose===props.type?colors.secondary:colors.light_1};
     border-radius:${props=>props.rounded ? props.rounded : '8px'};

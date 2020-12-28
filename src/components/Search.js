@@ -2,13 +2,13 @@ import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { 
     Modal,
     Keyboard,
-    BackHandler,
-    Alert 
+    ActivityIndicator
 } from 'react-native';
 import styled from 'styled-components/native';
-import { useCategory } from '../CategorySVG';
+import AwesomeAlert from 'react-native-awesome-alerts';
+import { Heading2, Small, colors, styles } from '../commonStyles';
 
-import { Heading2, Small, colors } from '../commonStyles';
+import { useCategory } from '../CategorySVG';
 
 import { PoemApi } from '../PoemApi';
 import Api from '../Api';
@@ -57,16 +57,25 @@ const Title = styled.Text`
 `;
 const ButtonOption = styled.TouchableOpacity``;
 
+const LoadingArea = styled.View`
+    flex:1;
+    background-color: rgba(0,0,0,0.5);
+    justify-content:center;
+    align-items:center;
+`;
+
 
 let timer;
 
 export default () => {
     const [keyboardOpen, setKeyboardOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
 
     const [poem, setPoem] = useState(PoemApi);
     const [search, setSearch] = useState('');
     const [listBooks, setListBooks] = useState([]);
+    const [currentBook, setCurrentBook] = useState([]);
 
 
     const userId = useSelector(state=>state.user.uid);
@@ -87,6 +96,7 @@ export default () => {
                 books:result
             }
         });
+        setCurrentBook(books[0]);
         setLoading(false);
     }
 
@@ -135,36 +145,67 @@ export default () => {
         timer = setTimeout(handleSearch, 500);
     }, [search]);
 
-    const handleNewText = async (item) => {
+    const handleNewText = async (item, key) => {
         let {id, book} = item;
         if(book.published){
-            //TODO - COLOCAR PERGUNTA SE DESEJA CONTINUAR A HISTÓRIA
-            setLoading(true);
-            let numberPart = book.partNumber+1; 
-            let newBook = {
-                title: book.title ? book.title + ' ' + numberPart  : 'Sem título ' + numberPart,
-                partNumber: numberPart,
-                partLabel:'Parte ' + numberPart,
-                category: book.category,
-                published:false,
-                userId
-            };
-            const saveBook = await Api.saveBook({...newBook});
-            const books = await Api.getMyBooks(userId);
-            setLoading(false);
-            dispatch({type:'SET_MYBOOKS', payload:{books}});
-            navigation.reset({
-                routes: [{name: 'Writer'},{name: 'WriterPoem', params: { bookId: saveBook.bookId }}]
-            });
+            setShowAlert(true);
+            setCurrentBook(books[key]);
         }else{
             navigation.reset({
                 routes: [{name: 'Writer'},{name: 'WriterPoem', params: { bookId: id }}]
             });
         }
     }
+    const handleNewVersion = async () => {
+        let {id, book} = currentBook;
+        setLoading(true);
+        let numberPart = book.partNumber+1; 
+        let newBook = {
+            title: book.title ? book.title + ' ' + numberPart  : 'Sem título ' + numberPart,
+            partNumber: numberPart,
+            partLabel:'Parte ' + numberPart,
+            category: book.category,
+            published:false,
+            userId
+        };
+        const saveBook = await Api.saveBook({...newBook});
+        const books = await Api.getMyBooks(userId);
+        setLoading(false);
+        dispatch({type:'SET_MYBOOKS', payload:{books}});
+        navigation.reset({
+            routes: [{name: 'Writer'},{name: 'WriterPoem', params: { bookId: saveBook.bookId }}]
+        });
+    }
+    const handleSeeBook = () => {
+        setShowAlert(false);
+    }
 
     return(
         <Container>
+            <Modal visible={loading} transparent={true}>
+                <LoadingArea>
+                    <ActivityIndicator size="large" color={colors.primary} />
+                </LoadingArea>
+            </Modal>
+            <AwesomeAlert
+                show={showAlert}
+                showProgress={true}                
+                message="Jovem essa história já foi publicada, o que você deseja fazer agora?"
+                messageStyle={styles.heading2}
+                closeOnTouchOutside={true}
+                closeOnHardwareBackPress={false}
+                onDismiss={() =>setShowAlert(false)}
+                showCancelButton={true}
+                cancelButtonColor={colors.secondary}
+                showConfirmButton={true}
+                cancelButtonTextStyle={styles.small_light}
+                cancelText="Apenas visualizar"
+                confirmText="Nova versão"
+                confirmButtonTextStyle={styles.small_light}
+                confirmButtonColor={colors.primary}
+                onCancelPressed={() =>handleSeeBook(false)}
+                onConfirmPressed={()=>handleNewVersion(false)}
+            />
             <Header>
                 <BackButton onPress={()=>navigation.goBack()}>
                     <LeftArrowIcon width="24" height="24" fill={colors.gray_2} />
@@ -173,7 +214,7 @@ export default () => {
             </Header>
             {
                 listBooks.map((item, key)=>(
-                    <ModalItem key={key} onPress={()=>handleNewText(item)}>
+                    <ModalItem key={key} onPress={()=>handleNewText(item, key)}>
                         {category.getCategory(item.book.category,'24', '24', 'black')}
                         <Information>
                             <Heading2 color="black" >{item.book.title}</Heading2>
