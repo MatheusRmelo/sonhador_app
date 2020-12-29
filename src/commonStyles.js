@@ -15,16 +15,28 @@ export const colors = {
 export const styles = {
     heading1: {
         fontFamily: 'Fredoka One',
-        fontSize: 24
+        fontSize: 24,
+        color: 'black'
     },
     heading2: {
         fontFamily: 'Fredoka One',
-        fontSize: 18
+        fontSize: 18,
+        color: 'black'
+    },
+    heading3: {
+        fontFamily: 'Fredoka One',
+        fontSize: 16,
+        color: 'black'
     },
     small_light: {
         fontFamily: 'Fredoka One',
         fontSize: 12,
         color: 'white'
+    },
+    small: {
+        fontFamily: 'Fredoka One',
+        fontSize: 12,
+        color: 'black'
     }
 }
 export const ButtonPrimary = styled.TouchableOpacity`

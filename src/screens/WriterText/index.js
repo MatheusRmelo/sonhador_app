@@ -1,44 +1,42 @@
 import React, { useState, useLayoutEffect, useEffect } from 'react';
-import { useNavigation, useRoute } from '@react-navigation/native';
 
-
-import { Heading2, ButtonText, ButtonPrimary, colors, Small } from '../../commonStyles';
+import { Heading2, ButtonText, ButtonPrimary, colors, Small, styles } from '../../commonStyles';
 import {
     Container,
-    InputPoem,
+    InputText,
     Bold,
     ModalArea,
     OptionsPage,
     ButtonAddPage,
     ButtonAddPageItem,
     ButtonAddPageItemText,
-    PartPoem,
+    PartTextArea,
     ButtonsOptions,
     ButtonOptionPart,
 } from './styles';
-
 import InputModal from '../../components/InputModal';
-import AwesomeAlert from 'react-native-awesome-alerts';
 import Categories from '../../components/Categories';
 import PhotoBook from '../../components/PhotoBook';
-
 import { ActivityIndicator, Keyboard, Modal } from 'react-native';
 
-
+import AdsIcon from '../../assets/icons/ads.svg';
+import SharedIcon from '../../assets/icons/share.svg';
+import GalleryIcon from '../../assets/icons/gallery.svg';
 import RightArrowIcon from '../../assets/icons/right-arrow.svg';
 import LeftArrowIcon from '../../assets/icons/left-arrow.svg';
-import TrashIcon from '../../assets/icons/trash.svg';
 import EditIcon from '../../assets/icons/edit.svg';
-import AlignCenterIcon from '../../assets/icons/center-alignment.svg';
-import AddIcon from '../../assets/icons/add.svg';
 
+
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
+
 import Api from '../../Api';
 
 let timer;
 
 export default () => {
-    const [parts, setParts] = useState({label:'Parte 1', pages:[{page: 1, poem: ``}]});
+    const [categoryText, setCategoryText] = useState('book');
+    const [parts, setParts] = useState({label:'Parte 1', pages:[{page: 1, text: ``}]});
     const [title, setTitle] = useState('');
     const [saved, setSaved] = useState('');
 
@@ -51,20 +49,22 @@ export default () => {
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [loading, setLoading] = useState(false);
 
+    const userId = useSelector(state=>state.user.uid);
     const books = useSelector(state=>state.book);
+
     const navigation = useNavigation();
     const route = useRoute();
     const dispatch = useDispatch();
 
     const handleChangePoem = (t) => {
         let newList = {...parts};
-        newList.pages[currentPage].poem = t;
+        newList.pages[currentPage].text = t;
         setParts(newList); 
     }
     const handleAddPage = ()=>{
         if(parts.pages.length < currentPage + 2){
             let newList = {...parts};
-            newList.pages.push({page:currentPage+2,poem:``});
+            newList.pages.push({page:currentPage+2,text:``});
             setParts(newList); 
         }
 
@@ -79,18 +79,19 @@ export default () => {
             prevPage();
         }
     }
+
     const nextPage = () => {
         setCurrentPage(prevState=>prevState+1);
     }
     const prevPage = () => {
         if(currentPage > 0){
-            if(!parts.pages[currentPage].poem){
+            if(!parts.pages[currentPage].text){
                 handleDeletePage(false);
             }
             setCurrentPage(prevState=>prevState-1);
         }
-        
     }
+
     const handleShowPart = (act) => {
         setVisibleInput(true);
         setAction(act);
@@ -125,24 +126,39 @@ export default () => {
         updateBook({pages: parts.pages});
     }
     const updateBook  = async (changes)=>{
-        let id = route.params?.bookId;
+        let id = route.params?.textId;
         const updated = await Api.updateBook(id, {...changes});
         if(updated){
             setSaved('- salvo');
         }else{
             setSaved('- erro ao salvar');
         }
+        getMyBooks();
     }
-    const getBookById = async (id) => {
+    const getMyBooks = async () => {
         setLoading(true);
-        const result = await Api.getBookById(id);
-        setParts({
-            label: result.partLabel,
-            pages: result.pages ? result.pages : [{page: 1, poem: ``}]
+        let result = await Api.getMyTexts(userId);
+        dispatch({
+            type: 'SET_MYBOOKS',
+            payload:{
+                texts:result
+            }
         });
-        setTitle(result.title);
         setLoading(false);
     }
+
+    const getTextById = async (id) => {
+        setLoading(true);
+        const result = await Api.getTextById(id);
+        setParts({
+            label: result.partLabel,
+            pages: result.pages ? result.pages : [{page: 1, text: ``}]
+        });
+        setTitle(result.title);
+        setCategoryText(result.category);
+        setLoading(false);
+    }
+
     useEffect(()=>{
         setSaved('- salvando...');
         if(timer){
@@ -150,14 +166,12 @@ export default () => {
         }
 
         timer = setTimeout(onSaveBook, 2000);
-    }, [parts.pages[currentPage].poem]);
-
+    }, [parts.pages[currentPage].text]);
     useEffect(() => {
-        if(route.params?.bookId){
-            getBookById(route.params?.bookId);
+        if(route.params?.textId){
+            getTextById(route.params?.textId);
         }
-    }, [route.params?.bookId]);
-
+    }, [route.params?.textId]);
     useEffect(() => {
         Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
         Keyboard.addListener("keyboardDidHide", _keyboardDidHide);
@@ -168,10 +182,10 @@ export default () => {
           Keyboard.removeListener("keyboardDidHide", _keyboardDidHide);
         };
     }, []);
-   
     useLayoutEffect(()=>{
         navigation.setOptions({
-            title: 'Escreva seu poema',
+            title:'Jovem, publique sua obra',
+            headerTitleStyle:styles.heading3,
             headerRight: () => (
                 <ButtonPrimary width="100%" height="60%" onPress={()=>setPhotoBookVisible(true)}>
                     <ButtonText>Publicar</ButtonText>
@@ -184,8 +198,8 @@ export default () => {
 
     return(
         <Container>
-            <Categories modalVisible={categoryVisible} setModalVisible={value=>setCategoryVisible(value)} bookId={route.params?.bookId} />
-            <PhotoBook modalVisible={photoBookVisible} setModalVisible={value=>setPhotoBookVisible(value)} onSave={onSavePhoto} bookId={route.params?.bookId} />
+            <Categories modalVisible={categoryVisible} setModalVisible={value=>setCategoryVisible(value)} bookId={route.params?.textId} />
+            <PhotoBook modalVisible={photoBookVisible} setModalVisible={value=>setPhotoBookVisible(value)} onSave={onSavePhoto} bookId={route.params?.textId} />
             <Modal visible={loading} transparent={true}>
                 <ModalArea>
                     <ActivityIndicator size="large" color={colors.primary}/>
@@ -201,7 +215,10 @@ export default () => {
                 placeholder=''
                 height={keyboardVisible ? '45%' : '30%'}
             />
-            <PartPoem>
+
+
+
+            <PartTextArea>
                 <Heading2 center color="white"><Bold>{currentPage % 2 === 0 ? parts.label : title}</Bold></Heading2>
                 <Small color="white">{`${currentPage+1}/${parts.pages.length}`} {saved}</Small>
                 <ButtonsOptions>
@@ -209,18 +226,17 @@ export default () => {
                         <EditIcon width="24" height="24" fill="white" />
                     </ButtonOptionPart>
                 </ButtonsOptions>
-            </PartPoem>
-            <InputPoem
+            </PartTextArea>
+            <InputText
                 multiline={true}
                 numberOfLines={4}
                 placeholder="Começe a escrever"
-                textAlign="center"
+                textAlign={categoryText === 'book' ? 'left':"center"}
                 textAlignVertical="top"
-                value={parts.pages[currentPage].poem}
+                value={parts.pages[currentPage].text}
                 onChangeText={t=>handleChangePoem(t)}
                 scrollEnabled={false}
                 maxLength={480}
-                
             />
             <OptionsPage position="left">
                 <ButtonAddPage onPress={prevPage}>
@@ -237,6 +253,15 @@ export default () => {
                             <ButtonAddPageItemText>+</ButtonAddPageItemText>
                         </ButtonAddPageItem>
                     }
+                </ButtonAddPage>
+                <ButtonAddPage onPress={handleAddPage}>
+                    <GalleryIcon width="24" height="24" fill="white" />
+                </ButtonAddPage>
+                <ButtonAddPage onPress={handleAddPage}>
+                    <AdsIcon width="24" height="24" fill="white" />
+                </ButtonAddPage>
+                <ButtonAddPage onPress={handleAddPage}>
+                    <SharedIcon width="24" height="24" fill="white" />
                 </ButtonAddPage>
             </OptionsPage>
         </Container>

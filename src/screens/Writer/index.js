@@ -11,7 +11,6 @@ import {
     OptionItem,
     OptionTextArea,
     ButtonAddPoem,
-    ButtonAddPoemText,
     FilterArea,
     LoadingArea,
     ModalArea,
@@ -22,20 +21,13 @@ import {
     WriterArea,
     ButtonWriter
 } from './styles';
-
 import SearchHeader from '../../components/SearchHeader';
 import Tabs from '../../components/Tabs';
 import PoemItem from '../../components/PoemItem';
 import InputModal from '../../components/InputModal';
-import SearchModal from '../../components/SearchModal';
 import { Heading1, Heading2, Small, colors } from '../../commonStyles';
-
 import AwesomeAlert from 'react-native-awesome-alerts';
 import { Modal, Share, Keyboard, ActivityIndicator } from 'react-native';
-
-
-import { PoemApi } from '../../PoemApi';
-import Api from '../../Api';
 
 import UpArrowIcon from '../../assets/icons/up-arrow.svg';
 import DownArrowIcon from '../../assets/icons/down-arrow.svg';
@@ -46,46 +38,42 @@ import DownloadIcon from '../../assets/icons/download.svg';
 import AddUserIcon from '../../assets/icons/add-user.svg';
 import AddIcon from '../../assets/icons/plus.svg';
 import NewIcon from '../../assets/icons/new.svg';
-
 import WriterIcon from '../../assets/writer_now.svg';
-
 import BookIcon from '../../assets/categories/book.svg';
 import PoemIcon from '../../assets/categories/poem.svg';
 import CordelIcon from '../../assets/categories/cordel.svg';
+
+import Api from '../../Api';
+
 
 
 
 
 export default () => {
     const [tabs, setTabs] = useState([{name:'RASCUNHOS', active: true},{name:'PUBLICADAS', active: false}]);
-    const [poem, setPoem] = useState(PoemApi);
-    const [search, setSearch] = useState('');
     const [filters, setFilters] = useState([
         {filter: 'últimos visualizados por mim', order:'desc',},
         {filter: 'últimos alterados por mim', order:'desc'},
         {filter: 'últimos criados por mim', order:'desc'},
         {filter: 'nome', order:'desc'}
     ]);
-    const [listBooks, setListBooks] = useState([]);
+    const [listTexts, setListTexts] = useState([]);
 
     const [currentFilter, setCurrentFilter] = useState(0);
-    const [currentPoem, setCurrentPoem] = useState(0);
-
+    const [currentText, setCurrentText] = useState(0);
 
     const [actionVisible, setActionVisible] = useState(false);
     const [inputVisible, setInputVisible] = useState(false);
     const [filterVisible, setFilterVisible] = useState(false);
-    const [searchVisible, setSearchVisible] = useState(false);
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [options, setOptions] = useState(false);
     const [action, setAction] = useState('');
     const [showDelete, setShowDelete] = useState(false);
-    const [showAlert, setShowAlert] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const userId = useSelector(state=>state.user.uid);
-    const books = useSelector(state=>state.book.myBooks);
-
+    const userName = useSelector(state=>state.user.name);
+    const texts = useSelector(state=>state.book.myBooks);
 
     const navigation = useNavigation();
     const category = useCategory();
@@ -94,16 +82,20 @@ export default () => {
     const onShare = async () => {
         try {
             const result = await Share.share({
-            message: `
-            
-            ${poem[currentPoem].title}
+            message: 
+            `
+                ${listTexts[currentText].text.title}
 
-            ${poem[currentPoem].body}
+                ${listTexts[currentText].text.pages.map((item)=>(
+                `
+                    ${item.page}/${listTexts[currentText].text.pages.length}
 
-
-            Autor:${poem[currentPoem].creditPage.author}
-            Instagram: ${poem[currentPoem].creditPage.instagram}
-            `,
+                    ${item.poem}
+                `
+            ))}
+                Autor: TODO
+                Instagram: Não disponível
+            `.trim(),
             });
             if (result.action === Share.sharedAction) {
             if (result.activityType) {
@@ -119,30 +111,15 @@ export default () => {
         }
     }
 
-    useEffect(() => {
-        Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
-        Keyboard.addListener("keyboardDidHide", _keyboardDidHide);
-    
-        // cleanup function
-        return () => {
-          Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
-          Keyboard.removeListener("keyboardDidHide", _keyboardDidHide);
-        };
-    }, []);
-
     const _keyboardDidShow = () => {
         setKeyboardVisible(true);
-        //dispatch({type: 'SET_VISIBLE', payload:{visible: false}});
     };
-    
     const _keyboardDidHide = () => { 
         setKeyboardVisible(false);
-        //dispatch({type: 'SET_VISIBLE', payload:{visible: true}});
     };
-
     const handleActiveTab = (key) => {
         let newList = [...tabs];
-        let newBooks = [];
+        let newTexts = [];
         for(let i in newList){
             if(i==key){
                 newList[i].active = true;
@@ -154,31 +131,30 @@ export default () => {
         newList.forEach((item)=>{
             if(item.active){
                 if(item.name === 'PUBLICADAS'){
-                    books.forEach((item)=>{
-                        if(item.book.published){
-                            newBooks.push(item);
+                    texts.forEach((item)=>{
+                        if(item.text.published){
+                            newTexts.push(item);
                         }
                     });
                 }else{
-                    books.forEach((item)=>{
-                        if(!item.book.published){
-                            newBooks.push(item);
+                    texts.forEach((item)=>{
+                        if(!item.text.published){
+                            newTexts.push(item);
                         }
 
                     });
-
                 }
             }
         });
-        setListBooks(newBooks);
+        setListTexts(newTexts);
     }
     const handleActionVisible = (key) => {
-        setCurrentPoem(key);
+        setCurrentText(key);
         setActionVisible(true);
     }
     const handleNewTitle = async (title) => {
         setLoading(true);
-        const updated = await Api.updateBook(books[currentPoem].id, {title});
+        const updated = await Api.updateBook(texts[currentText].id, {title});
         if(updated){
             getMyBooks();
             setInputVisible(false);
@@ -188,21 +164,14 @@ export default () => {
         }
         setLoading(false);
     }
-    const handleAddUser = (user)=>{
-        setShowAlert(true);
-        setInputVisible(false);
-        setActionVisible(false);
-    } 
-
     const handleActionOption = (act) => {
         setAction(act);
         setInputVisible(true);
     }
-    
-    const handleDeletePoem = async () => {
-        let bookId = books[currentPoem].id;
-        if(currentPoem>0){
-            setCurrentPoem(prevState=>prevState-1);
+    const handleDeleteText = async () => {
+        let bookId = texts[currentText].id;
+        if(currentText>0){
+            setCurrentText(prevState=>prevState-1);
         }
         
         setLoading(true);
@@ -215,9 +184,6 @@ export default () => {
             alert("Falha na exclusão!");
         }
         setLoading(false);
-
-
-       
     }
     const handleChangeFilter = (key) => {
         setCurrentFilter(key);
@@ -229,59 +195,36 @@ export default () => {
     }
     const getMyBooks = async () => {
         setLoading(true);
-        let result = await Api.getMyBooks(userId);
+        let result = await Api.getMyTexts(userId);
         dispatch({
             type: 'SET_MYBOOKS',
             payload:{
-                books:result
+                texts:result
             }
         });
         setLoading(false);
     }
 
+
+    useEffect(() => {
+        Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
+        Keyboard.addListener("keyboardDidHide", _keyboardDidHide);
+    
+        // cleanup function
+        return () => {
+          Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
+          Keyboard.removeListener("keyboardDidHide", _keyboardDidHide);
+        };
+    }, []);
     useEffect(()=>{
         handleActiveTab(0);
-    }, [books]);
-
+    }, [texts]);
     useEffect(()=>{
         getMyBooks();
     }, []);
 
     return( 
         <Container>
-            <SearchHeader onPress={()=>navigation.navigate('SearchComponent')} placeholder="Pesquisar suas obras...">
-                <Tabs tabs={tabs} setActive={(key)=>handleActiveTab(key)} />
-            </SearchHeader>
-            {
-                listBooks.length > 0 &&
-                <FilterArea onPress={()=>setFilterVisible(true)}>
-                    <Heading2 margin="8px" color="black">{filters[currentFilter].filter}</Heading2>
-                    {filters[currentFilter].order ==='asc'?
-                        <UpArrowIcon width="12" height="12" fill="black" />:
-                        <DownArrowIcon width="12" height="12" fill="black" />
-                    }
-                </FilterArea>
-            }
-            {
-                listBooks.length > 0 &&
-                <PoemList showsVerticalScrollIndicator={false}>
-                    <PoemArea>
-                        {listBooks.map((item, key)=>(
-                            <PoemItem key={key} poem={item.book} bookId={item.id} setActionVisible={()=>handleActionVisible(key)} />
-                        ))}
-                    </PoemArea>
-                </PoemList>
-            }
-            {
-                listBooks.length === 0 &&
-                <WriterArea>
-                    <Heading2 color="black">Escreva agora uma nova história</Heading2>
-                    <WriterIcon width="100%" height="50%" fill='white'/>
-                    <ButtonWriter onPress={()=>setOptions(true)}>
-                        <AddIcon width="24" height="24" fill="white" />
-                    </ButtonWriter>
-                </WriterArea>
-            }
             <Modal visible={loading} transparent={true}>
                 <LoadingArea>
                     <ActivityIndicator size="large" color={colors.primary} />
@@ -313,27 +256,19 @@ export default () => {
                     </OptionBook>
                 </ModalArea>
             </Modal>
-            {
-                listBooks.length > 0 &&
-                <ButtonAddPoem onPress={()=>setOptions(true)}>
-                    <AddIcon width="16" height="16" fill="white" />
-                </ButtonAddPoem>
-            }
-            
-
             <Modal visible={actionVisible} transparent={true} animationType="fade">
                 <ModalArea onPress={()=>setActionVisible(false)}>
                     <ModalContainer onPress={()=>{}} underlayColor="white">
                         <>
                             <GroupAction header>
                                 <GroupArea>
-                                    {category.getCategory(listBooks[currentPoem]?listBooks[currentPoem].book.category:'', '24', '24','white')}
-                                    <Heading2 margin="16px" color="white">{listBooks[currentPoem] ? listBooks[currentPoem].book.title:''}</Heading2>
+                                    {category.getCategory(listTexts[currentText]?listTexts[currentText].text.category:'', '24', '24','white')}
+                                    <Heading2 margin="16px" color="white">{listTexts[currentText] ? listTexts[currentText].text.title:''}</Heading2>
                                 </GroupArea>
                             </GroupAction>
                             <GroupAction>
                                 {
-                                    listBooks[currentPoem] && listBooks[currentPoem].book.published &&
+                                    listTexts[currentText] && listTexts[currentText].text.published &&
                                     <GroupArea>
                                         <NewIcon width="24" height="24" fill="black" />
                                         <Heading2 margin="16px" color="black">Criar continuação da história</Heading2>
@@ -344,10 +279,6 @@ export default () => {
                                     <ShareIcon width="12" height="12" fill="black" />
                                     <Heading2 margin="16px" color="black">Compartilhar</Heading2>
                                 </GroupArea>
-                                {/* <GroupArea onPress={()=>handleActionOption("add")}>
-                                    <AddUserIcon width="12" height="12" fill="black" />
-                                    <Heading2 margin="16px" color="black">Convidar alguém</Heading2>
-                                </GroupArea> */}
                             </GroupAction>
                             <GroupAction>
                                 <GroupArea onPress={()=>handleActionOption("rename")}>
@@ -384,32 +315,16 @@ export default () => {
                 onCancelPressed={() => {
                     setShowDelete(false);
                 }}
-                onConfirmPressed={handleDeletePoem}
-            />
-            <AwesomeAlert
-                show={showAlert}
-                showProgress={true}
-                title="Convite de usuário"
-                message="Usuário convidado com sucesso!"
-                closeOnTouchOutside={true}
-                closeOnHardwareBackPress={false}
-                showCancelButton={false}
-                showConfirmButton={true}
-                confirmText="OBRIGADO!"
-                confirmButtonColor={colors.success}
-                onConfirmPressed={() => {
-                    setShowAlert(false);
-                }}
+                onConfirmPressed={handleDeleteText}
             />
             <InputModal 
                 modalVisible={inputVisible} 
                 setModalVisible={value=>setInputVisible(value)} 
-                value={action==='add'?'':books[currentPoem]?books[currentPoem].book.title:''} 
+                value={listTexts[currentText]?listTexts[currentText].text.title:''} 
                 setValue={title=>handleNewTitle(title)} 
-                titleInput={action==='add'?'Convidar usuário':'Renomear obra'}
+                titleInput={'Renomear obra'}
                 action={action} 
-                placeholder={action === 'add'? "Nome do usuário": ''} 
-                onAdd={user=>handleAddUser(user)}
+                placeholder=''
                 height={keyboardVisible ? '45%' : '30%'}
             />
             <Modal transparent={true} visible={filterVisible} animationType="fade">
@@ -433,7 +348,50 @@ export default () => {
                     </ModalContainer>
                 </ModalArea>
             </Modal>
-            <SearchModal visible={searchVisible} setVisible={value=>setSearchVisible(value)} placeholder="Pesquisar suas obras..." list={poem} setShowOption={(key)=>handleActionVisible(key)} />
+
+
+
+
+            <SearchHeader onPress={()=>navigation.navigate('SearchComponent')} placeholder="Pesquisar suas obras...">
+                <Tabs tabs={tabs} setActive={(key)=>handleActiveTab(key)} />
+            </SearchHeader>
+            {
+                listTexts.length < -4 &&
+                <FilterArea onPress={()=>setFilterVisible(true)}>
+                    <Heading2 margin="8px" color="black">{filters[currentFilter].filter}</Heading2>
+                    {filters[currentFilter].order ==='asc'?
+                        <UpArrowIcon width="12" height="12" fill="black" />:
+                        <DownArrowIcon width="12" height="12" fill="black" />
+                    }
+                </FilterArea>
+            }
+            {
+                listTexts.length > 0 &&
+                <PoemList showsVerticalScrollIndicator={false}>
+                    <PoemArea>
+                        {listTexts.map((item, key)=>(
+                            <PoemItem key={key} poem={item.text} bookId={item.id} setActionVisible={()=>handleActionVisible(key)} />
+                        ))}
+                    </PoemArea>
+                </PoemList>
+            }
+            {
+                listTexts.length === 0 &&
+                <WriterArea>
+                    <Heading2 color="black">Escreva agora uma nova história</Heading2>
+                    <WriterIcon width="100%" height="50%" fill='white'/>
+                    <ButtonWriter onPress={()=>setOptions(true)}>
+                        <AddIcon width="24" height="24" fill="white" />
+                    </ButtonWriter>
+                </WriterArea>
+            }
+            
+            {
+                listTexts.length > 0 &&
+                <ButtonAddPoem onPress={()=>setOptions(true)}>
+                    <AddIcon width="16" height="16" fill="white" />
+                </ButtonAddPoem>
+            }
         </Container>
     );
 }

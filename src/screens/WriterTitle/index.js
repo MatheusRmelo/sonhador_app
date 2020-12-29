@@ -1,13 +1,10 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import CheckBox from '@react-native-community/checkbox';
-import { Heading1, Small, ButtonPrimary,ButtonSecondary, ButtonText, colors } from '../../commonStyles';
+import { Heading1, Small, ButtonPrimary, ButtonText, colors, styles } from '../../commonStyles';
 import { Modal, ActivityIndicator } from 'react-native';
-
 import AwesomeAlert from 'react-native-awesome-alerts';
-
 import {
     Container,
-    Question,
     InputTitle,
     Focus,
     CheckBoxArea,
@@ -34,6 +31,32 @@ export default () => {
     const navigation = useNavigation();
     const route = useRoute();
 
+    const handleNewText = async () => {
+        if(!title && !toggleCheckBox){
+            setShowAlert(true);
+        }else{
+            setLoading(true);
+            let text = {
+                title: title ? title : 'Sem título',
+                partNumber:1,
+                partLabel:'Parte 1',
+                category: route.params?.type,
+                published:false,
+                userId
+            };
+            const saveBook = await Api.saveBook({...text});
+            const texts = await Api.getMyTexts(userId);
+            setLoading(false);
+            dispatch({type:'SET_MYBOOKS', payload:{texts}});
+            navigation.reset({
+                routes: [{name: 'Writer'},{name: 'WriterText', params: { textId: saveBook.textId }}]
+            });
+            //navigation.navigate('WriterPoem',toggleCheckBox ? {title: 'Sem título'} : {title});
+            setTitle('');
+        }
+        
+    }
+
     useEffect(() => {
         if (route.params?.type) {
            if(route.params?.type === 'poem'){
@@ -46,40 +69,12 @@ export default () => {
            }
         }
     }, [route.params?.type]);
-
     useLayoutEffect(()=>{
         navigation.setOptions({
             title: `Escreva seu ${route.params?.type === 'poem' ? 'poema': route.params?.type === 'cordel' ? 'cordel': 'livro'}`
         })
     }, [route.params?.type]);
 
-    const handleNewText = async () => {
-        //SALVAR BOOK
-        if(route.params?.type === 'poem'){
-            if(!title && !toggleCheckBox){
-                setShowAlert(true);
-            }else{
-                setLoading(true);
-                let book = {
-                    title: title ? title : 'Sem título',
-                    partNumber:1,
-                    partLabel:'Parte 1',
-                    category: route.params?.type,
-                    published:false,
-                    userId
-                };
-                const saveBook = await Api.saveBook({...book});
-                const books = await Api.getMyBooks(userId);
-                setLoading(false);
-                dispatch({type:'SET_MYBOOKS', payload:{books}});
-                navigation.reset({
-                    routes: [{name: 'Writer'},{name: 'WriterPoem', params: { bookId: saveBook.bookId }}]
-                });
-                //navigation.navigate('WriterPoem',toggleCheckBox ? {title: 'Sem título'} : {title});
-                setTitle('');
-            }
-        }
-    }
     
     return(
         <Container>
@@ -92,14 +87,18 @@ export default () => {
                 show={showAlert}
                 showProgress={true}
                 title="A obra precisa de um título"
-                message="Amigo, marque a opção colocar título depois ou escreva um título"
+                titleStyle={styles.heading3}
+                message="Jovem, marque a opção 'colocar título depois' ou escreva um título"
+                messageStyle={styles.small}
                 closeOnTouchOutside={true}
                 closeOnHardwareBackPress={false}
                 showCancelButton={false}
                 showConfirmButton={true}
+                onDismiss={()=>setShowAlert(false)}
                 cancelText="Cancelar"
                 confirmText="ENTENDIDO"
                 confirmButtonColor={colors.danger}
+                confirmButtonTextStyle={styles.small_light}
                 onCancelPressed={() => {}}
                 onConfirmPressed={()=>setShowAlert(false)}
             />
@@ -118,9 +117,6 @@ export default () => {
             <ButtonPrimary width="80%" height="48px" onPress={handleNewText}>
                 <ButtonText color="white">NOVA HISTÓRIA</ButtonText>
             </ButtonPrimary>
-            {/* <ButtonSecondary width="80%" height="48px" onPress={handleNewText}>
-                <ButtonText color={colors.secondary}>CONTINUAR UMA HISTÓRIA</ButtonText>
-            </ButtonSecondary> */}
         </Container>
     );
 }

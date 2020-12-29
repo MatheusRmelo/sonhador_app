@@ -3,7 +3,7 @@ import { GoogleSignin } from '@react-native-community/google-signin';
 import firestore from '@react-native-firebase/firestore';
 
 const usersCollection = firestore().collection('Users');
-const booksCollection = firestore().collection('Books');
+const textsCollection = firestore().collection('Texts');
 const booksPublishedCollection = firestore().collection('BooksPublished');
 
 GoogleSignin.configure({
@@ -75,9 +75,9 @@ export default {
             .catch(e=>console.log(e));
         }
     },
-    saveBook:async (book)=>{
-        let result = await booksCollection.add({
-           ...book
+    saveBook:async (text)=>{
+        let result = await textsCollection.add({
+           ...text
         })
         .then((document) => {
             bookId = document.id;
@@ -88,23 +88,22 @@ export default {
         return result;
     },
     deleteBook:async (id)=>{
-        const deleted = await booksCollection.doc(id).delete()
+        const deleted = await textsCollection.doc(id).delete()
             .then(() =>true)
             .catch((e)=>false);
         return deleted;
     },
-    updateBook: async (id, book)=>{
-        const updated = await booksCollection.doc(id).update({
-            ...book
+    updateBook: async (id, text)=>{
+        const updated = await textsCollection.doc(id).update({
+            ...text
         })
         .then(() =>true)
         .catch((e)=>false);
         return updated;
     },
-    getMyBooks:async (userId)=>{
-        let books = [];
-        await booksCollection.where('userId', '==', userId)
-            .limit(20)
+    getMyTexts:async (userId)=>{
+        let texts = [];
+        await textsCollection.where('userId', '==', userId)
             .get()
             .then(snapshot => {
                 if (snapshot.empty) {
@@ -113,18 +112,18 @@ export default {
                 }
                 snapshot.forEach(doc => {
                   //console.log(doc.id, '=>', doc.data());
-                  books.push({id:doc.id, book:doc.data()});
+                  texts.push({id:doc.id, text:doc.data()});
                 });
               })
             .catch(err => {
                 console.log('Error getting documents', err);
             }
         );
-        return books;
+        return texts;
     },
-    getBookById:async (id)=>{
+    getTextById:async (id)=>{
         let book = {};
-        await booksCollection.doc(id).get()
+        await textsCollection.doc(id).get()
             .then(documentSnapshot => {
                 //console.log('User exists: ', documentSnapshot.exists);
                 if (documentSnapshot.exists) {

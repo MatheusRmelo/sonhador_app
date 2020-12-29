@@ -14,7 +14,7 @@ export default (state = initialState, action)=>{
             return {...state,photo:action.payload.photo};
         break;
         case 'SET_MYBOOKS':
-            return {...state,myBooks:action.payload.books};
+            return {...state,myBooks:action.payload.texts};
         break;
         case 'SET_CLEANMYBOOK':
             return {...state,myBooks:initialState.myBooks};

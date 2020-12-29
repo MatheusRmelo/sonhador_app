@@ -6,11 +6,11 @@ export const Container = styled.SafeAreaView`
     background-color: ${colors.primary_1};
     padding:32px;
 `;
-export const InputPoem = styled.TextInput`
+export const InputText = styled.TextInput`
     flex:1;
     background-color:white;
     border-radius:16px;
-    padding: 8px 16px;
+    padding: 16px;
     margin:16px 0px;
     font-size:16px;
     font-family: 'EBGaramond';
@@ -48,7 +48,7 @@ export const ButtonAddPageItem = styled.View`
 export const ButtonAddPageItemText = styled.Text`
     font-size:8px;
 `;
-export const PartPoem = styled.View`
+export const PartTextArea = styled.View`
     flex-direction:row;
     align-items:center;
     justify-content:space-between;

@@ -20,6 +20,7 @@ export const InputTitle = styled.TextInput`
     border-radius:16px;
     padding: 8px 16px;
     margin:16px;
+    font-family: 'Fredoka One';
 `;
 export const Focus = styled.Text`
     color: ${colors.danger};

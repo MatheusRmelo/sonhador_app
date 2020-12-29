@@ -123,7 +123,7 @@ export default ({modalVisible, setModalVisible, onSave, bookId}) => {
     useEffect(()=>{
         const getBookById = async (id) => {
             setLoading(true);
-            const result = await Api.getBookById(id);
+            const result = await Api.getTextById(id);
             if(result.cover){
                 const url = await storage()
                 .ref(result.cover)

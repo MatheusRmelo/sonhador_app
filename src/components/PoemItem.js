@@ -78,7 +78,7 @@ export default ({poem, setActionVisible, bookId}) => {
             setShowAlert(true);
         }else{
             navigation.reset({
-                routes: [{name: 'Writer'},{name: 'WriterPoem', params: { bookId: id }}]
+                routes: [{name: 'Writer'},{name: 'WriterText', params: { textId: id }}]
             });
         }
     }
@@ -100,7 +100,7 @@ export default ({poem, setActionVisible, bookId}) => {
         setLoading(false);
         dispatch({type:'SET_MYBOOKS', payload:{books}});
         navigation.reset({
-            routes: [{name: 'Writer'},{name: 'WriterPoem', params: { bookId: saveBook.bookId }}]
+            routes: [{name: 'Writer'},{name: 'WriterText', params: { bookId: saveBook.textId }}]
         });
     }
     const handleSeeBook = () => {
