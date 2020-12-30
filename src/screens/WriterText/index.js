@@ -13,12 +13,18 @@ import {
     PartTextArea,
     ButtonsOptions,
     ButtonOptionPart,
+    OptionBook,
+    OptionItem,
+    OptionTextArea,
+    ImageArea,
+    Photo
 } from './styles';
 import InputModal from '../../components/InputModal';
 import Categories from '../../components/Categories';
 import PhotoBook from '../../components/PhotoBook';
 import { ActivityIndicator, Keyboard, Modal } from 'react-native';
 
+import CameraIcon from '../../assets/icons/camera.svg';
 import AdsIcon from '../../assets/icons/ads.svg';
 import SharedIcon from '../../assets/icons/share.svg';
 import GalleryIcon from '../../assets/icons/gallery.svg';
@@ -27,18 +33,27 @@ import LeftArrowIcon from '../../assets/icons/left-arrow.svg';
 import EditIcon from '../../assets/icons/edit.svg';
 
 
+import * as ImagePicker from 'react-native-image-picker';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Api from '../../Api';
+import storage from '@react-native-firebase/storage';
 
 let timer;
 
 export default () => {
     const [categoryText, setCategoryText] = useState('book');
-    const [parts, setParts] = useState({label:'Parte 1', pages:[{page: 1, text: ``}]});
+    const [parts, setParts] = useState({label:'Parte 1', pages:[{page: 1, text: ``, image: ''}]});
     const [title, setTitle] = useState('');
     const [saved, setSaved] = useState('');
+
+    const [optionsVisible, setOptionsVisible] = useState(false);
+    const [image, setImage] = useState(null);
+    const [changeImage, setChangeImage] = useState(false);
+    const [fileExists, setFileExists] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [transferred, setTransferred] = useState(0);
 
     const [currentPage, setCurrentPage] = useState(0);
     const [action, setAction] = useState('');
@@ -56,15 +71,92 @@ export default () => {
     const route = useRoute();
     const dispatch = useDispatch();
 
+    const handleGetPhoto = (local) => {
+        const options = {
+            maxWidth: 2000,
+            maxHeight: 2000,
+            storageOptions: {
+              skipBackup: true,
+              path: 'images'
+            }
+        };
+
+        if(local==='camera'){
+            ImagePicker.launchCamera(options,response => {
+                if (response.didCancel) {
+                    console.log('User cancelled image picker');
+                } else if (response.error) {
+                    console.log('ImagePicker Error: ', response.error);
+                } else if (response.customButton) {
+                    console.log('User tapped custom button: ', response.customButton);
+                } else {
+                    const source = { uri: response.uri };
+                    //console.log(source);
+                    setImage(source);
+                }
+            });
+        }else{
+            ImagePicker.launchImageLibrary(options,response => {
+                if (response.didCancel) {
+                    console.log('User cancelled image picker');
+                } else if (response.error) {
+                    console.log('ImagePicker Error: ', response.error);
+                } else if (response.customButton) {
+                    console.log('User tapped custom button: ', response.customButton);
+                } else {
+                    const source = { uri: response.uri };
+                    //console.log(source);
+                    setImage(source);
+                    handleAddImage(source);
+                    
+                }
+            });
+        }
+        if(fileExists){
+            setChangeImage(true);
+        }
+        setOptionsVisible(false);
+        
+    }
+
+    const uploadImage = async (source) => {
+        const { uri } = source;
+        const filename = uri.substring(uri.lastIndexOf('/') + 1);
+        const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+        setLoading(true);
+        setTransferred(0);
+        const task = storage()
+          .ref('images/texts/'+filename)
+          .putFile(uploadUri);
+        // set progress state
+        task.on('state_changed', snapshot => {
+          setTransferred(
+            Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 10000
+          );
+        });
+        try {
+          await task;
+        } catch (e) {
+          console.error(e);
+        }
+        setLoading(false);
+    }    
+
     const handleChangePoem = (t) => {
         let newList = {...parts};
         newList.pages[currentPage].text = t;
         setParts(newList); 
     }
+    const handleAddImage = (source) => {
+        let newParts = {...parts};
+        newParts.pages[currentPage] = {...parts.pages[currentPage], image: source};
+        uploadImage(source);
+        setParts(newParts);
+    }
     const handleAddPage = ()=>{
         if(parts.pages.length < currentPage + 2){
             let newList = {...parts};
-            newList.pages.push({page:currentPage+2,text:``});
+            newList.pages.push({page:currentPage+2,text:``, image: ''});
             setParts(newList); 
         }
 
@@ -110,6 +202,7 @@ export default () => {
         setLoading(false);
         setVisibleInput(false);
     }
+
     const _keyboardDidShow = () => {
         setKeyboardVisible(true);
         dispatch({type: 'SET_VISIBLE', payload:{visible: false}});
@@ -118,6 +211,7 @@ export default () => {
         setKeyboardVisible(false);
         dispatch({type: 'SET_VISIBLE', payload:{visible: true}});
     };
+
     const onSavePhoto = (value) => {
         setCategoryVisible(value);
         setPhotoBookVisible(!value);
@@ -146,7 +240,6 @@ export default () => {
         });
         setLoading(false);
     }
-
     const getTextById = async (id) => {
         setLoading(true);
         const result = await Api.getTextById(id);
@@ -166,7 +259,7 @@ export default () => {
         }
 
         timer = setTimeout(onSaveBook, 2000);
-    }, [parts.pages[currentPage].text]);
+    }, [parts.pages[currentPage].text,parts.pages[currentPage].image]);
     useEffect(() => {
         if(route.params?.textId){
             getTextById(route.params?.textId);
@@ -215,6 +308,27 @@ export default () => {
                 placeholder=''
                 height={keyboardVisible ? '45%' : '30%'}
             />
+            <Modal visible={optionsVisible} transparent={true} animationType="slide" >
+                <ImageArea onPress={()=>setOptionsVisible(false)}>
+                    <OptionBook onPress={()=>{}} underlayColor="white">
+                        <>
+                            <OptionItem onPress={()=>handleGetPhoto('camera')}>
+                                <CameraIcon width="24" height="24" fill="black" />
+                                <OptionTextArea>
+                                    <Small>Câmera</Small>
+                                </OptionTextArea>
+                            </OptionItem>
+                            <OptionItem onPress={()=>handleGetPhoto('gallery')}>
+                                <GalleryIcon width="24" height="24" fill="black" />
+                                <OptionTextArea>
+                                    <Small>Galeria</Small>
+                                </OptionTextArea>
+                            </OptionItem>
+                        </>
+                    </OptionBook>
+                </ImageArea>
+            </Modal>
+
 
 
 
@@ -227,17 +341,23 @@ export default () => {
                     </ButtonOptionPart>
                 </ButtonsOptions>
             </PartTextArea>
-            <InputText
-                multiline={true}
-                numberOfLines={4}
-                placeholder="Começe a escrever"
-                textAlign={categoryText === 'book' ? 'left':"center"}
-                textAlignVertical="top"
-                value={parts.pages[currentPage].text}
-                onChangeText={t=>handleChangePoem(t)}
-                scrollEnabled={false}
-                maxLength={480}
-            />
+            {
+                parts.pages[currentPage].image ?
+                <Photo source={{uri:parts.pages[currentPage].image?parts.pages[currentPage].image.uri:'https://www.w3schools.com/howto/img_avatar2.png'}} />
+                :
+                <InputText
+                    multiline={true}
+                    numberOfLines={4}
+                    placeholder="Começe a escrever"
+                    textAlign={categoryText === 'book' ? 'left':"center"}
+                    textAlignVertical="top"
+                    value={parts.pages[currentPage].text}
+                    onChangeText={t=>handleChangePoem(t)}
+                    scrollEnabled={false}
+                    maxLength={480}
+                />
+            }
+            
             <OptionsPage position="left">
                 <ButtonAddPage onPress={prevPage}>
                     <LeftArrowIcon width="24" height="24" fill="white" />
@@ -254,7 +374,7 @@ export default () => {
                         </ButtonAddPageItem>
                     }
                 </ButtonAddPage>
-                <ButtonAddPage onPress={handleAddPage}>
+                <ButtonAddPage onPress={()=>setOptionsVisible(true)}>
                     <GalleryIcon width="24" height="24" fill="white" />
                 </ButtonAddPage>
                 <ButtonAddPage onPress={handleAddPage}>

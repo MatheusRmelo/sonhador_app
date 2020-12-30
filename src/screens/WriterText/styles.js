@@ -22,8 +22,8 @@ export const Bold = styled.Text`
 export const OptionsPage = styled.View`
     position:absolute;
     top:35%;
-    right: ${props=>props.position === 'right'? 0:'auto'};
-    left: ${props=>props.position === 'left'? 0:'auto'};
+    right: ${props=>props.position === 'right'? '-8px':'auto'};
+    left: ${props=>props.position === 'left'? '-8px':'auto'};
 `;
 export const ButtonAddPage = styled.TouchableOpacity`
     margin: 12px 16px;
@@ -103,3 +103,40 @@ export const ButtonCloseText = styled.Text`
     color:white;
     font-size:12px;
 `;
+
+
+export const OptionBook = styled.TouchableHighlight`
+    position:absolute;
+    bottom:20%;
+    right:80px;
+    background-color:white;
+    width:50%;
+    height:20%;
+    border-radius:16px;
+    padding:8px;
+`;
+export const OptionItem  = styled.TouchableOpacity`
+    flex-direction:row;
+    padding:0px 8px;
+    margin:16px 0px;
+`;
+export const OptionTextArea = styled.View`
+    flex:1;
+    border-bottom-width:1px;
+    border-bottom-color: #CCC;
+    padding:0 8px;
+    margin:0 8px;
+`;
+export const Photo = styled.Image`
+    flex:1;
+    background-color:white;
+    border-radius:16px;
+    padding: 16px;
+    margin:16px 0px;
+`;
+export const ImageArea = styled.TouchableOpacity`
+    flex:1;
+    background-color: rgba(0,0,0,0.5);
+    justify-content:flex-end;
+`;
+
