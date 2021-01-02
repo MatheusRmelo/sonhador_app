@@ -1,6 +1,19 @@
 import React, { useState, useLayoutEffect, useEffect } from 'react';
+import * as ImagePicker from 'react-native-image-picker';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { Heading2, ButtonText, ButtonPrimary, colors, Small, styles } from '../../commonStyles';
+import Api from '../../Api';
+import storage from '@react-native-firebase/storage';
+
+import { 
+    Heading2,
+    ButtonText,
+    ButtonPrimary,
+    colors,
+    Small,
+    styles
+} from '../../commonStyles';
 import {
     Container,
     InputText,
@@ -22,7 +35,8 @@ import {
 import InputModal from '../../components/InputModal';
 import Categories from '../../components/Categories';
 import PhotoBook from '../../components/PhotoBook';
-import { ActivityIndicator, Keyboard, Modal } from 'react-native';
+import { ActivityIndicator, Alert, Keyboard, Modal } from 'react-native';
+import AwesomeAlert from 'react-native-awesome-alerts';
 
 import CameraIcon from '../../assets/icons/camera.svg';
 import AdsIcon from '../../assets/icons/ads.svg';
@@ -33,27 +47,26 @@ import LeftArrowIcon from '../../assets/icons/left-arrow.svg';
 import EditIcon from '../../assets/icons/edit.svg';
 
 
-import * as ImagePicker from 'react-native-image-picker';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
 
-import Api from '../../Api';
-import storage from '@react-native-firebase/storage';
+
+
 
 let timer;
+let initialState={
+    parts: {label:'Parte 1', pages:[{page: 1, text: ``, image: ''}]},
+    category: 'book',
+    images: ['']
+};
 
 export default () => {
-    const [categoryText, setCategoryText] = useState('book');
-    const [parts, setParts] = useState({label:'Parte 1', pages:[{page: 1, text: ``, image: ''}]});
+    const [categoryText, setCategoryText] = useState(initialState.category);
+    const [parts, setParts] = useState(initialState.parts);
     const [title, setTitle] = useState('');
     const [saved, setSaved] = useState('');
+    const [error, setError] = useState('');
 
     const [optionsVisible, setOptionsVisible] = useState(false);
-    const [image, setImage] = useState(null);
-    const [changeImage, setChangeImage] = useState(false);
-    const [fileExists, setFileExists] = useState(false);
-    const [uploading, setUploading] = useState(false);
-    const [transferred, setTransferred] = useState(0);
+    const [images, setImages] = useState(initialState.images);
 
     const [currentPage, setCurrentPage] = useState(0);
     const [action, setAction] = useState('');
@@ -63,15 +76,16 @@ export default () => {
     const [photoBookVisible, setPhotoBookVisible] = useState(false);
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [showDeleteImg, setShowDeleteImg] = useState(false);
+    const [showError, setShowError] = useState(false);
 
     const userId = useSelector(state=>state.user.uid);
-    const books = useSelector(state=>state.book);
 
     const navigation = useNavigation();
     const route = useRoute();
     const dispatch = useDispatch();
 
-    const handleGetPhoto = (local) => {
+    const onGetPicture = (local) => {
         const options = {
             maxWidth: 2000,
             maxHeight: 2000,
@@ -80,7 +94,6 @@ export default () => {
               path: 'images'
             }
         };
-
         if(local==='camera'){
             ImagePicker.launchCamera(options,response => {
                 if (response.didCancel) {
@@ -91,8 +104,7 @@ export default () => {
                     console.log('User tapped custom button: ', response.customButton);
                 } else {
                     const source = { uri: response.uri };
-                    //console.log(source);
-                    setImage(source);
+                    addImage(source);
                 }
             });
         }else{
@@ -105,34 +117,102 @@ export default () => {
                     console.log('User tapped custom button: ', response.customButton);
                 } else {
                     const source = { uri: response.uri };
-                    //console.log(source);
-                    setImage(source);
-                    handleAddImage(source);
-                    
+                    addImage(source);
                 }
             });
         }
-        if(fileExists){
-            setChangeImage(true);
-        }
+        //handleAddImage(source);
         setOptionsVisible(false);
-        
     }
 
-    const uploadImage = async (source) => {
+
+    const updateText  = async (changes)=>{
+        let id = route.params?.textId;
+        const updated = await Api.updateBook(id, {...changes});
+        if(updated){
+            setSaved('- salvo');
+        }else{
+            setSaved('- erro ao salvar');
+        }
+        getMyBooks();
+    }
+    const addImage = async (source)=>{
+        setLoading(true);
+        const result = await Api.addImageInStorage(source,'/images/texts/');
+        if(result.error){
+            setError(result.error);
+            setShowError(true);
+        }else{
+            let filename = result.data;
+            let newPages = [...parts.pages];
+            newPages[currentPage] = {...newPages[currentPage], image:filename};
+
+            updateText({pages:newPages});
+            getImage(result.data);
+        }
+        setLoading(false);
+    }
+    const getImage = async (ref) => {
+        setLoading(true);
+        let newImages = [...images];
+        if(ref){
+            if(!newImages[currentPage]){
+                const result = await Api.getImageInStorage(ref, '/images/texts/');
+                if(result.error){
+                    setError(result.error);
+                    setShowError(true);
+                    //TODO - CRIAR FUNCAO PARA TRATAR ERROS   
+                }else{
+                    if(result.data){
+                        if(currentPage === 0){
+                            newImages[currentPage] = result.data;
+                        }else{
+                            newImages.push(result.data);
+                        }
+                    }
+                }   
+            }
+        }
+        setImages(newImages);
+        setLoading(false);
+    }
+    const deleteImage = async () => {
+        setShowDeleteImg(false);
+        setLoading(true);
+        let ref = parts.pages[currentPage].image;
+        let newImages = [];
+
+        if(ref){
+            const result = await Api.delImageInStorage(ref, '/images/texts/');
+            if(result.error){
+                setError(result.error);
+                setShowError(true);
+            }else{
+                if(result.data){
+                    newImages = images.filter((item, key)=>key!==currentPage);
+                    let newPages = [...parts.pages];
+                    newPages[currentPage] = {...newPages[currentPage], image:''};
+                    updateText({pages:newPages});
+                    setImages(newImages);
+                }
+            }   
+        }
+        setLoading(false);
+    }
+
+    const handleAddImage = async (source) => {
         const { uri } = source;
         const filename = uri.substring(uri.lastIndexOf('/') + 1);
         const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+        let newParts = {...parts};
+        newParts.pages[currentPage] = {...parts.pages[currentPage], image: filename};
+        setParts(newParts);
         setLoading(true);
-        setTransferred(0);
         const task = storage()
           .ref('images/texts/'+filename)
           .putFile(uploadUri);
         // set progress state
         task.on('state_changed', snapshot => {
-          setTransferred(
-            Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 10000
-          );
         });
         try {
           await task;
@@ -140,18 +220,20 @@ export default () => {
           console.error(e);
         }
         setLoading(false);
+        onSaveBook();
     }    
-
-    const handleChangePoem = (t) => {
+    const handleClickPhoto = () => {
+        if(images[currentPage]){
+            setShowDeleteImg(true);
+        }else{
+            setOptionsVisible(true);
+        }
+       
+    }
+    const handleChangeText = (t) => {
         let newList = {...parts};
         newList.pages[currentPage].text = t;
         setParts(newList); 
-    }
-    const handleAddImage = (source) => {
-        let newParts = {...parts};
-        newParts.pages[currentPage] = {...parts.pages[currentPage], image: source};
-        uploadImage(source);
-        setParts(newParts);
     }
     const handleAddPage = ()=>{
         if(parts.pages.length < currentPage + 2){
@@ -159,7 +241,6 @@ export default () => {
             newList.pages.push({page:currentPage+2,text:``, image: ''});
             setParts(newList); 
         }
-
         nextPage();
     }
     const handleDeletePage = (prevPage = true) => {
@@ -171,9 +252,9 @@ export default () => {
             prevPage();
         }
     }
-
     const nextPage = () => {
         setCurrentPage(prevState=>prevState+1);
+        //console.log(parts.pages);
     }
     const prevPage = () => {
         if(currentPage > 0){
@@ -183,7 +264,6 @@ export default () => {
             setCurrentPage(prevState=>prevState-1);
         }
     }
-
     const handleShowPart = (act) => {
         setVisibleInput(true);
         setAction(act);
@@ -191,17 +271,18 @@ export default () => {
     const handleEditTitleOrPart = async (newTitle) => {
         setLoading(true);
         if(currentPage%2===0){
-            updateBook({partLabel: newTitle});
+            updateText({partLabel: newTitle});
             let newParts = {...parts};
             newParts.label = newTitle;
             setParts(newParts);
         }else{
-            updateBook({title: newTitle});
+            updateText({title: newTitle});
             setTitle(newTitle);
         }
         setLoading(false);
         setVisibleInput(false);
     }
+
 
     const _keyboardDidShow = () => {
         setKeyboardVisible(true);
@@ -211,24 +292,17 @@ export default () => {
         setKeyboardVisible(false);
         dispatch({type: 'SET_VISIBLE', payload:{visible: true}});
     };
+    
 
     const onSavePhoto = (value) => {
         setCategoryVisible(value);
         setPhotoBookVisible(!value);
     }
     const onSaveBook = async () => {
-        updateBook({pages: parts.pages});
+        updateText({pages: parts.pages});
     }
-    const updateBook  = async (changes)=>{
-        let id = route.params?.textId;
-        const updated = await Api.updateBook(id, {...changes});
-        if(updated){
-            setSaved('- salvo');
-        }else{
-            setSaved('- erro ao salvar');
-        }
-        getMyBooks();
-    }
+    
+
     const getMyBooks = async () => {
         setLoading(true);
         let result = await Api.getMyTexts(userId);
@@ -245,13 +319,18 @@ export default () => {
         const result = await Api.getTextById(id);
         setParts({
             label: result.partLabel,
-            pages: result.pages ? result.pages : [{page: 1, text: ``}]
+            pages: result.pages ? result.pages : [{page: 1, text: ``, image:''}]
         });
+        getImage(result.pages[currentPage].image);
         setTitle(result.title);
         setCategoryText(result.category);
         setLoading(false);
     }
+   
 
+    useEffect(()=>{
+        getImage(parts.pages[currentPage].image);
+    }, [currentPage]);
     useEffect(()=>{
         setSaved('- salvando...');
         if(timer){
@@ -259,7 +338,7 @@ export default () => {
         }
 
         timer = setTimeout(onSaveBook, 2000);
-    }, [parts.pages[currentPage].text,parts.pages[currentPage].image]);
+    }, [parts.pages[currentPage].text]);
     useEffect(() => {
         if(route.params?.textId){
             getTextById(route.params?.textId);
@@ -312,13 +391,13 @@ export default () => {
                 <ImageArea onPress={()=>setOptionsVisible(false)}>
                     <OptionBook onPress={()=>{}} underlayColor="white">
                         <>
-                            <OptionItem onPress={()=>handleGetPhoto('camera')}>
+                            <OptionItem onPress={()=>onGetPicture('camera')}>
                                 <CameraIcon width="24" height="24" fill="black" />
                                 <OptionTextArea>
                                     <Small>Câmera</Small>
                                 </OptionTextArea>
                             </OptionItem>
-                            <OptionItem onPress={()=>handleGetPhoto('gallery')}>
+                            <OptionItem onPress={()=>onGetPicture('gallery')}>
                                 <GalleryIcon width="24" height="24" fill="black" />
                                 <OptionTextArea>
                                     <Small>Galeria</Small>
@@ -328,7 +407,47 @@ export default () => {
                     </OptionBook>
                 </ImageArea>
             </Modal>
-
+            <AwesomeAlert
+                show={showDeleteImg}
+                showProgress={true}
+                title="Excluir a foto"
+                message="Deseja realmente excluir essa foto?"
+                titleStyle={styles.heading3}
+                messageStyle={styles.small}
+                closeOnTouchOutside={true}
+                closeOnHardwareBackPress={false}
+                showCancelButton={true}
+                showConfirmButton={true}
+                onDismiss={() => {
+                    setShowDeleteImg(false);
+                }}
+                cancelText="Cancelar"
+                confirmText="EXCLUIR"
+                confirmButtonColor={colors.danger}
+                onCancelPressed={() => {
+                    setShowDeleteImg(false);
+                }}
+                onConfirmPressed={deleteImage}
+            />
+            <AwesomeAlert
+                show={showError}
+                showProgress={true}
+                title="OPS! Jovem algo deu errado"
+                titleStyle={styles.heading3}
+                message={`ERRO: ${error}`}
+                messageStyle={styles.small}
+                closeOnTouchOutside={true}
+                closeOnHardwareBackPress={false}
+                showCancelButton={false}
+                showConfirmButton={true}
+                onDismiss={()=>setShowError(false)}
+                cancelText="Cancelar"
+                confirmText="ENTENDIDO"
+                confirmButtonColor={colors.danger}
+                confirmButtonTextStyle={styles.small_light}
+                onCancelPressed={() => {}}
+                onConfirmPressed={()=>setShowError(false)}
+            />
 
 
 
@@ -342,8 +461,8 @@ export default () => {
                 </ButtonsOptions>
             </PartTextArea>
             {
-                parts.pages[currentPage].image ?
-                <Photo source={{uri:parts.pages[currentPage].image?parts.pages[currentPage].image.uri:'https://www.w3schools.com/howto/img_avatar2.png'}} />
+                images[currentPage]?
+                <Photo source={{uri:images[currentPage]}} />
                 :
                 <InputText
                     multiline={true}
@@ -352,7 +471,7 @@ export default () => {
                     textAlign={categoryText === 'book' ? 'left':"center"}
                     textAlignVertical="top"
                     value={parts.pages[currentPage].text}
-                    onChangeText={t=>handleChangePoem(t)}
+                    onChangeText={t=>handleChangeText(t)}
                     scrollEnabled={false}
                     maxLength={480}
                 />
@@ -374,8 +493,15 @@ export default () => {
                         </ButtonAddPageItem>
                     }
                 </ButtonAddPage>
-                <ButtonAddPage onPress={()=>setOptionsVisible(true)}>
+                <ButtonAddPage onPress={handleClickPhoto}>
                     <GalleryIcon width="24" height="24" fill="white" />
+                    {
+                        !!images[currentPage]
+                        &&
+                        <ButtonAddPageItem>
+                            <ButtonAddPageItemText>-</ButtonAddPageItemText>
+                        </ButtonAddPageItem>
+                    }
                 </ButtonAddPage>
                 <ButtonAddPage onPress={handleAddPage}>
                     <AdsIcon width="24" height="24" fill="white" />

@@ -1,6 +1,8 @@
 import auth from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-community/google-signin';
 import firestore from '@react-native-firebase/firestore';
+import storage from '@react-native-firebase/storage';
+import { Platform } from 'react-native';
 
 const usersCollection = firestore().collection('Users');
 const textsCollection = firestore().collection('Texts');
@@ -144,6 +146,57 @@ export default {
         })
 
         return result;
+    },
+    addImageInStorage: async (source, local)=>{
+        const { uri } = source;
+        const filename = uri.substring(uri.lastIndexOf('/') + 1);
+        const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+        const task = storage()
+          .ref(local+filename)
+          .putFile(uploadUri);
+        // set progress state
+        task.on('state_changed', snapshot => {
+        });
+        try {
+          await task;
+          return {error: '', data:filename};
+        } catch (error) {
+          return {error, data:''};
+        }
+    },
+    delImageInStorage: async (ref, local)=>{
+        const result = await storage()
+            .ref(local+ref)
+            .delete()
+            .then(()=>{
+                return {
+                    error: '',
+                    data: true 
+                }
+            }).catch((error)=>{
+                return {
+                    error,
+                    data: ''
+                }
+        });
+        return result;  
+    },
+    getImageInStorage: async (ref, local)=>{
+        const result = await storage()
+            .ref(local+ref)
+            .getDownloadURL()
+            .then((url)=>{
+                return {
+                    error: '',
+                    data: url 
+                }
+            }).catch((error)=>{
+                return {
+                    error,
+                    data: ''
+                }
+        });
+        return result;      
     },
 
 

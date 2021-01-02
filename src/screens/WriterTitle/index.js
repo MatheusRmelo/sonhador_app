@@ -102,6 +102,7 @@ export default () => {
                 onCancelPressed={() => {}}
                 onConfirmPressed={()=>setShowAlert(false)}
             />
+            
             <Heading1 center color="white">Vamos lá! antes de tudo qual o <Focus>título do {type}?</Focus></Heading1>
             <InputTitle value={title} onChangeText={t=>setTitle(t)} placeholder="Escolha o título" />
             <CheckBoxArea>
