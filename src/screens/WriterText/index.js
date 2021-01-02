@@ -35,7 +35,7 @@ import {
 import InputModal from '../../components/InputModal';
 import Categories from '../../components/Categories';
 import PhotoBook from '../../components/PhotoBook';
-import { ActivityIndicator, Alert, Keyboard, Modal } from 'react-native';
+import { ActivityIndicator, Alert, Keyboard, Modal, Share } from 'react-native';
 import AwesomeAlert from 'react-native-awesome-alerts';
 
 import CameraIcon from '../../assets/icons/camera.svg';
@@ -78,6 +78,7 @@ export default () => {
     const [loading, setLoading] = useState(false);
     const [showDeleteImg, setShowDeleteImg] = useState(false);
     const [showError, setShowError] = useState(false);
+    const [showAds, setShowAds] = useState(false);
 
     const userId = useSelector(state=>state.user.uid);
 
@@ -85,6 +86,38 @@ export default () => {
     const route = useRoute();
     const dispatch = useDispatch();
 
+    const onShare = async () => {
+        try {
+            const result = await Share.share({
+            message: 
+            `
+                ${title}
+
+                ${parts.pages.map((item)=>(
+                `
+                ${item.page}/${parts.pages.length}
+
+                ${item.text}
+                `
+            ))}
+                Autor: TODO
+                Instagram: Não disponível
+            `.trim(),
+            });
+            if (result.action === Share.sharedAction) {
+            if (result.activityType) {
+                // shared with activity type of result.activityType
+            } else {
+
+            }
+            } else if (result.action === Share.dismissedAction) {
+            // dismissed
+            }
+        } catch (error) {
+            setError(error.message);
+            setShowError(true);
+        }
+    }
     const onGetPicture = (local) => {
         const options = {
             maxWidth: 2000,
@@ -198,6 +231,10 @@ export default () => {
             }   
         }
         setLoading(false);
+    }
+
+    const handleClickAds = () => {
+
     }
 
     const handleAddImage = async (source) => {
@@ -424,6 +461,8 @@ export default () => {
                 cancelText="Cancelar"
                 confirmText="EXCLUIR"
                 confirmButtonColor={colors.danger}
+                cancelButtonTextStyle={styles.small_light}
+                confirmButtonTextStyle={styles.small_light}
                 onCancelPressed={() => {
                     setShowDeleteImg(false);
                 }}
@@ -448,7 +487,30 @@ export default () => {
                 onCancelPressed={() => {}}
                 onConfirmPressed={()=>setShowError(false)}
             />
-
+            <AwesomeAlert
+                show={showAds}
+                showProgress={true}
+                title="Monetização de sua obra"
+                message="Você deseja colocar anúncio nessa página?"
+                titleStyle={styles.heading3}
+                messageStyle={styles.small}
+                closeOnTouchOutside={true}
+                closeOnHardwareBackPress={false}
+                showCancelButton={true}
+                showConfirmButton={true}
+                onDismiss={() => {
+                    setShowAds(false);
+                }}
+                cancelText="Cancelar"
+                confirmText="Sim, monetize a página"
+                confirmButtonColor={colors.success}
+                onCancelPressed={() => {
+                    setShowAds(false);
+                }}
+                onConfirmPressed={deleteImage}
+                cancelButtonTextStyle={styles.small_light}
+                confirmButtonTextStyle={styles.small_light}
+            />
 
 
             <PartTextArea>
@@ -503,10 +565,10 @@ export default () => {
                         </ButtonAddPageItem>
                     }
                 </ButtonAddPage>
-                <ButtonAddPage onPress={handleAddPage}>
+                <ButtonAddPage onPress={()=>setShowAds(true)}>
                     <AdsIcon width="24" height="24" fill="white" />
                 </ButtonAddPage>
-                <ButtonAddPage onPress={handleAddPage}>
+                <ButtonAddPage onPress={onShare}>
                     <SharedIcon width="24" height="24" fill="white" />
                 </ButtonAddPage>
             </OptionsPage>

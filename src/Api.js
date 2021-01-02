@@ -179,6 +179,7 @@ export default {
                     data: ''
                 }
         });
+        console.log(result);
         return result;  
     },
     getImageInStorage: async (ref, local)=>{
