@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { useCategory } from '../../CategorySVG';
+import useIcons from '../../utils/Icons';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
@@ -25,49 +25,27 @@ import SearchHeader from '../../components/SearchHeader';
 import Tabs from '../../components/Tabs';
 import PoemItem from '../../components/PoemItem';
 import InputModal from '../../components/InputModal';
-import { Heading1, Heading2, Small, colors } from '../../commonStyles';
+import { Heading1, Heading2, Small, colors, styles } from '../../commonStyles';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import { Modal, Share, Keyboard, ActivityIndicator } from 'react-native';
 
-import UpArrowIcon from '../../assets/icons/up-arrow.svg';
-import DownArrowIcon from '../../assets/icons/down-arrow.svg';
-import TrashIcon from '../../assets/icons/trash.svg';
-import EditIcon from '../../assets/icons/edit.svg';
-import ShareIcon from '../../assets/icons/share.svg';
-import DownloadIcon from '../../assets/icons/download.svg';
-import AddUserIcon from '../../assets/icons/add-user.svg';
-import AddIcon from '../../assets/icons/plus.svg';
-import NewIcon from '../../assets/icons/new.svg';
 import WriterIcon from '../../assets/writer_now.svg';
-import BookIcon from '../../assets/categories/book.svg';
-import PoemIcon from '../../assets/categories/poem.svg';
-import CordelIcon from '../../assets/categories/cordel.svg';
+
 
 import Api from '../../Api';
 
 
-
-
-
 export default () => {
     const [tabs, setTabs] = useState([{name:'RASCUNHOS', active: true},{name:'PUBLICADAS', active: false}]);
-    const [filters, setFilters] = useState([
-        {filter: 'últimos visualizados por mim', order:'desc',},
-        {filter: 'últimos alterados por mim', order:'desc'},
-        {filter: 'últimos criados por mim', order:'desc'},
-        {filter: 'nome', order:'desc'}
-    ]);
     const [listTexts, setListTexts] = useState([]);
 
-    const [currentFilter, setCurrentFilter] = useState(0);
+    const [action, setAction] = useState('');
     const [currentText, setCurrentText] = useState(0);
 
-    const [actionVisible, setActionVisible] = useState(false);
-    const [inputVisible, setInputVisible] = useState(false);
-    const [filterVisible, setFilterVisible] = useState(false);
-    const [keyboardVisible, setKeyboardVisible] = useState(false);
+    const [showAction, setShowActive] = useState(false);
+    const [showInput, setShowInput] = useState(false);
+    const [showKeyboard, setShowKeyboard] = useState(false);
     const [options, setOptions] = useState(false);
-    const [action, setAction] = useState('');
     const [showDelete, setShowDelete] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -76,8 +54,15 @@ export default () => {
     const texts = useSelector(state=>state.book.myBooks);
 
     const navigation = useNavigation();
-    const category = useCategory();
+    const icons = useIcons();
     const dispatch = useDispatch();
+
+    const _keyboardDidShow = () => {
+        setShowKeyboard(true);
+    };
+    const _keyboardDidHide = () => { 
+        setShowKeyboard(false);
+    };
 
     const onShare = async () => {
         try {
@@ -111,13 +96,7 @@ export default () => {
         }
     }
 
-    const _keyboardDidShow = () => {
-        setKeyboardVisible(true);
-    };
-    const _keyboardDidHide = () => { 
-        setKeyboardVisible(false);
-    };
-    const handleActiveTab = (key) => {
+    const changeActivePage = (key) => {
         let newList = [...tabs];
         let newTexts = [];
         for(let i in newList){
@@ -148,27 +127,27 @@ export default () => {
         });
         setListTexts(newTexts);
     }
-    const handleActionVisible = (key) => {
+    const actionVisible = (key) => {
         setCurrentText(key);
-        setActionVisible(true);
+        setShowActive(true);
     }
-    const handleNewTitle = async (title) => {
+    const updateTitle = async (title) => {
         setLoading(true);
         const updated = await Api.updateBook(texts[currentText].id, {title});
         if(updated){
             getMyBooks();
-            setInputVisible(false);
-            setActionVisible(false);
+            setShowInput(false);
+            setShowActive(false);
         }else{
             alert("Falha na edição!");
         }
         setLoading(false);
     }
-    const handleActionOption = (act) => {
+    const changeAction = (act) => {
         setAction(act);
-        setInputVisible(true);
+        setShowInput(true);
     }
-    const handleDeleteText = async () => {
+    const deleteText = async () => {
         let bookId = texts[currentText].id;
         if(currentText>0){
             setCurrentText(prevState=>prevState-1);
@@ -179,17 +158,13 @@ export default () => {
         if(deleted){
             getMyBooks();
             setShowDelete(false);
-            setActionVisible(false);
+            setShowActive(false);
         }else{
             alert("Falha na exclusão!");
         }
         setLoading(false);
     }
-    const handleChangeFilter = (key) => {
-        setCurrentFilter(key);
-        setFilterVisible(false);
-    }
-    const handleGoWriter = (type) => {
+    const onWriterText = (type) => {
         setOptions(false);
         navigation.navigate('WriterTitle', {type});
     }
@@ -217,7 +192,7 @@ export default () => {
         };
     }, []);
     useEffect(()=>{
-        handleActiveTab(0);
+        changeActivePage(0);
     }, [texts]);
     useEffect(()=>{
         getMyBooks();
@@ -234,20 +209,20 @@ export default () => {
                 <ModalArea onPress={()=>setOptions(false)}>
                     <OptionBook onPress={()=>{}} underlayColor="white">
                         <>
-                            <OptionItem onPress={()=>handleGoWriter('book')}>
-                                <BookIcon width="24" height="24" fill="black" />
+                            <OptionItem onPress={()=>onWriterText('book')}>
+                                {icons.getIcons('book', 24,24,'black')}
                                 <OptionTextArea>
                                     <Small>Livro</Small>
                                 </OptionTextArea>
                             </OptionItem>
-                            <OptionItem onPress={()=>handleGoWriter('poem')}>
-                                <PoemIcon width="24" height="24" fill="black" />
+                            <OptionItem onPress={()=>onWriterText('poem')}>
+                                {icons.getIcons('poem', 24,24,'black')}
                                 <OptionTextArea>
                                     <Small>Poema</Small>
                                 </OptionTextArea>
                             </OptionItem>
-                            <OptionItem onPress={()=>handleGoWriter('cordel')}>
-                                <CordelIcon width="24" height="24" fill="black" />
+                            <OptionItem onPress={()=>onWriterText('cordel')}>
+                                {icons.getIcons('cordel', 24,24,'black')}
                                 <OptionTextArea>
                                     <Small>Cordel</Small>
                                 </OptionTextArea>
@@ -256,13 +231,13 @@ export default () => {
                     </OptionBook>
                 </ModalArea>
             </Modal>
-            <Modal visible={actionVisible} transparent={true} animationType="fade">
-                <ModalArea onPress={()=>setActionVisible(false)}>
+            <Modal visible={showAction} transparent={true} animationType="fade">
+                <ModalArea onPress={()=>setShowActive(false)}>
                     <ModalContainer onPress={()=>{}} underlayColor="white">
                         <>
                             <GroupAction header>
                                 <GroupArea>
-                                    {category.getCategory(listTexts[currentText]?listTexts[currentText].text.category:'', '24', '24','white')}
+                                    {icons.getIcons(listTexts[currentText]?listTexts[currentText].text.category:'', '24', '24','white')}
                                     <Heading2 margin="16px" color="white">{listTexts[currentText] ? listTexts[currentText].text.title:''}</Heading2>
                                 </GroupArea>
                             </GroupAction>
@@ -270,23 +245,23 @@ export default () => {
                                 {
                                     listTexts[currentText] && listTexts[currentText].text.published &&
                                     <GroupArea>
-                                        <NewIcon width="24" height="24" fill="black" />
+                                        {icons.getIcons('new', 24,24,'black')}
                                         <Heading2 margin="16px" color="black">Criar continuação da história</Heading2>
                                     </GroupArea>
                                 }
                                 
                                 <GroupArea onPress={onShare}>
-                                    <ShareIcon width="12" height="12" fill="black" />
+                                    {icons.getIcons('share', 18,18,'black')}
                                     <Heading2 margin="16px" color="black">Compartilhar</Heading2>
                                 </GroupArea>
                             </GroupAction>
                             <GroupAction>
-                                <GroupArea onPress={()=>handleActionOption("rename")}>
-                                    <EditIcon width="12" height="12" fill="black" />
+                                <GroupArea onPress={()=>changeAction("rename")}>
+                                    {icons.getIcons('edit', 18,18,'black')}
                                     <Heading2 margin="16px" color="black">Renomear</Heading2>
                                 </GroupArea>
                                 <GroupArea onPress={()=>setShowDelete(true)}>
-                                    <TrashIcon width="12" height="12" fill="black" />
+                                    {icons.getIcons('trash', 18,18,'black')}
                                     <Heading2 margin="16px" color="black">Excluir</Heading2>
                                 </GroupArea>
                             </GroupAction>
@@ -297,101 +272,70 @@ export default () => {
                     </ModalContainer>
                 </ModalArea>
             </Modal>
+
             <AwesomeAlert
                 show={showDelete}
                 showProgress={true}
                 title="Excluir a obra"
+                titleStyle={styles.heading3}
                 message="Deseja realmente excluir essa obra?"
+                messageStyle={styles.small}
                 closeOnTouchOutside={true}
-                closeOnHardwareBackPress={false}
+                closeOnHardwareBackPress={true}
                 showCancelButton={true}
                 showConfirmButton={true}
                 onDismiss={() => {
                     setShowDelete(false);
                 }}
                 cancelText="Cancelar"
+                cancelButtonTextStyle={styles.small_light}
                 confirmText="EXCLUIR"
+                confirmButtonTextStyle={styles.small_light}
                 confirmButtonColor={colors.danger}
                 onCancelPressed={() => {
                     setShowDelete(false);
                 }}
-                onConfirmPressed={handleDeleteText}
+                onConfirmPressed={deleteText}
             />
             <InputModal 
-                modalVisible={inputVisible} 
-                setModalVisible={value=>setInputVisible(value)} 
+                modalVisible={showInput} 
+                setModalVisible={value=>setShowInput(value)} 
                 value={listTexts[currentText]?listTexts[currentText].text.title:''} 
-                setValue={title=>handleNewTitle(title)} 
-                titleInput={'Renomear obra'}
+                setValue={title=>updateTitle(title)} 
+                titleInput='Renomear obra'
                 action={action} 
                 placeholder=''
-                height={keyboardVisible ? '45%' : '30%'}
+                height={showKeyboard ? '45%' : '30%'}
             />
-            <Modal transparent={true} visible={filterVisible} animationType="fade">
-                <ModalArea onPress={()=>setFilterVisible(false)}>
-                    <ModalContainer height="45%">
-                        <>
-                            <GroupAction>
-                                <GroupArea>
-                                    <Heading2 bold margin="16px" color="black">Classificar por</Heading2>
-                                </GroupArea>
-                            </GroupAction>
-                            <GroupAction color="white">
-                                {filters.map((item,key)=>(
-                                        <GroupArea key={key} active={currentFilter === key} onPress={()=>handleChangeFilter(key)}>
-                                            <DownArrowIcon width="12" height="12" fill="white" />
-                                            <Heading2 margin="16px" color={currentFilter === key ? 'white':'black'}>{item.filter}</Heading2>
-                                        </GroupArea>
-                                ))}
-                            </GroupAction>
-                        </>
-                    </ModalContainer>
-                </ModalArea>
-            </Modal>
-
-
 
 
             <SearchHeader onPress={()=>navigation.navigate('SearchComponent')} placeholder="Pesquisar suas obras...">
-                <Tabs tabs={tabs} setActive={(key)=>handleActiveTab(key)} />
+                <Tabs tabs={tabs} setActive={(key)=>changeActivePage(key)} />
             </SearchHeader>
             {
-                listTexts.length < -4 &&
-                <FilterArea onPress={()=>setFilterVisible(true)}>
-                    <Heading2 margin="8px" color="black">{filters[currentFilter].filter}</Heading2>
-                    {filters[currentFilter].order ==='asc'?
-                        <UpArrowIcon width="12" height="12" fill="black" />:
-                        <DownArrowIcon width="12" height="12" fill="black" />
-                    }
-                </FilterArea>
-            }
-            {
-                listTexts.length > 0 &&
-                <PoemList showsVerticalScrollIndicator={false}>
-                    <PoemArea>
-                        {listTexts.map((item, key)=>(
-                            <PoemItem key={key} poem={item.text} bookId={item.id} setActionVisible={()=>handleActionVisible(key)} />
-                        ))}
-                    </PoemArea>
-                </PoemList>
-            }
-            {
-                listTexts.length === 0 &&
+                listTexts.length > 0 ?
+                <>
+                    <PoemList showsVerticalScrollIndicator={false}>
+                        <PoemArea>
+                            {listTexts.map((item, key)=>(
+                                <PoemItem key={key} poem={item.text} bookId={item.id} setActionVisible={()=>actionVisible(key)} />
+                            ))}
+                        </PoemArea>
+                    </PoemList>
+                    <ButtonAddPoem onPress={()=>setOptions(true)}>
+                        {icons.getIcons('add', 16,16,'white')}
+                    </ButtonAddPoem>
+                </>
+                :
                 <WriterArea>
                     <Heading2 color="black">Escreva agora uma nova história</Heading2>
                     <WriterIcon width="100%" height="50%" fill='white'/>
                     <ButtonWriter onPress={()=>setOptions(true)}>
-                        <AddIcon width="24" height="24" fill="white" />
+                        {icons.getIcons('add', 24,24,'white')}
                     </ButtonWriter>
                 </WriterArea>
             }
             
-            {
-                listTexts.length > 0 &&
-                <ButtonAddPoem onPress={()=>setOptions(true)}>
-                    <AddIcon width="16" height="16" fill="white" />
-                </ButtonAddPoem>
-            }
         </Container>
     );
 }

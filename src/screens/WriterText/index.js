@@ -4,7 +4,6 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Api from '../../Api';
-import storage from '@react-native-firebase/storage';
 
 import { 
     Heading2,
@@ -59,6 +58,7 @@ let initialState={
 };
 
 export default () => {
+    //STATES 
     const [categoryText, setCategoryText] = useState(initialState.category);
     const [parts, setParts] = useState(initialState.parts);
     const [title, setTitle] = useState('');
@@ -79,6 +79,8 @@ export default () => {
     const [showDeleteImg, setShowDeleteImg] = useState(false);
     const [showError, setShowError] = useState(false);
     const [showAds, setShowAds] = useState(false);
+
+    // /STATES
 
     const userId = useSelector(state=>state.user.uid);
 
@@ -106,12 +108,10 @@ export default () => {
             });
             if (result.action === Share.sharedAction) {
             if (result.activityType) {
-                // shared with activity type of result.activityType
             } else {
 
             }
             } else if (result.action === Share.dismissedAction) {
-            // dismissed
             }
         } catch (error) {
             setError(error.message);
@@ -130,11 +130,12 @@ export default () => {
         if(local==='camera'){
             ImagePicker.launchCamera(options,response => {
                 if (response.didCancel) {
-                    console.log('User cancelled image picker');
+                    //console.log('User cancelled image picker');
                 } else if (response.error) {
-                    console.log('ImagePicker Error: ', response.error);
+                    setError(response.error);
+                    setShowError(true);
                 } else if (response.customButton) {
-                    console.log('User tapped custom button: ', response.customButton);
+                    //console.log('User tapped custom button: ', response.customButton);
                 } else {
                     const source = { uri: response.uri };
                     addImage(source);
@@ -143,18 +144,18 @@ export default () => {
         }else{
             ImagePicker.launchImageLibrary(options,response => {
                 if (response.didCancel) {
-                    console.log('User cancelled image picker');
+                    //console.log('User cancelled image picker');
                 } else if (response.error) {
-                    console.log('ImagePicker Error: ', response.error);
+                    setError(response.error);
+                    setShowError(true);
                 } else if (response.customButton) {
-                    console.log('User tapped custom button: ', response.customButton);
+                    //console.log('User tapped custom button: ', response.customButton);
                 } else {
                     const source = { uri: response.uri };
                     addImage(source);
                 }
             });
         }
-        //handleAddImage(source);
         setOptionsVisible(false);
     }
 
@@ -164,6 +165,7 @@ export default () => {
         const updated = await Api.updateBook(id, {...changes});
         if(updated){
             setSaved('- salvo');
+            setParts({...parts, ...changes});
         }else{
             setSaved('- erro ao salvar');
         }
@@ -179,7 +181,6 @@ export default () => {
             let filename = result.data;
             let newPages = [...parts.pages];
             newPages[currentPage] = {...newPages[currentPage], image:filename};
-
             updateText({pages:newPages});
             getImage(result.data);
         }
@@ -193,8 +194,7 @@ export default () => {
                 const result = await Api.getImageInStorage(ref, '/images/texts/');
                 if(result.error){
                     setError(result.error);
-                    setShowError(true);
-                    //TODO - CRIAR FUNCAO PARA TRATAR ERROS   
+                    setShowError(true);   
                 }else{
                     if(result.data){
                         if(currentPage === 0){
@@ -204,8 +204,22 @@ export default () => {
                         }
                     }
                 }   
+            }else if(ref !== newImages[currentPage]){ 
+                const result = await Api.getImageInStorage(ref, '/images/texts/');
+                if(result.error){
+                    setError(result.error);
+                    setShowError(true);   
+                }else{
+                    if(result.data){
+                        newImages[currentPage] = result.data;
+                    }
+                }   
             }
+        }else{
+            if(currentPage !== 0)
+                newImages.push("");
         }
+        console.log(newImages);
         setImages(newImages);
         setLoading(false);
     }
@@ -222,7 +236,12 @@ export default () => {
                 setShowError(true);
             }else{
                 if(result.data){
-                    newImages = images.filter((item, key)=>key!==currentPage);
+                    newImages = images;
+                    newImages.forEach((item, key)=>{
+                        if(key === currentPage-1){
+                            item = '';
+                        }
+                    });
                     let newPages = [...parts.pages];
                     newPages[currentPage] = {...newPages[currentPage], image:''};
                     updateText({pages:newPages});
@@ -237,28 +256,6 @@ export default () => {
 
     }
 
-    const handleAddImage = async (source) => {
-        const { uri } = source;
-        const filename = uri.substring(uri.lastIndexOf('/') + 1);
-        const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
-        let newParts = {...parts};
-        newParts.pages[currentPage] = {...parts.pages[currentPage], image: filename};
-        setParts(newParts);
-        setLoading(true);
-        const task = storage()
-          .ref('images/texts/'+filename)
-          .putFile(uploadUri);
-        // set progress state
-        task.on('state_changed', snapshot => {
-        });
-        try {
-          await task;
-        } catch (e) {
-          console.error(e);
-        }
-        setLoading(false);
-        onSaveBook();
-    }    
     const handleClickPhoto = () => {
         if(images[currentPage]){
             setShowDeleteImg(true);
@@ -277,6 +274,7 @@ export default () => {
             let newList = {...parts};
             newList.pages.push({page:currentPage+2,text:``, image: ''});
             setParts(newList); 
+            getImage('');
         }
         nextPage();
     }
@@ -295,8 +293,9 @@ export default () => {
     }
     const prevPage = () => {
         if(currentPage > 0){
-            if(!parts.pages[currentPage].text){
+            if(!parts.pages[currentPage].text && !parts.pages[currentPage].image){
                 handleDeletePage(false);
+                console.log('WHYYY?');
             }
             setCurrentPage(prevState=>prevState-1);
         }
@@ -341,7 +340,7 @@ export default () => {
     
 
     const getMyBooks = async () => {
-        setLoading(true);
+        //setLoading(true);
         let result = await Api.getMyTexts(userId);
         dispatch({
             type: 'SET_MYBOOKS',
@@ -349,7 +348,7 @@ export default () => {
                 texts:result
             }
         });
-        setLoading(false);
+        //setLoading(false);
     }
     const getTextById = async (id) => {
         setLoading(true);
@@ -368,14 +367,14 @@ export default () => {
     useEffect(()=>{
         getImage(parts.pages[currentPage].image);
     }, [currentPage]);
-    useEffect(()=>{
-        setSaved('- salvando...');
-        if(timer){
-            clearTimeout(timer);
-        }
+    // useEffect(()=>{
+    //     setSaved('- salvando...');
+    //     if(timer){
+    //         clearTimeout(timer);
+    //     }
 
-        timer = setTimeout(onSaveBook, 2000);
-    }, [parts.pages[currentPage].text]);
+    //     timer = setTimeout(onSaveBook, 2000);
+    // }, [parts.pages[currentPage].text]);
     useEffect(() => {
         if(route.params?.textId){
             getTextById(route.params?.textId);
@@ -507,7 +506,7 @@ export default () => {
                 onCancelPressed={() => {
                     setShowAds(false);
                 }}
-                onConfirmPressed={deleteImage}
+                onConfirmPressed={()=> setShowAds(false)}
                 cancelButtonTextStyle={styles.small_light}
                 confirmButtonTextStyle={styles.small_light}
             />

@@ -14,9 +14,10 @@ const MainTab = createBottomTabNavigator();
 
 export default ()=>(
     <MainTab.Navigator tabBar={props=><CustomTabBar {...props} />}>
+        <MainTab.Screen name="WriterStack" component={WriterStack} />
         <MainTab.Screen name="Home" component={Home} />
         <MainTab.Screen name="Search" component={Search} />
-        <MainTab.Screen name="WriterStack" component={WriterStack} />
+        {/* <MainTab.Screen name="WriterStack" component={WriterStack} /> */}
         <MainTab.Screen name="Library" component={Library} />
         <MainTab.Screen name="Profile" component={Profile} />
     </MainTab.Navigator>
