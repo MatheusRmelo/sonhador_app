@@ -2,6 +2,7 @@ import React, { useState, useLayoutEffect, useEffect } from 'react';
 import * as ImagePicker from 'react-native-image-picker';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
+import useIcons from '../../utils/Icons';
 
 import Api from '../../Api';
 
@@ -11,7 +12,8 @@ import {
     ButtonPrimary,
     colors,
     Small,
-    styles
+    styles,
+    Heading1
 } from '../../commonStyles';
 import {
     Container,
@@ -29,36 +31,24 @@ import {
     OptionItem,
     OptionTextArea,
     ImageArea,
-    Photo
+    Photo,
+    AdsArea
 } from './styles';
 import InputModal from '../../components/InputModal';
 import Categories from '../../components/Categories';
 import PhotoBook from '../../components/PhotoBook';
-import { ActivityIndicator, Alert, Keyboard, Modal, Share } from 'react-native';
+import { ActivityIndicator, Keyboard, Modal, Share } from 'react-native';
 import AwesomeAlert from 'react-native-awesome-alerts';
-
-import CameraIcon from '../../assets/icons/camera.svg';
-import AdsIcon from '../../assets/icons/ads.svg';
-import SharedIcon from '../../assets/icons/share.svg';
-import GalleryIcon from '../../assets/icons/gallery.svg';
-import RightArrowIcon from '../../assets/icons/right-arrow.svg';
-import LeftArrowIcon from '../../assets/icons/left-arrow.svg';
-import EditIcon from '../../assets/icons/edit.svg';
-
-
-
-
 
 
 let timer;
 let initialState={
-    parts: {label:'Parte 1', pages:[{page: 1, text: ``, image: ''}]},
+    parts: {label:'Parte 1', pages:[{page: 1, text: ``, image: '', ads: false}]},
     category: 'book',
     images: ['']
 };
 
 export default () => {
-    //STATES 
     const [categoryText, setCategoryText] = useState(initialState.category);
     const [parts, setParts] = useState(initialState.parts);
     const [title, setTitle] = useState('');
@@ -79,13 +69,13 @@ export default () => {
     const [showDeleteImg, setShowDeleteImg] = useState(false);
     const [showError, setShowError] = useState(false);
     const [showAds, setShowAds] = useState(false);
-
-    // /STATES
+    const [showDeleteAds, setShowDeleteAds] = useState(false);
 
     const userId = useSelector(state=>state.user.uid);
 
     const navigation = useNavigation();
     const route = useRoute();
+    const icons = useIcons();
     const dispatch = useDispatch();
 
     const onShare = async () => {
@@ -179,9 +169,11 @@ export default () => {
             setShowError(true);
         }else{
             let filename = result.data;
-            let newPages = [...parts.pages];
+            let newPages = parts.pages;
+            console.log(newPages[currentPage]);
             newPages[currentPage] = {...newPages[currentPage], image:filename};
             updateText({pages:newPages});
+            console.log(newPages);
             getImage(result.data);
         }
         setLoading(false);
@@ -219,15 +211,14 @@ export default () => {
             if(currentPage !== 0)
                 newImages.push("");
         }
-        console.log(newImages);
+        //console.log(newImages);
         setImages(newImages);
         setLoading(false);
     }
-    const deleteImage = async () => {
+    const onDeleteImage = async () => {
         setShowDeleteImg(false);
         setLoading(true);
         let ref = parts.pages[currentPage].image;
-        let newImages = [];
 
         if(ref){
             const result = await Api.delImageInStorage(ref, '/images/texts/');
@@ -236,15 +227,12 @@ export default () => {
                 setShowError(true);
             }else{
                 if(result.data){
-                    newImages = images;
-                    newImages.forEach((item, key)=>{
-                        if(key === currentPage-1){
-                            item = '';
-                        }
-                    });
+                    let newImages = images;
+                    newImages[currentPage] = '';
                     let newPages = [...parts.pages];
                     newPages[currentPage] = {...newPages[currentPage], image:''};
                     updateText({pages:newPages});
+                    console.log(newImages);
                     setImages(newImages);
                 }
             }   
@@ -253,7 +241,11 @@ export default () => {
     }
 
     const handleClickAds = () => {
-
+        if(parts.pages[currentPage].ads){
+            setShowDeleteAds(true);
+        }else{
+            setShowAds(true);
+        }
     }
 
     const handleClickPhoto = () => {
@@ -269,38 +261,34 @@ export default () => {
         newList.pages[currentPage].text = t;
         setParts(newList); 
     }
-    const handleAddPage = ()=>{
+    const handleClickAddPage = ()=>{
         if(parts.pages.length < currentPage + 2){
             let newList = {...parts};
-            newList.pages.push({page:currentPage+2,text:``, image: ''});
+            newList.pages.push({page:currentPage+2,text:``, image: '', ads:false});
             setParts(newList); 
             getImage('');
         }
         nextPage();
     }
-    const handleDeletePage = (prevPage = true) => {
+    const deletePage = () => {
         let newList = {...parts};
         newList.pages = newList.pages.filter((i,k)=>k!==currentPage);
         setParts(newList);
-    
-        if(prevPage){
-            prevPage();
-        }
     }
     const nextPage = () => {
         setCurrentPage(prevState=>prevState+1);
         //console.log(parts.pages);
     }
-    const prevPage = () => {
+    const handleClickPrevPage = () => {
         if(currentPage > 0){
-            if(!parts.pages[currentPage].text && !parts.pages[currentPage].image){
-                handleDeletePage(false);
+            if(!parts.pages[currentPage].text && !parts.pages[currentPage].image && !parts.pages[currentPage].ads){
+                deletePage();
                 console.log('WHYYY?');
             }
             setCurrentPage(prevState=>prevState-1);
         }
     }
-    const handleShowPart = (act) => {
+    const handleClickEditTitle = (act) => {
         setVisibleInput(true);
         setAction(act);
     }
@@ -337,7 +325,15 @@ export default () => {
     const onSaveBook = async () => {
         updateText({pages: parts.pages});
     }
-    
+    const onMonetizeText = async () => {
+        setLoading(true);
+        let newPages = parts.pages;
+        newPages[currentPage].ads = !newPages[currentPage].ads;
+        await updateText({pages: newPages});
+        setLoading(false);
+        setShowAds(false);
+        setShowDeleteAds(false);
+    }
 
     const getMyBooks = async () => {
         //setLoading(true);
@@ -362,7 +358,7 @@ export default () => {
         setCategoryText(result.category);
         setLoading(false);
     }
-   
+    
 
     useEffect(()=>{
         getImage(parts.pages[currentPage].image);
@@ -428,13 +424,13 @@ export default () => {
                     <OptionBook onPress={()=>{}} underlayColor="white">
                         <>
                             <OptionItem onPress={()=>onGetPicture('camera')}>
-                                <CameraIcon width="24" height="24" fill="black" />
+                                {icons.getIcons('camera', 24,24,'black')}
                                 <OptionTextArea>
                                     <Small>Câmera</Small>
                                 </OptionTextArea>
                             </OptionItem>
                             <OptionItem onPress={()=>onGetPicture('gallery')}>
-                                <GalleryIcon width="24" height="24" fill="black" />
+                                {icons.getIcons('gallery', 24,24,'black')}
                                 <OptionTextArea>
                                     <Small>Galeria</Small>
                                 </OptionTextArea>
@@ -451,7 +447,7 @@ export default () => {
                 titleStyle={styles.heading3}
                 messageStyle={styles.small}
                 closeOnTouchOutside={true}
-                closeOnHardwareBackPress={false}
+                closeOnHardwareBackPress={true}
                 showCancelButton={true}
                 showConfirmButton={true}
                 onDismiss={() => {
@@ -465,7 +461,7 @@ export default () => {
                 onCancelPressed={() => {
                     setShowDeleteImg(false);
                 }}
-                onConfirmPressed={deleteImage}
+                onConfirmPressed={onDeleteImage}
             />
             <AwesomeAlert
                 show={showError}
@@ -475,7 +471,7 @@ export default () => {
                 message={`ERRO: ${error}`}
                 messageStyle={styles.small}
                 closeOnTouchOutside={true}
-                closeOnHardwareBackPress={false}
+                closeOnHardwareBackPress={true}
                 showCancelButton={false}
                 showConfirmButton={true}
                 onDismiss={()=>setShowError(false)}
@@ -489,26 +485,50 @@ export default () => {
             <AwesomeAlert
                 show={showAds}
                 showProgress={true}
-                title="Monetização de sua obra"
-                message="Você deseja colocar anúncio nessa página?"
-                titleStyle={styles.heading3}
-                messageStyle={styles.small}
+                title="Você deseja colocar anúncio nessa página?"
+                message="40% do valor recebido com o anúncio será repassado para você"
+                titleStyle={[styles.heading3,{color: colors.primary}]}
+                messageStyle={[styles.small,{color: colors.gray_2}]}
                 closeOnTouchOutside={true}
-                closeOnHardwareBackPress={false}
+                closeOnHardwareBackPress={true}
                 showCancelButton={true}
                 showConfirmButton={true}
                 onDismiss={() => {
                     setShowAds(false);
                 }}
                 cancelText="Cancelar"
-                confirmText="Sim, monetize a página"
+                confirmText="VAMOS LUCRAR!"
                 confirmButtonColor={colors.success}
                 onCancelPressed={() => {
                     setShowAds(false);
                 }}
-                onConfirmPressed={()=> setShowAds(false)}
+                onConfirmPressed={onMonetizeText}
                 cancelButtonTextStyle={styles.small_light}
                 confirmButtonTextStyle={styles.small_light}
+            />
+            <AwesomeAlert
+                show={showDeleteAds}
+                showProgress={true}
+                title="Tirar monetização"
+                message="Jovem, deseja parar de receber dinheiro com essa página?"
+                titleStyle={styles.heading3}
+                messageStyle={styles.small}
+                closeOnTouchOutside={true}
+                closeOnHardwareBackPress={true}
+                showCancelButton={true}
+                showConfirmButton={true}
+                onDismiss={() => {
+                    setShowDeleteAds(false);
+                }}
+                cancelText="Cancelar"
+                confirmText="TIRAR ANÚNCIO"
+                confirmButtonColor={colors.danger}
+                cancelButtonTextStyle={styles.small_light}
+                confirmButtonTextStyle={styles.small_light}
+                onCancelPressed={() => {
+                    setShowDeleteAds(false);
+                }}
+                onConfirmPressed={onMonetizeText}
             />
 
 
@@ -516,12 +536,17 @@ export default () => {
                 <Heading2 center color="white"><Bold>{currentPage % 2 === 0 ? parts.label : title}</Bold></Heading2>
                 <Small color="white">{`${currentPage+1}/${parts.pages.length}`} {saved}</Small>
                 <ButtonsOptions>
-                    <ButtonOptionPart onPress={()=>handleShowPart('rename')}>
-                        <EditIcon width="24" height="24" fill="white" />
+                    <ButtonOptionPart onPress={()=>handleClickEditTitle('rename')}>
+                        {icons.getIcons('edit', 24,24,'white')}
                     </ButtonOptionPart>
                 </ButtonsOptions>
             </PartTextArea>
             {
+                parts.pages[currentPage].ads ?
+                <AdsArea>
+                    <Heading2 color="white">Após publicada aqui será um anúncio</Heading2>
+                </AdsArea>
+                :
                 images[currentPage]?
                 <Photo source={{uri:images[currentPage]}} />
                 :
@@ -539,13 +564,13 @@ export default () => {
             }
             
             <OptionsPage position="left">
-                <ButtonAddPage onPress={prevPage}>
-                    <LeftArrowIcon width="24" height="24" fill="white" />
+                <ButtonAddPage onPress={handleClickPrevPage}>
+                    {icons.getIcons('left', 24,24,'white')}
                 </ButtonAddPage>
             </OptionsPage>
             <OptionsPage position="right">
-                <ButtonAddPage onPress={handleAddPage}>
-                    <RightArrowIcon width="24" height="24" fill="white" />
+                <ButtonAddPage onPress={handleClickAddPage}>
+                    {icons.getIcons('right', 24,24,'white')}
                     {
                         parts.pages.length < currentPage + 2
                         &&
@@ -555,7 +580,7 @@ export default () => {
                     }
                 </ButtonAddPage>
                 <ButtonAddPage onPress={handleClickPhoto}>
-                    <GalleryIcon width="24" height="24" fill="white" />
+                    {icons.getIcons('gallery', 24,24,'white')}
                     {
                         !!images[currentPage]
                         &&
@@ -564,11 +589,11 @@ export default () => {
                         </ButtonAddPageItem>
                     }
                 </ButtonAddPage>
-                <ButtonAddPage onPress={()=>setShowAds(true)}>
-                    <AdsIcon width="24" height="24" fill="white" />
+                <ButtonAddPage onPress={handleClickAds}>
+                    {icons.getIcons('ads', 24,24,'white')}
                 </ButtonAddPage>
                 <ButtonAddPage onPress={onShare}>
-                    <SharedIcon width="24" height="24" fill="white" />
+                    {icons.getIcons('share', 24,24,'white')}
                 </ButtonAddPage>
             </OptionsPage>
         </Container>

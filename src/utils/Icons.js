@@ -11,6 +11,11 @@ import NewIcon from '../assets/icons/new.svg';
 import TrashIcon from '../assets/icons/trash.svg';
 import EditIcon from '../assets/icons/edit.svg';
 import ShareIcon from '../assets/icons/share.svg';
+import AdsIcon from '../assets/icons/ads.svg';
+import GalleryIcon from '../assets/icons/gallery.svg';
+import CameraIcon from '../assets/icons/camera.svg';
+import RightArrowIcon from '../assets/icons/right-arrow.svg';
+import LeftArrowIcon from '../assets/icons/left-arrow.svg';
 
 export default useIcons = () => {
     return({
@@ -37,7 +42,16 @@ export default useIcons = () => {
                 return <EditIcon width={width} height={height} fill={color} />
             if(icon === 'trash')
                 return <TrashIcon width={width} height={height} fill={color} />
-
+            if(icon === 'ads')
+                return <AdsIcon width={width} height={height} fill={color} />
+            if(icon === 'gallery')
+                return <GalleryIcon width={width} height={height} fill={color} />
+            if(icon === 'camera')
+                return <CameraIcon width={width} height={height} fill={color} />
+            if(icon === 'right')
+                return <RightArrowIcon width={width} height={height} fill={color} />
+            if(icon === 'left')
+                return <LeftArrowIcon width={width} height={height} fill={color} />
             return null;
         }
     })

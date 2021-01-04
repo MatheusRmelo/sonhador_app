@@ -139,4 +139,12 @@ export const ImageArea = styled.TouchableOpacity`
     background-color: rgba(0,0,0,0.5);
     justify-content:flex-end;
 `;
-
+export const AdsArea = styled.View`
+    flex:1;
+    background-color:${colors.success};
+    border-radius:16px;
+    padding: 16px;
+    margin:16px 0px;
+    justify-content:center;
+    align-items:center;
+`;

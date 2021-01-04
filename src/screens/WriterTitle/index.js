@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useSelector, useDispatch } from 'react-redux';
+
 import CheckBox from '@react-native-community/checkbox';
 import { Heading1, Small, ButtonPrimary, ButtonText, colors, styles } from '../../commonStyles';
 import { Modal, ActivityIndicator } from 'react-native';
@@ -11,8 +14,6 @@ import {
     ModalArea
 } from './styles';
 
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { useSelector, useDispatch } from 'react-redux';
 
 import Api from '../../Api';
 
@@ -31,7 +32,7 @@ export default () => {
     const navigation = useNavigation();
     const route = useRoute();
 
-    const handleNewText = async () => {
+    const newText = async () => {
         if(!title && !toggleCheckBox){
             setShowAlert(true);
         }else{
@@ -91,7 +92,7 @@ export default () => {
                 message="Jovem, marque a opção 'colocar título depois' ou escreva um título"
                 messageStyle={styles.small}
                 closeOnTouchOutside={true}
-                closeOnHardwareBackPress={false}
+                closeOnHardwareBackPress={true}
                 showCancelButton={false}
                 showConfirmButton={true}
                 onDismiss={()=>setShowAlert(false)}
@@ -115,7 +116,7 @@ export default () => {
                 />
                 <Small color="white">Colocar título depois</Small>
             </CheckBoxArea>
-            <ButtonPrimary width="80%" height="48px" onPress={handleNewText}>
+            <ButtonPrimary width="80%" height="48px" onPress={newText}>
                 <ButtonText color="white">NOVA HISTÓRIA</ButtonText>
             </ButtonPrimary>
         </Container>
