@@ -60,6 +60,7 @@ export default () => {
 
     const [currentPage, setCurrentPage] = useState(0);
     const [action, setAction] = useState('');
+    const [editing, setEditing] = useState(false);
 
     const [visibleInput, setVisibleInput] = useState(false);
     const [categoryVisible, setCategoryVisible] = useState(false);
@@ -160,6 +161,7 @@ export default () => {
             setSaved('- erro ao salvar');
         }
         getMyBooks();
+        setEditing(false);
     }
     const addImage = async (source)=>{
         setLoading(true);
@@ -170,10 +172,8 @@ export default () => {
         }else{
             let filename = result.data;
             let newPages = parts.pages;
-            console.log(newPages[currentPage]);
             newPages[currentPage] = {...newPages[currentPage], image:filename};
             updateText({pages:newPages});
-            console.log(newPages);
             getImage(result.data);
         }
         setLoading(false);
@@ -188,30 +188,13 @@ export default () => {
                     setError(result.error);
                     setShowError(true);   
                 }else{
-                    if(result.data){
-                        if(currentPage === 0){
-                            newImages[currentPage] = result.data;
-                        }else{
-                            newImages.push(result.data);
-                        }
-                    }
-                }   
-            }else if(ref !== newImages[currentPage]){ 
-                const result = await Api.getImageInStorage(ref, '/images/texts/');
-                if(result.error){
-                    setError(result.error);
-                    setShowError(true);   
-                }else{
-                    if(result.data){
-                        newImages[currentPage] = result.data;
-                    }
+                    newImages[currentPage] = result.data;
                 }   
             }
         }else{
-            if(currentPage !== 0)
-                newImages.push("");
+            newImages[currentPage] = "";
         }
-        //console.log(newImages);
+        
         setImages(newImages);
         setLoading(false);
     }
@@ -232,7 +215,6 @@ export default () => {
                     let newPages = [...parts.pages];
                     newPages[currentPage] = {...newPages[currentPage], image:''};
                     updateText({pages:newPages});
-                    console.log(newImages);
                     setImages(newImages);
                 }
             }   
@@ -260,6 +242,7 @@ export default () => {
         let newList = {...parts};
         newList.pages[currentPage].text = t;
         setParts(newList); 
+        setEditing(true);
     }
     const handleClickAddPage = ()=>{
         if(parts.pages.length < currentPage + 2){
@@ -274,6 +257,7 @@ export default () => {
         let newList = {...parts};
         newList.pages = newList.pages.filter((i,k)=>k!==currentPage);
         setParts(newList);
+        updateText({pages:newList.pages});
     }
     const nextPage = () => {
         setCurrentPage(prevState=>prevState+1);
@@ -281,9 +265,8 @@ export default () => {
     }
     const handleClickPrevPage = () => {
         if(currentPage > 0){
-            if(!parts.pages[currentPage].text && !parts.pages[currentPage].image && !parts.pages[currentPage].ads){
+            if(!parts.pages[currentPage].text && !parts.pages[currentPage].image && !parts.pages[currentPage].ads && currentPage+1===parts.pages.length){
                 deletePage();
-                console.log('WHYYY?');
             }
             setCurrentPage(prevState=>prevState-1);
         }
@@ -351,7 +334,7 @@ export default () => {
         const result = await Api.getTextById(id);
         setParts({
             label: result.partLabel,
-            pages: result.pages ? result.pages : [{page: 1, text: ``, image:''}]
+            pages: result.pages ? result.pages : [{page: 1, text: ``, image:'', ads:true}]
         });
         getImage(result.pages[currentPage].image);
         setTitle(result.title);
@@ -363,14 +346,21 @@ export default () => {
     useEffect(()=>{
         getImage(parts.pages[currentPage].image);
     }, [currentPage]);
-    // useEffect(()=>{
-    //     setSaved('- salvando...');
-    //     if(timer){
-    //         clearTimeout(timer);
-    //     }
-
-    //     timer = setTimeout(onSaveBook, 2000);
-    // }, [parts.pages[currentPage].text]);
+    useEffect(()=>{
+        const saveText = () => {
+            updateText({pages: parts.pages});
+        }
+        if(editing){
+            setSaved('- salvando...');
+            if(timer){
+                clearTimeout(timer);
+            }
+            
+            timer = setTimeout(saveText, 2000);
+        }
+       
+        
+    }, [parts.pages[currentPage].text]);
     useEffect(() => {
         if(route.params?.textId){
             getTextById(route.params?.textId);
@@ -485,7 +475,7 @@ export default () => {
             <AwesomeAlert
                 show={showAds}
                 showProgress={true}
-                title="Você deseja colocar anúncio nessa página?"
+                title="Jovem, deseja colocar anúncio nessa página?"
                 message="40% do valor recebido com o anúncio será repassado para você"
                 titleStyle={[styles.heading3,{color: colors.primary}]}
                 messageStyle={[styles.small,{color: colors.gray_2}]}
