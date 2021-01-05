@@ -16,6 +16,7 @@ import GalleryIcon from '../assets/icons/gallery.svg';
 import CameraIcon from '../assets/icons/camera.svg';
 import RightArrowIcon from '../assets/icons/right-arrow.svg';
 import LeftArrowIcon from '../assets/icons/left-arrow.svg';
+import CloseIcon from '../assets/icons/close.svg';
 
 export default useIcons = () => {
     return({
@@ -52,6 +53,8 @@ export default useIcons = () => {
                 return <RightArrowIcon width={width} height={height} fill={color} />
             if(icon === 'left')
                 return <LeftArrowIcon width={width} height={height} fill={color} />
+            if(icon === 'close')
+                return <CloseIcon width={width} height={height} fill={color} />
             return null;
         }
     })

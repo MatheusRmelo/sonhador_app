@@ -3,7 +3,7 @@ import { ActivityIndicator, Modal } from 'react-native';
 import styled from 'styled-components/native';
 import { colors, Small, Heading2, ButtonPrimary, ButtonText } from '../commonStyles';
 
-import { useCategory } from '../CategorySVG';
+import useIcons from '../utils/Icons';
 import Api from '../Api';
 
 import CloseIcon from '../assets/icons/close.svg';
@@ -75,12 +75,12 @@ export default ({modalVisible, setModalVisible, bookId}) => {
     const [enabled, setEnabled] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const category = useCategory();
+    const icons = useIcons();
     const navigation = useNavigation();
     const userId = useSelector(state=>state.user.uid);
     const dispatch = useDispatch();
 
-    const handleSelectCategory = (key) => {
+    const handleClickCategory = (key) => {
         let newList = [...categories];
         newList[key].selected = !newList[key].selected;
         setCategories(newList);
@@ -92,7 +92,7 @@ export default ({modalVisible, setModalVisible, bookId}) => {
         }
     }
     const getMyBooks = async () => {
-        let result = await Api.getMyBooks(userId);
+        let result = await Api.getMyTexts(userId);
         dispatch({
             type: 'SET_MYBOOKS',
             payload:{
@@ -109,17 +109,10 @@ export default ({modalVisible, setModalVisible, bookId}) => {
                 listSelected.push(categories[i].name);
             }
         }
-        let result = await Api.updateBook(bookId, {ads:true,categories:listSelected, published: true});
+        let result = await Api.updateBook(bookId, {categories:listSelected, published: true});
         getMyBooks();
         setLoading(false);
         navigation.navigate('Writer');
-
-        // if(result){
-        //     navigation.navigate('Writer');
-        // }else{
-        //     console.log('ERRO');
-        // }
-
     }
 
     return(
@@ -132,15 +125,15 @@ export default ({modalVisible, setModalVisible, bookId}) => {
            
             <Container>
                 <CloseButton onPress={()=>setModalVisible(false)}>
-                    <CloseIcon width="24" height="24" fill="black" />
+                    {icons.getIcons('close',24,24,'black')}
                 </CloseButton>
                 <Heading2 margin="64px 16px 0px 0px">Selecione as categorias de sua obra</Heading2>
                 <CategoryList>
                     <CategoryArea>
                         {
                             categories.map((item, key)=>(
-                                <Category key={key} selected={item.selected} onPress={()=>handleSelectCategory(key)}>
-                                        {category.getCategory(item.name, '48','48','black')}
+                                <Category key={key} selected={item.selected} onPress={()=>handleClickCategory(key)}>
+                                        {icons.getIcons(item.name, '48','48','black')}
                                         <Small color="white">{item.name}</Small>
                                 </Category>
                             ))

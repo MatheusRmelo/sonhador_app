@@ -96,7 +96,7 @@ export default () => {
         }
     }
 
-    const changeActivePage = (key) => {
+    const changeActivePage = async (key) => {
         let newList = [...tabs];
         let newTexts = [];
         for(let i in newList){
@@ -192,11 +192,14 @@ export default () => {
         };
     }, []);
     useEffect(()=>{
-        changeActivePage(0);
-    }, [texts]);
-    useEffect(()=>{
         getMyBooks();
     }, []);
+    useEffect(()=>{
+        if(texts){
+            changeActivePage(0);
+        }
+    }, [texts]);
+    
 
     return( 
         <Container>

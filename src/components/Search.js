@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { 
     Modal,
     Keyboard,
-    ActivityIndicator
+    ActivityIndicator,
+    Alert
 } from 'react-native';
 import styled from 'styled-components/native';
 import AwesomeAlert from 'react-native-awesome-alerts';
@@ -89,24 +90,24 @@ export default () => {
 
     const getMyBooks = async () => {
         setLoading(true);
-        let result = await Api.getMyBooks(userId);
+        let result = await Api.getMyTexts(userId);
         dispatch({
             type: 'SET_MYBOOKS',
             payload:{
                 books:result
             }
         });
-        setCurrentBook(books[0]);
+        setCurrentBook(result[0]);
+        setListBooks(result);
         setLoading(false);
     }
-
-    const handleSearch = async () => {
+    const onSearch = async () => {
         let newBooks = [];
         if(search === ''){
             getMyBooks();
         }else{
-            books.forEach((item)=>{
-                let title = item.book.title.toLowerCase();
+            listBooks.forEach((item)=>{
+                let title = item.text.title.toLowerCase();
                 if(title.indexOf(search.toLowerCase())!= -1){
                     newBooks.push(item);
                 }
@@ -119,9 +120,38 @@ export default () => {
     }   
 
 
-    useEffect(()=>{
-        setListBooks(books);
-    }, [books]);
+    const handleClickNewText = async (item) => {
+        let {id, text} = item;
+        if(text.published){
+            setShowAlert(true);
+            setCurrentBook(item);
+        }else{
+            navigation.reset({
+                routes: [{name: 'Writer'},{name: 'WriterPoem', params: { bookId: id }}]
+            });
+        }
+    }
+    const handleClickNewVersion = async () => {
+        let {id, book} = currentBook;
+        setLoading(true);
+        let numberPart = book.partNumber+1; 
+        let newBook = {
+            title: book.title ? book.title + ' ' + numberPart  : 'Sem título ' + numberPart,
+            partNumber: numberPart,
+            partLabel:'Parte ' + numberPart,
+            category: book.category,
+            published:false,
+            userId
+        };
+        const saveBook = await Api.saveBook({...newBook});
+        const books = await Api.getMyTexts(userId);
+        setLoading(false);
+        dispatch({type:'SET_MYBOOKS', payload:{books}});
+        navigation.reset({
+            routes: [{name: 'Writer'},{name: 'WriterPoem', params: { bookId: saveBook.bookId }}]
+        });
+    }
+
 
     useEffect(()=>{
         getMyBooks();
@@ -136,49 +166,13 @@ export default () => {
             keyboardHideListener.current.remove();
         }
     });
-
     useEffect(()=>{
         if(timer){
             clearTimeout(timer);
         }
 
-        timer = setTimeout(handleSearch, 500);
+        timer = setTimeout(onSearch, 500);
     }, [search]);
-
-    const handleNewText = async (item, key) => {
-        let {id, book} = item;
-        if(book.published){
-            setShowAlert(true);
-            setCurrentBook(books[key]);
-        }else{
-            navigation.reset({
-                routes: [{name: 'Writer'},{name: 'WriterPoem', params: { bookId: id }}]
-            });
-        }
-    }
-    const handleNewVersion = async () => {
-        let {id, book} = currentBook;
-        setLoading(true);
-        let numberPart = book.partNumber+1; 
-        let newBook = {
-            title: book.title ? book.title + ' ' + numberPart  : 'Sem título ' + numberPart,
-            partNumber: numberPart,
-            partLabel:'Parte ' + numberPart,
-            category: book.category,
-            published:false,
-            userId
-        };
-        const saveBook = await Api.saveBook({...newBook});
-        const books = await Api.getMyBooks(userId);
-        setLoading(false);
-        dispatch({type:'SET_MYBOOKS', payload:{books}});
-        navigation.reset({
-            routes: [{name: 'Writer'},{name: 'WriterPoem', params: { bookId: saveBook.bookId }}]
-        });
-    }
-    const handleSeeBook = () => {
-        setShowAlert(false);
-    }
 
     return(
         <Container>
@@ -190,10 +184,10 @@ export default () => {
             <AwesomeAlert
                 show={showAlert}
                 showProgress={true}                
-                message="Jovem essa história já foi publicada, o que você deseja fazer agora?"
+                message="Jovem, essa história já foi publicada. O que você deseja fazer agora?"
                 messageStyle={styles.heading2}
                 closeOnTouchOutside={true}
-                closeOnHardwareBackPress={false}
+                closeOnHardwareBackPress={true}
                 onDismiss={() =>setShowAlert(false)}
                 showCancelButton={true}
                 cancelButtonColor={colors.secondary}
@@ -203,8 +197,8 @@ export default () => {
                 confirmText="Nova versão"
                 confirmButtonTextStyle={styles.small_light}
                 confirmButtonColor={colors.primary}
-                onCancelPressed={() =>handleSeeBook(false)}
-                onConfirmPressed={()=>handleNewVersion(false)}
+                onCancelPressed={() =>setShowAlert(false)}
+                onConfirmPressed={()=>handleClickNewVersion(false)}
             />
             <Header>
                 <BackButton onPress={()=>navigation.goBack()}>
@@ -214,11 +208,11 @@ export default () => {
             </Header>
             {
                 listBooks.map((item, key)=>(
-                    <ModalItem key={key} onPress={()=>handleNewText(item, key)}>
-                        {category.getCategory(item.book.category,'24', '24', 'black')}
+                    <ModalItem key={key} onPress={()=>handleClickNewText(item)}>
+                        {category.getCategory(item.text.category,'24', '24', 'black')}
                         <Information>
-                            <Heading2 color="black" >{item.book.title}</Heading2>
-                            <Small color={colors.gray_2}>Publicado: {item.book.published ? 'SIM': 'NÃO'}</Small>
+                            <Heading2 color="black" >{item.text.title}</Heading2>
+                            <Small color={colors.gray_2}>Publicado: {item.text.published ? 'SIM': 'NÃO'}</Small>
                         </Information>
                         {/* <ButtonOption onPress={()=>setShowOption(key)}>
                             <MenuIcon width="24" height="24" fill="black"  />

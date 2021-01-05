@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
+import useIcons from '../utils/Icons';
 
 import CheckBox from '@react-native-community/checkbox';
 import { ActivityIndicator, Modal, Alert } from 'react-native';
@@ -12,11 +13,6 @@ import * as ImagePicker from 'react-native-image-picker';
 import storage from '@react-native-firebase/storage';
 
 import Api from '../Api';
-
-import CloseIcon from '../assets/icons/close.svg';
-import AddIcon from '../assets/icons/plus.svg';
-import CameraIcon from '../assets/icons/camera.svg';
-import GalleryIcon from '../assets/icons/gallery.svg';
 
 
 const Container = styled.View`
@@ -110,51 +106,10 @@ export default ({modalVisible, setModalVisible, onSave, bookId}) => {
 
     const [file, setFile] = useState('');
     const [fileExists, setFileExists] = useState(false);
-    const [uploading, setUploading] = useState(false);
-    const [transferred, setTransferred] = useState(0);
 
-    const navigation = useNavigation();
-    const userId = useSelector(state=>state.user.uid);
-    const dispatch = useDispatch();
+    const icons = useIcons();
 
-
-    
-
-    const uploadImage = async () => {
-        const { uri } = image;
-        const filename = uri.substring(uri.lastIndexOf('/') + 1);
-        const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
-        setLoading(true);
-        setTransferred(0);
-        const task = storage()
-          .ref(filename)
-          .putFile(uploadUri);
-        // set progress state
-        task.on('state_changed', snapshot => {
-          setTransferred(
-            Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 10000
-          );
-        });
-        try {
-          await task;
-        } catch (e) {
-          console.error(e);
-        }
-        setLoading(false);
-        setImage(null);
-        const save = await Api.updateBook(bookId, {cover:filename});
-        onSave(true);
-    }      
-    const updateImage = async () => {
-        if(changeImage){
-            const deleted = await storage()
-                .ref(file)
-                .delete();
-            uploadImage();
-        }
-        onSave(true);
-    }      
-    const handleGetPhoto = (local) => {
+    const onGetPicture = (local) => {
         const options = {
             maxWidth: 2000,
             maxHeight: 2000,
@@ -197,6 +152,47 @@ export default ({modalVisible, setModalVisible, onSave, bookId}) => {
             setChangeImage(true);
         }
         setOptionsVisible(false);
+    }
+    
+
+    const uploadImage = async () => {
+        setLoading(true);
+        if(toggleCheckBox){
+            const save = await Api.updateBook(bookId, {cover: ''});
+        }else{
+            console.log(image);
+            const result = await Api.addImageInStorage(image,'/images/texts/cover/');
+            if(result.error){
+                Alert.alert('error',result.error);
+                return;
+            }
+            const save = await Api.updateBook(bookId, {cover: result.data});
+        }
+       
+        setLoading(false);
+        setImage(null);
+        onSave(true);
+    }      
+    const updateImage = async () => {
+        if(changeImage){
+            const result = await Api.delImageInStorage(file,'/images/texts/cover/');
+            if(result.error){
+                Alert.alert('error',result.error);
+                return;
+            }
+            uploadImage();
+        }
+        onSave(true);
+    }      
+    
+
+    function handleChangeCheckBox(value){
+        setToggleCheckBox(value);
+        if(value){
+            setEnabled(true);
+        }else{
+            setEnabled(false);
+        }
         
     }
 
@@ -213,14 +209,17 @@ export default ({modalVisible, setModalVisible, onSave, bookId}) => {
     useEffect(()=>{
         const getBookById = async (id) => {
             setLoading(true);
-            const result = await Api.getTextById(id);
-            if(result.cover){
-                const url = await storage()
-                .ref(result.cover)
-                .getDownloadURL();
-                setImage({uri:url});
-                setFile(result.cover);
-                setFileExists(true);
+            const text = await Api.getTextById(id);
+            if(text.cover){
+                const result = await Api.getImageInStorage(text.cover, '/images/texts/cover/');
+                if(result.error){
+
+                }else{
+                    setImage({uri:result.data});
+                    setFile(result.data);
+                    setFileExists(true);
+                }
+               
             }
             setLoading(false);
         }
@@ -235,46 +234,18 @@ export default ({modalVisible, setModalVisible, onSave, bookId}) => {
                     {/* <Progress.Bar progress={transferred} width={300} /> */}
                 </LoadingArea>
             </Modal>
-           
-            <Container>
-                <CloseButton onPress={()=>setModalVisible(false)}>
-                    <CloseIcon width="24" height="24" fill="black" />
-                </CloseButton>
-                <Heading2 margin="64px 16px 0px 0px">Não esqueça da foto de capa da sua obra</Heading2>
-                <PhotoArea>
-                    <Photo source={{uri:image?image.uri:null}} />
-                    <ButtonAddPhoto onPress={()=>setOptionsVisible(true)}>
-                        <AddIcon width="24" height="24" fill="white" />
-                    </ButtonAddPhoto>
-                </PhotoArea>
-                <CheckBoxArea>
-                <CheckBox
-                    boxType="circle"
-                    onTintColor="#000000"
-                    disabled={false}
-                    value={toggleCheckBox}
-                    onValueChange={(newValue) => setToggleCheckBox(newValue)}
-                />
-                    <Heading2 color='black'>Continuar sem capa</Heading2>
-                </CheckBoxArea>
-                <ButtonArea>
-                    <ButtonPrimary onPress={fileExists ? updateImage :uploadImage} disabled={!enabled} style={{backgroundColor: enabled ? colors.secondary : colors.light_1}} width="80%" height="40%" rounded="60px">
-                        <ButtonText>{fileExists ? 'ATUALIZAR E CONTINUAR':'SALVAR E CONTINUAR'}</ButtonText>
-                    </ButtonPrimary>
-                </ButtonArea>
-            </Container>
             <Modal visible={optionsVisible} transparent={true} animationType="slide" >
                 <ModalArea onPress={()=>setOptionsVisible(false)}>
                     <OptionBook onPress={()=>{}} underlayColor="white">
                         <>
-                            <OptionItem onPress={()=>handleGetPhoto('camera')}>
-                                <CameraIcon width="24" height="24" fill="black" />
+                            <OptionItem onPress={()=>onGetPicture('camera')}>
+                                {icons.getIcons('camera', 24,24, 'black')}
                                 <OptionTextArea>
                                     <Small>Câmera</Small>
                                 </OptionTextArea>
                             </OptionItem>
-                            <OptionItem onPress={()=>handleGetPhoto('gallery')}>
-                                <GalleryIcon width="24" height="24" fill="black" />
+                            <OptionItem onPress={()=>onGetPicture('gallery')}>
+                                {icons.getIcons('gallery', 24,24, 'black')}
                                 <OptionTextArea>
                                     <Small>Galeria</Small>
                                 </OptionTextArea>
@@ -283,6 +254,40 @@ export default ({modalVisible, setModalVisible, onSave, bookId}) => {
                     </OptionBook>
                 </ModalArea>
             </Modal>
+
+           
+            <Container>
+                <CloseButton onPress={()=>setModalVisible(false)}>
+                    {icons.getIcons('close', 24,24,'black')}
+                </CloseButton>
+                <Heading2 margin="64px 16px 0px 0px">Não esqueça da foto de capa da sua obra</Heading2>
+                <PhotoArea>
+                    <Photo source={{uri:image?image.uri:null}} />
+                    <ButtonAddPhoto onPress={()=>setOptionsVisible(true)}>
+                        {icons.getIcons('add', 24,24,'white')}
+                    </ButtonAddPhoto>
+                </PhotoArea>
+                {
+                    !fileExists &&
+                    <CheckBoxArea>
+                        <CheckBox
+                            boxType="circle"
+                            onTintColor="#000000"
+                            disabled={false}
+                            value={toggleCheckBox}
+                            onValueChange={handleChangeCheckBox}
+                        />
+                        <Heading2 color='black'>Continuar sem capa</Heading2>
+                    </CheckBoxArea>
+                }
+                
+                <ButtonArea>
+                    <ButtonPrimary onPress={fileExists ? updateImage :uploadImage} disabled={!enabled} style={{backgroundColor: enabled ? colors.secondary : colors.light_1}} width="80%" height="40%" rounded="60px">
+                        <ButtonText>{fileExists ? 'ATUALIZAR E CONTINUAR':'SALVAR E CONTINUAR'}</ButtonText>
+                    </ButtonPrimary>
+                </ButtonArea>
+            </Container>
+           
         </Modal>
     )
 }
