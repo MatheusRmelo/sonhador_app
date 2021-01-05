@@ -1,24 +1,19 @@
-import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+
+import useIcons from '../utils/Icons';
+
+import Api from '../Api';
+
+import styled from 'styled-components/native';
 import { 
     Modal,
     Keyboard,
-    ActivityIndicator,
-    Alert
+    ActivityIndicator
 } from 'react-native';
-import styled from 'styled-components/native';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import { Heading2, Small, colors, styles } from '../commonStyles';
-
-import { useCategory } from '../CategorySVG';
-
-import { PoemApi } from '../PoemApi';
-import Api from '../Api';
-
-
-import LeftArrowIcon from '../assets/icons/arrow.svg';
-import MenuIcon from '../assets/icons/menu.svg';
-import { useNavigation } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
 
 
 
@@ -69,38 +64,24 @@ const LoadingArea = styled.View`
 let timer;
 
 export default () => {
-    const [keyboardOpen, setKeyboardOpen] = useState(false);
+    const [showKeyboard, setShowKeyboard] = useState(false);
     const [loading, setLoading] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
 
-    const [poem, setPoem] = useState(PoemApi);
     const [search, setSearch] = useState('');
     const [listBooks, setListBooks] = useState([]);
     const [currentBook, setCurrentBook] = useState([]);
 
 
     const userId = useSelector(state=>state.user.uid);
-    const books = useSelector(state=>state.book.myBooks);
 
     const dispatch = useDispatch();
-    const category = useCategory();
+    const icons = useIcons();
     const navigation = useNavigation();
-    const keyboardShowListener = useRef(null);
-    const keyboardHideListener = useRef(null);
 
-    const getMyBooks = async () => {
-        setLoading(true);
-        let result = await Api.getMyTexts(userId);
-        dispatch({
-            type: 'SET_MYBOOKS',
-            payload:{
-                books:result
-            }
-        });
-        setCurrentBook(result[0]);
-        setListBooks(result);
-        setLoading(false);
-    }
+    const _keyboardDidShow = () => {setShowKeyboard(true);dispatch({type: 'SET_VISIBLE', payload:{visible: false}});};
+    const _keyboardDidHide = () => {setShowKeyboard(false);dispatch({type: 'SET_VISIBLE', payload:{visible: true}});};
+
     const onSearch = async () => {
         let newBooks = [];
         if(search === ''){
@@ -118,6 +99,22 @@ export default () => {
             setListBooks(newBooks);
         }
     }   
+
+
+    const getMyBooks = async () => {
+        setLoading(true);
+        let result = await Api.getMyTexts(userId);
+        dispatch({
+            type: 'SET_MYBOOKS',
+            payload:{
+                texts:result
+            }
+        });
+        setCurrentBook(result[0]);
+        setListBooks(result);
+        setLoading(false);
+    }
+    
 
 
     const handleClickNewText = async (item) => {
@@ -144,28 +141,24 @@ export default () => {
             userId
         };
         const saveBook = await Api.saveBook({...newBook});
-        const books = await Api.getMyTexts(userId);
+        const texts = await Api.getMyTexts(userId);
         setLoading(false);
-        dispatch({type:'SET_MYBOOKS', payload:{books}});
+        dispatch({type:'SET_MYBOOKS', payload:{texts}});
         navigation.reset({
             routes: [{name: 'Writer'},{name: 'WriterPoem', params: { bookId: saveBook.bookId }}]
         });
     }
 
-
-    useEffect(()=>{
-        getMyBooks();
-    }, []);
-
     useEffect(() => {
-        keyboardShowListener.current = Keyboard.addListener('keyboardDidShow', () => dispatch({type:'SET_VISIBLE', payload:{visible:false}}));
-        keyboardHideListener.current = Keyboard.addListener('keyboardDidHide', () => dispatch({type:'SET_VISIBLE', payload:{visible:true}}));
-
+        Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
+        Keyboard.addListener("keyboardDidHide", _keyboardDidHide);
+    
+        // cleanup function
         return () => {
-            keyboardShowListener.current.remove();
-            keyboardHideListener.current.remove();
-        }
-    });
+          Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
+          Keyboard.removeListener("keyboardDidHide", _keyboardDidHide);
+        };
+    }, []);
     useEffect(()=>{
         if(timer){
             clearTimeout(timer);
@@ -202,14 +195,14 @@ export default () => {
             />
             <Header>
                 <BackButton onPress={()=>navigation.goBack()}>
-                    <LeftArrowIcon width="24" height="24" fill={colors.gray_2} />
+                    {icons.getIcons('arrow','24', '24', colors.gray_2)}
                 </BackButton>
                 <Input value={search} placeholder="Pesquise sua obra..." onChangeText={e=>setSearch(e)} autoFocus={true} />
             </Header>
             {
                 listBooks.map((item, key)=>(
                     <ModalItem key={key} onPress={()=>handleClickNewText(item)}>
-                        {category.getCategory(item.text.category,'24', '24', 'black')}
+                        {icons.getIcons(item.text.category,'24', '24', 'black')}
                         <Information>
                             <Heading2 color="black" >{item.text.title}</Heading2>
                             <Small color={colors.gray_2}>Publicado: {item.text.published ? 'SIM': 'NÃO'}</Small>
