@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 
+import CheckBox from '@react-native-community/checkbox';
 import { ActivityIndicator, Modal, Alert } from 'react-native';
 import styled from 'styled-components/native';
 import { colors, Small, Heading2, ButtonPrimary, ButtonText } from '../commonStyles';
@@ -94,7 +95,13 @@ export const ModalArea = styled.TouchableOpacity`
     background-color: rgba(0,0,0,0.5);
     justify-content:flex-end;
 `;
+export const CheckBoxArea = styled.View`
+    flex-direction:row;
+    justify-content:center;
+    align-items:center;
+`;
 export default ({modalVisible, setModalVisible, onSave, bookId}) => {
+    const [toggleCheckBox, setToggleCheckBox] = useState(false);
     const [enabled, setEnabled] = useState(false);
     const [loading, setLoading] = useState(false);
     const [optionsVisible, setOptionsVisible] = useState(false);
@@ -111,31 +118,7 @@ export default ({modalVisible, setModalVisible, onSave, bookId}) => {
     const dispatch = useDispatch();
 
 
-    useEffect(()=>{
-        if(image){
-            setEnabled(true);
-        }else{
-            setEnabled(false);
-        }
-        
-    }, [image]);
-
-    useEffect(()=>{
-        const getBookById = async (id) => {
-            setLoading(true);
-            const result = await Api.getTextById(id);
-            if(result.cover){
-                const url = await storage()
-                .ref(result.cover)
-                .getDownloadURL();
-                setImage({uri:url});
-                setFile(result.cover);
-                setFileExists(true);
-            }
-            setLoading(false);
-        }
-        getBookById(bookId);
-    }, [modalVisible]);
+    
 
     const uploadImage = async () => {
         const { uri } = image;
@@ -216,8 +199,34 @@ export default ({modalVisible, setModalVisible, onSave, bookId}) => {
         setOptionsVisible(false);
         
     }
-    
 
+
+    useEffect(()=>{
+        if(image){
+            setEnabled(true);
+        }else{
+            setEnabled(false);
+        }
+        
+    }, [image]);
+
+    useEffect(()=>{
+        const getBookById = async (id) => {
+            setLoading(true);
+            const result = await Api.getTextById(id);
+            if(result.cover){
+                const url = await storage()
+                .ref(result.cover)
+                .getDownloadURL();
+                setImage({uri:url});
+                setFile(result.cover);
+                setFileExists(true);
+            }
+            setLoading(false);
+        }
+        getBookById(bookId);
+    }, [modalVisible]);
+    
     return(
         <Modal visible={modalVisible}>
             <Modal transparent={true} visible={loading} >
@@ -233,12 +242,21 @@ export default ({modalVisible, setModalVisible, onSave, bookId}) => {
                 </CloseButton>
                 <Heading2 margin="64px 16px 0px 0px">Não esqueça da foto de capa da sua obra</Heading2>
                 <PhotoArea>
-                    <Photo source={{uri:image?image.uri:'https://www.w3schools.com/howto/img_avatar2.png'}} />
+                    <Photo source={{uri:image?image.uri:null}} />
                     <ButtonAddPhoto onPress={()=>setOptionsVisible(true)}>
                         <AddIcon width="24" height="24" fill="white" />
                     </ButtonAddPhoto>
                 </PhotoArea>
-                
+                <CheckBoxArea>
+                <CheckBox
+                    boxType="circle"
+                    onTintColor="#000000"
+                    disabled={false}
+                    value={toggleCheckBox}
+                    onValueChange={(newValue) => setToggleCheckBox(newValue)}
+                />
+                    <Heading2 color='black'>Continuar sem capa</Heading2>
+                </CheckBoxArea>
                 <ButtonArea>
                     <ButtonPrimary onPress={fileExists ? updateImage :uploadImage} disabled={!enabled} style={{backgroundColor: enabled ? colors.secondary : colors.light_1}} width="80%" height="40%" rounded="60px">
                         <ButtonText>{fileExists ? 'ATUALIZAR E CONTINUAR':'SALVAR E CONTINUAR'}</ButtonText>

@@ -149,36 +149,37 @@ export default () => {
         }
         setOptionsVisible(false);
     }
+    const onSavePhoto = (value) => {setCategoryVisible(value);setPhotoBookVisible(!value);}
+    const _keyboardDidShow = () => {setKeyboardVisible(true);dispatch({type: 'SET_VISIBLE', payload:{visible: false}});};
+    const _keyboardDidHide = () => {setKeyboardVisible(false);dispatch({type: 'SET_VISIBLE', payload:{visible: true}});};
+     
 
-
-    const updateText  = async (changes)=>{
-        let id = route.params?.textId;
-        const updated = await Api.updateBook(id, {...changes});
-        if(updated){
-            setSaved('- salvo');
-            setParts({...parts, ...changes});
-        }else{
-            setSaved('- erro ao salvar');
-        }
-        getMyBooks();
-        setEditing(false);
-    }
-    const addImage = async (source)=>{
+    function onEditTitleOrPart(newTitle){
         setLoading(true);
-        const result = await Api.addImageInStorage(source,'/images/texts/');
-        if(result.error){
-            setError(result.error);
-            setShowError(true);
+        if(currentPage%2===0){
+            updateText({partLabel: newTitle});
+            let newParts = {...parts};
+            newParts.label = newTitle;
+            setParts(newParts);
         }else{
-            let filename = result.data;
-            let newPages = parts.pages;
-            newPages[currentPage] = {...newPages[currentPage], image:filename};
-            updateText({pages:newPages});
-            getImage(result.data);
+            updateText({title: newTitle});
+            setTitle(newTitle);
         }
         setLoading(false);
+        setVisibleInput(false);
     }
-    const getImage = async (ref) => {
+    async function onMonetizeText(){
+        setLoading(true);
+        let newPages = parts.pages;
+        newPages[currentPage].ads = !newPages[currentPage].ads;
+        await updateText({pages: newPages});
+        setLoading(false);
+        setShowAds(false);
+        setShowDeleteAds(false);
+    }
+
+
+    async function getImage(ref){
         setLoading(true);
         let newImages = [...images];
         if(ref){
@@ -198,7 +199,55 @@ export default () => {
         setImages(newImages);
         setLoading(false);
     }
-    const onDeleteImage = async () => {
+    async function getMyBooks(){
+        let result = await Api.getMyTexts(userId);
+        dispatch({
+            type: 'SET_MYBOOKS',
+            payload:{
+                texts:result
+            }
+        });
+    }
+    async function getTextById(id){
+        setLoading(true);
+        const result = await Api.getTextById(id);
+        setParts({
+            label: result.partLabel,
+            pages: result.pages ? result.pages : [{page: 1, text: ``, image:'', ads:true}]
+        });
+        getImage(result.pages[currentPage].image);
+        setTitle(result.title);
+        setCategoryText(result.category);
+        setLoading(false);
+    }
+    async function updateText(changes){
+        let id = route.params?.textId;
+        const updated = await Api.updateBook(id, {...changes});
+        if(updated){
+            setSaved('- salvo');
+            setParts({...parts, ...changes});
+        }else{
+            setSaved('- erro ao salvar');
+        }
+        getMyBooks();
+        setEditing(false);
+    }
+    async function addImage(source){
+        setLoading(true);
+        const result = await Api.addImageInStorage(source,'/images/texts/');
+        if(result.error){
+            setError(result.error);
+            setShowError(true);
+        }else{
+            let filename = result.data;
+            let newPages = parts.pages;
+            newPages[currentPage] = {...newPages[currentPage], image:filename};
+            updateText({pages:newPages});
+            getImage(result.data);
+        }
+        setLoading(false);
+    }
+    async function delImage(){
         setShowDeleteImg(false);
         setLoading(true);
         let ref = parts.pages[currentPage].image;
@@ -221,49 +270,45 @@ export default () => {
         }
         setLoading(false);
     }
+    function deletePage(){
+        let newList = {...parts};
+        newList.pages = newList.pages.filter((i,k)=>k!==currentPage);
+        setParts(newList);
+        updateText({pages:newList.pages});
+    }
+    
 
-    const handleClickAds = () => {
+
+    function handleClickAds(){
         if(parts.pages[currentPage].ads){
             setShowDeleteAds(true);
         }else{
             setShowAds(true);
         }
     }
-
-    const handleClickPhoto = () => {
+    function handleClickPhoto(){
         if(images[currentPage]){
             setShowDeleteImg(true);
         }else{
             setOptionsVisible(true);
         }
-       
     }
-    const handleChangeText = (t) => {
+    function handleChangeText(t){
         let newList = {...parts};
         newList.pages[currentPage].text = t;
         setParts(newList); 
         setEditing(true);
     }
-    const handleClickAddPage = ()=>{
+    function handleClickAddPage(){
         if(parts.pages.length < currentPage + 2){
             let newList = {...parts};
             newList.pages.push({page:currentPage+2,text:``, image: '', ads:false});
             setParts(newList); 
             getImage('');
         }
-        nextPage();
-    }
-    const deletePage = () => {
-        let newList = {...parts};
-        newList.pages = newList.pages.filter((i,k)=>k!==currentPage);
-        setParts(newList);
-        updateText({pages:newList.pages});
-    }
-    const nextPage = () => {
         setCurrentPage(prevState=>prevState+1);
-        //console.log(parts.pages);
     }
-    const handleClickPrevPage = () => {
+    function handleClickPrevPage(){
         if(currentPage > 0){
             if(!parts.pages[currentPage].text && !parts.pages[currentPage].image && !parts.pages[currentPage].ads && currentPage+1===parts.pages.length){
                 deletePage();
@@ -271,76 +316,13 @@ export default () => {
             setCurrentPage(prevState=>prevState-1);
         }
     }
-    const handleClickEditTitle = (act) => {
+    function handleClickEditTitle(act){
         setVisibleInput(true);
         setAction(act);
     }
-    const handleEditTitleOrPart = async (newTitle) => {
-        setLoading(true);
-        if(currentPage%2===0){
-            updateText({partLabel: newTitle});
-            let newParts = {...parts};
-            newParts.label = newTitle;
-            setParts(newParts);
-        }else{
-            updateText({title: newTitle});
-            setTitle(newTitle);
-        }
-        setLoading(false);
-        setVisibleInput(false);
-    }
 
-
-    const _keyboardDidShow = () => {
-        setKeyboardVisible(true);
-        dispatch({type: 'SET_VISIBLE', payload:{visible: false}});
-    };
-    const _keyboardDidHide = () => { 
-        setKeyboardVisible(false);
-        dispatch({type: 'SET_VISIBLE', payload:{visible: true}});
-    };
+   
     
-
-    const onSavePhoto = (value) => {
-        setCategoryVisible(value);
-        setPhotoBookVisible(!value);
-    }
-    const onSaveBook = async () => {
-        updateText({pages: parts.pages});
-    }
-    const onMonetizeText = async () => {
-        setLoading(true);
-        let newPages = parts.pages;
-        newPages[currentPage].ads = !newPages[currentPage].ads;
-        await updateText({pages: newPages});
-        setLoading(false);
-        setShowAds(false);
-        setShowDeleteAds(false);
-    }
-
-    const getMyBooks = async () => {
-        //setLoading(true);
-        let result = await Api.getMyTexts(userId);
-        dispatch({
-            type: 'SET_MYBOOKS',
-            payload:{
-                texts:result
-            }
-        });
-        //setLoading(false);
-    }
-    const getTextById = async (id) => {
-        setLoading(true);
-        const result = await Api.getTextById(id);
-        setParts({
-            label: result.partLabel,
-            pages: result.pages ? result.pages : [{page: 1, text: ``, image:'', ads:true}]
-        });
-        getImage(result.pages[currentPage].image);
-        setTitle(result.title);
-        setCategoryText(result.category);
-        setLoading(false);
-    }
     
 
     useEffect(()=>{
@@ -404,7 +386,7 @@ export default () => {
                 setModalVisible={value=>setVisibleInput(value)} 
                 value={currentPage % 2 === 0 ? parts.label : title} 
                 titleInput={currentPage % 2 === 0 ?  'Renomear a parte':'Renomear o título'} 
-                setValue={handleEditTitleOrPart} 
+                setValue={onEditTitleOrPart} 
                 action={action} 
                 placeholder=''
                 height={keyboardVisible ? '45%' : '30%'}
@@ -451,7 +433,7 @@ export default () => {
                 onCancelPressed={() => {
                     setShowDeleteImg(false);
                 }}
-                onConfirmPressed={onDeleteImage}
+                onConfirmPressed={delImage}
             />
             <AwesomeAlert
                 show={showError}
@@ -581,6 +563,13 @@ export default () => {
                 </ButtonAddPage>
                 <ButtonAddPage onPress={handleClickAds}>
                     {icons.getIcons('ads', 24,24,'white')}
+                    {
+                        parts.pages[currentPage].ads
+                        &&
+                        <ButtonAddPageItem>
+                            <ButtonAddPageItemText>-</ButtonAddPageItemText>
+                        </ButtonAddPageItem>
+                    }
                 </ButtonAddPage>
                 <ButtonAddPage onPress={onShare}>
                     {icons.getIcons('share', 24,24,'white')}
